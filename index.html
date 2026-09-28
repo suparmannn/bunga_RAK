@@ -1,0 +1,1132 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GLPM0041 &amp; Parameter Bunga RAK (Redesign)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;color:#2d3748;background:#eef1f4}
+.app{display:flex;min-height:100vh}
+.sidebar{width:238px;background:#374151;color:#fff;flex-shrink:0}
+.sidebar-title{padding:16px 18px;font-size:13px;font-weight:600;letter-spacing:.2px;border-bottom:1px solid rgba(255,255,255,.12);display:flex;align-items:center;gap:9px}
+.sidebar-sub{padding:8px 18px 4px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af}
+.sidebar-nav{padding:4px 0}
+.sidebar-nav a{display:flex;align-items:center;gap:10px;padding:10px 18px;color:#cbd5e1;font-size:12.5px;text-decoration:none;cursor:pointer;border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+.sidebar-nav a.active{background:rgba(255,255,255,.09);color:#fff;border-left-color:#93c5fd;font-weight:500}
+.sidebar-nav a i{font-size:16px;width:18px;text-align:center}
+.main{flex:1;min-width:0}
+.topbar{background:#6b7280;color:#fff;padding:10px 20px;display:flex;align-items:center;gap:10px}
+.topbar-title{font-size:14px;font-weight:500}
+.breadcrumb{font-size:11px;opacity:.7;margin-top:1px}
+.content{padding:16px 20px}
+.page-title{font-size:15px;font-weight:500;margin-bottom:4px;color:#2d3748}
+.page-sub{font-size:12px;color:#718096;margin-bottom:14px}
+.mono{font-family:'Consolas','Courier New',monospace}
+.toolbar{display:flex;gap:8px;margin-bottom:10px}
+.btn{height:32px;padding:0 14px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1.5px solid #ced4da;background:#fff;color:#2d3748;transition:background .12s}
+.btn:hover{background:#eef2f7}
+.btn-primary{background:#6b7280;color:#fff;border-color:#6b7280}
+.btn-primary:hover{background:#4b5563}
+.appr-grid-wrap{background:#fff;border:1px solid #c7d0da;border-radius:3px;overflow-x:auto;margin-bottom:8px}
+table.appr-tbl{width:auto;min-width:100%;border-collapse:collapse;font-size:12px}
+table.appr-tbl th{background:#f4f6f8;color:#3a4a5c;font-weight:600;text-align:left;padding:7px 10px;border-bottom:1px solid #c7d0da;white-space:nowrap}
+table.appr-tbl th.col-act{background:#374151;color:#fff;text-align:center}
+table.appr-tbl td{padding:7px 10px;border-bottom:1px solid #e4e9ee;color:#2d3748;white-space:nowrap}
+table.appr-tbl tr:nth-child(even) td{background:#f7f9fb}
+table.appr-tbl tr:hover td{background:#eef4fa}
+.col-no{width:38px}
+.td-act{display:flex;gap:5px;justify-content:center}
+.act-btn{width:28px;height:28px;border:1.5px solid;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .12s}
+.act-edit{border-color:#2563eb;background:#eef2f7;color:#2563eb}
+.act-edit:hover{background:#2563eb;color:#fff}
+.act-del{border-color:#c53030;background:#fff5f5;color:#c53030}
+.act-del:hover{background:#c53030;color:#fff}
+.coa-legend{display:flex;gap:22px;background:#fff;border:1px solid #c7d0da;border-radius:4px;padding:10px 16px;margin-bottom:14px;font-size:12px}
+.sken-tab-btn{background:#5b84b1;color:#fff;border:none;border-radius:4px 4px 0 0;padding:8px 16px;font-size:12.5px;font-weight:500;cursor:pointer;opacity:.6}
+.sken-tab-btn.active{opacity:1;box-shadow:0 2px 0 0 #5b84b1}
+.sken-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.sken-col{min-width:0}
+.sken-col-hd{font-size:12.5px;font-weight:700;color:#fff;background:#374151;padding:7px 12px;border-radius:4px 4px 0 0}
+.sken-col-hd.after{background:#166534}
+.sken-tbl-title{font-size:10.5px;font-weight:600;color:#5a6a7e;text-transform:uppercase;letter-spacing:.4px;margin:12px 0 4px}
+.sken-tbl-title:first-of-type{margin-top:10px}
+.sken-col-bd{border:1px solid #c7d0da;border-top:none;padding:10px 12px;background:#f7f9fb}
+table.appr-tbl tr.row-hi-eod td{background:#fef3c7!important}
+table.appr-tbl tr.row-hi-eom td{background:#dcfce7!important}
+table.appr-tbl tr.row-akun-aktiva td{background:#dbeafe!important}
+table.appr-tbl tr.row-akun-pasiva td{background:#fde7c7!important}
+table.appr-tbl tr.row-kondisi-netting td{border-left:3px solid #b45309}
+.sken-legend{display:flex;gap:22px;flex-wrap:wrap;background:#fff;border:1px solid #c7d0da;border-radius:4px;padding:9px 16px;margin:0 0 14px;font-size:12px;align-items:center}
+.legend-dot{display:inline-block;width:13px;height:13px;border-radius:3px;margin-right:6px;vertical-align:middle;border:1px solid rgba(0,0,0,.15)}
+.coa-legend b{color:#1a2430}
+.coa-form{background:#fff;border:1px solid #c7d0da;border-radius:3px;padding:16px 18px;margin-top:4px}
+.coa-form .frow{display:grid;grid-template-columns:170px 1fr;gap:10px;align-items:center;margin-bottom:10px;font-size:12px}
+.coa-form input,.coa-form select{height:30px;padding:0 8px;border:1px solid #b7c2cf;border-radius:3px;font-size:12px;background:#fff;width:100%}
+.coa-form input:disabled,.coa-form select:disabled{background:#eef1f4;color:#6b7280}
+.coa-form .frow-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.coa-btn{border:1px solid #b7c2cf;background:#fff;border-radius:3px;padding:6px 16px;font-size:12px;cursor:pointer}
+.coa-btn.primary{background:#3b82f6;color:#fff;border-color:#3b82f6}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(30,40,60,.5);align-items:center;justify-content:center;z-index:9999}
+.modal-box{background:#fff;border-radius:8px;border:1.5px solid #ced4da;width:560px;max-width:96%;max-height:88vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-hd{background:#7c3aed;color:#fff;padding:11px 16px;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:space-between;border-radius:6px 6px 0 0}
+.modal-hd.plain{background:#6b7280}
+.modal-bd{padding:16px}
+.x-btn{width:24px;height:24px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
+.x-btn:hover{background:rgba(255,255,255,.25)}
+.err-msg{background:#fee2e2;border:1px solid #f3b3b3;color:#991b1b;border-radius:5px;padding:8px 12px;font-size:11.5px;margin-top:8px;display:none}
+.err-msg.show{display:block}
+
+/* ============ single-record editor + icon rail (dicontek dari PEMELIHARAAN DATA NASABAH) ============ */
+.pn-select-row{display:flex;gap:12px;align-items:end;margin-bottom:14px}
+.pn-select-row .fgrp{flex:1;max-width:340px;display:flex;flex-direction:column;gap:4px}
+.pn-select-row label{font-size:11px;color:#5a6a7e;font-weight:500}
+.pn-select-row select{height:34px;padding:0 10px;border:1.5px solid #ced4da;border-radius:5px;font-size:12px;background:#fff}
+.empty-msg{text-align:center;padding:36px;color:#9aa5b4;font-size:12px;background:#fff;border:1px solid #c7d0da;border-radius:6px}
+.pn-wrap{background:#e9edf2;border-top:4px solid #7ea6d8;border-radius:6px;overflow:hidden}
+.pn-hd{background:#eaf3fb;border-bottom:1px solid #bcd6ec;padding:10px 16px;font-size:13px;font-weight:700;color:#1a1a1a;display:flex;align-items:center;justify-content:space-between}
+.pn-hd-del{font-size:11px;font-weight:500;color:#b91c1c;cursor:pointer;text-decoration:underline}
+.pn-hd-del:hover{color:#7f1d1d}
+.pn-body{display:flex}
+.pn-form-area{flex:1;padding:20px 24px;background:#fff;min-width:0}
+.pn-sec-title{font-size:14px;font-weight:700;color:#1a1a1a;border-bottom:1.5px solid #1a1a1a;padding-bottom:6px;margin-bottom:16px;display:inline-block}
+.pn-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 24px}
+.pn-fgrp label{display:block;font-size:12px;color:#2d3748;margin-bottom:5px}
+.pn-fgrp label.req{color:#c53030}
+.pn-fgrp select,.pn-fgrp input{width:100%;height:32px;padding:0 8px;border:1.5px solid #c53030;border-radius:2px;font-size:12px;background:#fff}
+.pn-fgrp.opt select,.pn-fgrp.opt input{border-color:#ced4da}
+.pn-fgrp select:disabled,.pn-fgrp input:disabled{background:#eef1f4;color:#6b7280;border-color:#ced4da}
+.pn-note{font-size:11px;color:#4a637f;font-style:italic;margin-bottom:14px}
+.coa-checkbox{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#1a1a1a;cursor:default}
+.coa-checkbox input{height:auto;width:15px}
+.pn-rail{width:56px;background:#f4f6f8;border-left:1px solid #d7e0e8;display:flex;flex-direction:column;align-items:center;padding-top:14px;gap:6px;flex-shrink:0}
+.pn-rail-icon{width:38px;height:38px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#5a6a7e;cursor:pointer;border:1px solid transparent}
+.pn-rail-icon:hover{background:#e3ecf4}
+.pn-rail-icon.active{background:#2e5c8a;color:#fff;box-shadow:0 0 0 3px #cfe0ef inset}
+.pn-rail-icon.disabled{color:#c3ccd6;cursor:not-allowed}
+.pn-rail-icon.disabled:hover{background:none}
+.pn-form-actions{display:flex;gap:8px;margin-top:18px;padding-top:14px;border-top:1px solid #dce8f0}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-title"><i class="ti ti-building-bank"></i> ARB+ Core Banking</div>
+    <div class="sidebar-sub">Modul RAK (Redesign)</div>
+    <div class="sidebar-nav">
+      <a data-view="glpm0041" class="active"><i class="ti ti-adjustments"></i> GLPM0041 - Parameter RAK</a>
+      <a data-view="bungarak"><i class="ti ti-percentage"></i> Parameter Bunga RAK</a>
+      <a data-view="skenario"><i class="ti ti-flask"></i> Skenario C (EOD/EOM)</a>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">GLPM0041 - Setting Parameter RAK</div>
+        <div class="breadcrumb" id="topbarBreadcrumb">RAK &raquo; GLPM0041</div>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- ======================= VIEW: GLPM0041 ======================= -->
+      <div id="view-glpm0041">
+        <div class="page-title">GLPM0041 - Setting Parameter RAK</div>
+        <div class="page-sub">1 halaman, 1 Kantor per waktu &ndash; icon di kanan buka bagian COA Sweep buat Kantor yang sama, bukan popup/aksi campuran. Menu persetujuan belum dipasang di demo ini.</div>
+
+        <div class="coa-legend">
+          <div><b>COA RAK (referensi)</b></div>
+          <div>29700000 &ndash; AKTIVA</div>
+          <div>39700000 &ndash; PASIVA</div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn btn-primary" onclick="startNewKantor()"><i class="ti ti-plus"></i> Tambah Kantor Baru</button>
+        </div>
+
+        <div class="appr-grid-wrap">
+          <table class="appr-tbl">
+            <thead>
+              <tr>
+                <th class="col-no">No</th>
+                <th>Kantor</th>
+                <th>Kategori</th>
+                <th>COA RAK Kantor</th>
+                <th>COA RAK Induk</th>
+                <th class="col-act">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tblRakBody"></tbody>
+          </table>
+        </div>
+
+        <div id="pnEmpty" class="empty-msg" style="display:none">Klik icon edit di grid atas, atau klik "Tambah Kantor Baru".</div>
+
+        <div id="pnPanel" class="pn-wrap">
+          <div class="pn-hd">
+            <div id="pnHdTitle">PARAMETER RAK</div>
+            <div id="pnHdDelete" class="pn-hd-del" onclick="deleteCurrentKantor()">Hapus Kantor Ini</div>
+          </div>
+          <div class="pn-body">
+            <div class="pn-form-area" id="pnFormArea">
+
+              <div id="secRak">
+                <div class="pn-sec-title">Data Utama (COA RAK)</div>
+                <div class="pn-grid">
+                  <div class="pn-fgrp">
+                    <label class="req">Kantor</label>
+                    <select id="pnKantorPick"></select>
+                  </div>
+                  <div class="pn-fgrp"></div>
+                  <div class="pn-fgrp">
+                    <label class="req">Kategori</label>
+                    <div style="display:flex;gap:18px;align-items:center;height:32px">
+                      <label class="coa-checkbox"><input type="checkbox" id="pnKatTransaksi" onchange="onKategoriChange('TRANSAKSI')"> RAK Transaksi</label>
+                      <label class="coa-checkbox"><input type="checkbox" id="pnKatModal" onchange="onKategoriChange('MODAL')"> RAK Modal</label>
+                    </div>
+                  </div>
+                  <div class="pn-fgrp" id="pnSweepFlagWrap">
+                    <label>Butuh Sweep RAK?</label>
+                    <label class="coa-checkbox"><input type="checkbox" id="pnButuhSweep"> Ya</label>
+                  </div>
+                  <div class="pn-fgrp">
+                    <label class="req">COA RAK Kantor</label>
+                    <select id="pnRakBrncdCoa"></select>
+                  </div>
+                  <div class="pn-fgrp">
+                    <label class="req">COA RAK Induk</label>
+                    <select id="pnRakParentCoa"></select>
+                  </div>
+                </div>
+                <div class="err-msg" id="errRak"></div>
+                <div class="pn-note">"Butuh Sweep RAK?" cuma muncul kalau kategorinya RAK Transaksi &ndash; RAK Modal sudah pasti gak ada sweep.</div>
+                <div class="pn-form-actions">
+                  <button class="coa-btn" onclick="cancelRakEdit()">Batal</button>
+                  <button class="coa-btn primary" onclick="saveRakInline()">Simpan</button>
+                </div>
+              </div>
+
+              <div id="secSweep" style="display:none">
+                <div class="pn-sec-title">Data COA Sweep (gl_raksweep)</div>
+                <div class="pn-note">COA RAK Kantor/Induk di bawah ini disabled &ndash; kalau mau diubah, harus dari bagian Data Utama.</div>
+                <div class="pn-grid">
+                  <div class="pn-fgrp opt">
+                    <label>COA RAK Kantor</label>
+                    <select id="pnSweepBrncdCoaRak" disabled></select>
+                  </div>
+                  <div class="pn-fgrp opt">
+                    <label>COA RAK Induk</label>
+                    <select id="pnSweepParentCoaRak" disabled></select>
+                  </div>
+                  <div class="pn-fgrp">
+                    <label class="req">COA Sweep Kantor</label>
+                    <select id="pnSweepBrncdCoaSweep"></select>
+                  </div>
+                  <div class="pn-fgrp">
+                    <label class="req">COA Sweep Induk</label>
+                    <select id="pnSweepParentCoaSweep"></select>
+                  </div>
+                </div>
+                <div class="err-msg" id="errSweep"></div>
+                <div class="pn-form-actions">
+                  <button class="coa-btn" onclick="cancelSweepEdit()">Batal</button>
+                  <button class="coa-btn primary" onclick="saveSweepInline()">Simpan</button>
+                </div>
+              </div>
+
+            </div>
+            <div class="pn-rail">
+              <div class="pn-rail-icon active" id="railRak" onclick="switchSection('rak')" title="Data COA RAK"><i class="ti ti-building-bank"></i></div>
+              <div class="pn-rail-icon" id="railSweep" onclick="switchSection('sweep')" title="Data COA Sweep"><i class="ti ti-arrows-left-right"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================= VIEW: BUNGA RAK ======================= -->
+      <div id="view-bungarak" style="display:none">
+        <div class="page-title">Menu Parameter Bunga RAK</div>
+        <div class="page-sub">Rate bunga harian per Kantor. Mapping COA-nya sudah pasti benar karena ditarik langsung dari <b>gl_raksweep</b> (gl_para_raksweep_id) &ndash; modul ini gak nyimpen COA sendiri.</div>
+
+        <div class="toolbar">
+          <button class="btn btn-primary" onclick="openRateForm(null)"><i class="ti ti-plus"></i> Tambah</button>
+        </div>
+
+        <div class="appr-grid-wrap">
+          <table class="appr-tbl">
+            <thead>
+              <tr>
+                <th class="col-no">No</th>
+                <th>Kantor</th>
+                <th>COA RAK Induk 1</th>
+                <th>Bunga Harian RAK Induk 1 (%)</th>
+                <th>COA RAK Induk 2</th>
+                <th>Bunga Harian RAK Induk 2 (%)</th>
+                <th class="col-act">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tblRateBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ======================= VIEW: SKENARIO C (EOD/EOM) ======================= -->
+      <div id="view-skenario" style="display:none">
+        <div class="page-title">Skenario C &ndash; Studi Kasus Setor/Tarik Tunai 371 via 372 (Alur Data EOD/EOM)</div>
+        <div class="page-sub">Dikembangin dari Skenario C di <span class="mono">bunga_rak_menu_demo.html</span>: nasabah pemilik rekening Cabang 371 setor tunai Rp50.000.000 di loket Cabang 372 (02 Sep, posisi FLIP biasa) &rarr; tarik tunai Rp80.000.000 (03 Sep, FLIP balik ke Pasiva) &rarr; 371 punya gerakan Aktiva Rp80jt DAN Pasiva Rp25jt BERSAMAAN hari yg sama (04 Sep &ndash; kondisi <b>NETTING_NORMAL</b>, Aktiva menang selisih Rp55.000.000) &rarr; 371 nyicil/settle sebagian (05 Sep, konsolidasi jadi Aktiva bersih Rp55jt), giliran 372 yg kena Aktiva -Rp15jt (tanda kebalik/abnormal) DAN Pasiva -Rp95jt bersamaan (kondisi <b>NETTING_ABNORMAL</b>, Pasiva menang selisih Rp80.000.000) &rarr; akhir bulan (30 Sep) kedua cabang cuma berkurang posisi, fokus ke kapitalisasi EOM. Pilih tab tanggal, lihat SEBELUM vs SESUDAH proses EOD (atau EOD+EOM khusus 30 Sep). <b>PENTING soal pencatatan</b>: kondisi NETTING_NORMAL/ABNORMAL di tabel <b>2. NEW_gl_hist_raksweep</b> (kolom keterangan auto-narasi) itu yg jelasin DARI MANA selisihnya dihitung (dibandingin dalam 1 baris cabang) - tapi yang keposting ke <b>5. gl_tran</b> BUKAN 1 angka selisih itu. Aktiva Pusat &amp; Pasiva Pusat terhadap cabang itu masing-masing dicatat SENDIRI-SENDIRI, 2 baris independen (Aktiva Pusat vs cabang X = sekian, Pasiva Pusat vs cabang X = sekian) - biar dari gl_tran/gl_mast langsung kebaca berapa Aktiva DAN berapa Pasiva-nya, gak perlu itung selisih manual.</div>
+
+        <div class="toolbar" id="skenTabBar"></div>
+        <div class="sken-legend">
+          <div><b>Legend NEW_gl_hist_raksweep / NEW_gl_hist_rakintdaily / gl_tran:</b></div>
+          <div><span class="legend-dot" style="background:#fef3c7"></span> Baris/nilai yang muncul atau berubah HASIL proses EOD hari itu (netting harian, posisi baru, bunga harian)</div>
+          <div><span class="legend-dot" style="background:#dcfce7"></span> KHUSUS jurnal kapitalisasi bunga RAK bulanan (cuma ada di kolom SESUDAH tab akhir bulan)</div>
+          <div><span class="legend-dot" style="background:#fff;border-left:3px solid #b45309"></span> Kondisi NETTING_NORMAL/NETTING_ABNORMAL - Aktiva &amp; Pasiva Pusat CABANG INI SENDIRI nonzero bersamaan, ini yang beneran di-"netting" (dibandingin dalam 1 baris, bukan gabungan antar cabang)</div>
+        </div>
+        <div class="sken-legend">
+          <div><b>Legend gl_mast (beda arti - ini JENIS akun, bukan status EOD/EOM):</b></div>
+          <div><span class="legend-dot" style="background:#dbeafe"></span> Akun AKTIVA (297...) - di baris manapun dia muncul, cabang sendiri maupun cerminan Kantor Pusat</div>
+          <div><span class="legend-dot" style="background:#fde7c7"></span> Akun PASIVA (397...) - sama, cabang sendiri maupun cerminan Kantor Pusat</div>
+        </div>
+        <div class="note">Kantor Pusat (370) selalu ditaruh paling atas, Aktiva Pusat &amp; Pasiva Pusat berdampingan - jadi gampang liat posisi total Pusat gabungan semua cabang. cbal di sini itu AKUMULASI dari semua hari (bukan cuma hari ini) - kalau mau tau "kenapa Rp sekian keposting HARI INI", lihat tabel 2 (kondisi + keterangan) dan tabel 5 (gl_tran), BUKAN cbal di tabel 4. Kapitalisasi bunga bulanan (EOM) TETAP pakai COA per-cabang asli dari GLPM0041 (beda dari 2 akun generik Aktiva/Pasiva di atas, yang dipakai buat netting harian non-bunga).</div>
+        <div id="skenTabContent"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ======================= MODAL: Tambah/Edit gl_para_rakrate ======================= -->
+<div class="modal-overlay" id="modalRate">
+  <div class="modal-box">
+    <div class="modal-hd plain">
+      <span id="modalRateTitle">Tambah Parameter Bunga RAK</span>
+      <div class="x-btn" onclick="closeModal('modalRate')">&times;</div>
+    </div>
+    <div class="modal-bd">
+      <div class="coa-form">
+        <div class="frow">
+          <label>Kantor <span style="color:#c53030">*</span></label>
+          <select id="fRateBrncd" onchange="onRateBrncdChange()"></select>
+        </div>
+        <div class="frow">
+          <label>COA RAK Induk 1</label>
+          <input type="text" id="fRateCoaRakLabel" disabled>
+        </div>
+        <div class="frow">
+          <label>Bunga Harian RAK Induk 1 (%) <span style="color:#c53030">*</span></label>
+          <input type="number" step="0.01" id="fRateValRak">
+        </div>
+        <div class="frow">
+          <label>COA RAK Induk 2</label>
+          <input type="text" id="fRateCoaSweepLabel" disabled>
+        </div>
+        <div class="frow">
+          <label>Bunga Harian RAK Induk 2 (%) <span style="color:#c53030">*</span></label>
+          <input type="number" step="0.01" id="fRateValSweep">
+        </div>
+        <div class="err-msg" id="errRate"></div>
+        <div class="frow-actions">
+          <button class="coa-btn" onclick="closeModal('modalRate')">Batal</button>
+          <button class="coa-btn primary" onclick="saveRate()">Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ====================== master data ======================
+const OFFICES = [
+  {brncd:'371', name:'CABANG NGALIYAN'},
+  {brncd:'372', name:'CABANG GENUK'},
+];
+
+const COA_MASTER = [
+  // GENERIK - dipakai GANTIAN oleh SEMUA cabang (bukan punya 371 doang, meski nomornya
+  // "dasar"/base) - ini yg dipakai netting harian non-bunga di Skenario (skenCoaLabelGeneric).
+  {id:'29700000', name:'ANTAR KANTOR AKTIVA - GENERIK (semua cabang)'},
+  {id:'39700000', name:'ANTAR KANTOR PASIVA - GENERIK (semua cabang)'},
+  {id:'29700001', name:'ANTAR KANTOR AKTIVA - 372 GENUK'},
+  {id:'39700001', name:'ANTAR KANTOR PASIVA - 372 GENUK'},
+  // COA Induk DEDICATED milik 371 (kapitalisasi bunga bulanan, gl_para_rak.brncd_coa/
+  // parent_coa) - SENGAJA nomor beda dari akun generik di atas, biar gak numpuk jadi 1
+  // baris pas kapitalisasi EOM (dulu collision krn Rak1 kepake nomor generik yg sama).
+  {id:'29700002', name:'ANTAR KANTOR AKTIVA - 371 NGALIYAN (INDUK)'},
+  {id:'39700002', name:'ANTAR KANTOR PASIVA - 371 NGALIYAN (INDUK)'},
+  // contoh COA non-Aktiva/Pasiva (RAK Modal, gak butuh sweep) - nomor asli dari screenshot GLPM0041 produksi
+  {id:'69201000', name:'BIAYA BUNGA RAK - 371 NGALIYAN'},
+  {id:'59201000', name:'PEND. BUNGA RAK - 371 NGALIYAN'},
+];
+
+// gl_para_rak (existing GLPM0041 table). is_tran = kolom yg SUDAH ADA di produksi
+// (Y=RAK Transaksi, T=RAK Modal). butuh_sweep = kolom BARU (dicatat dulu, ERD nyusul).
+let glParaRak = [
+  {id:'Rak1', brncd:'371', brncd_coa:'29700002', parent_coa:'39700002', is_tran:true, butuh_sweep:true},
+  {id:'Rak2', brncd:'372', brncd_coa:'29700001', parent_coa:'39700001', is_tran:true, butuh_sweep:true},
+  {id:'Rak3', brncd:'371', brncd_coa:'69201000', parent_coa:'59201000', is_tran:false, butuh_sweep:false},
+];
+
+// gl_raksweep (baru, nempel ke gl_para_rak via gl_para_rak_id)
+let glRakSweep = [
+  {id:'001', gl_para_rak_id:'Rak1', brncd_coa_sweep:'39700002', parent_coa_sweep:'29700002'},
+  {id:'002', gl_para_rak_id:'Rak2', brncd_coa_sweep:'39700001', parent_coa_sweep:'29700001'},
+];
+
+// gl_para_rakrate (ganti total desain lama, sekarang cuma nyimpen rate + FK ke gl_raksweep)
+let glParaRakRate = [
+  {id:'001', gl_para_raksweep_id:'001', daily_interest_parent_coa_rak:0.4, daily_interest_parent_coa_sweep:0.6},
+  {id:'002', gl_para_raksweep_id:'002', daily_interest_parent_coa_rak:0.3, daily_interest_parent_coa_sweep:0.5},
+];
+
+let idSeq = {rak:4, sweep:3, rate:3};
+
+// ====================== helpers ======================
+function officeName(brncd){
+  if(brncd==='370') return '370 - KANTOR PUSAT';
+  const o = OFFICES.find(x=>x.brncd===brncd);
+  return o ? brncd+' - '+o.name : brncd;
+}
+function coaLabel(coaId){ const c = COA_MASTER.find(x=>x.id===coaId); return c ? c.id+' - '+c.name : (coaId||'-'); }
+function coaLabelShort(coaId){ const c = COA_MASTER.find(x=>x.id===coaId); if(!c) return coaId||'-'; return c.id+' - '+c.name.split(' - ')[0]; }
+function findRak(id){ return glParaRak.find(r=>r.id===id); }
+function findSweepByRakId(rakId){ return glRakSweep.find(s=>s.gl_para_rak_id===rakId); }
+function findSweep(id){ return glRakSweep.find(s=>s.id===id); }
+function fillSelect(sel, options, selectedVal){
+  sel.innerHTML = options.map(o=>'<option value="'+o.value+'"'+(o.value===selectedVal?' selected':'')+'>'+o.label+'</option>').join('');
+}
+function closeModal(id){ document.getElementById(id).style.display = 'none'; }
+function openModal(id){ document.getElementById(id).style.display = 'flex'; }
+function showErr(id, msg){ const e = document.getElementById(id); e.textContent = msg; e.classList.add('show'); }
+function hideErr(id){ const e = document.getElementById(id); e.textContent=''; e.classList.remove('show'); }
+
+// ====================== GLPM0041: state ======================
+let selectedRakId = null;   // gl_para_rak.id yang lagi diedit, atau null kalau lagi "tambah baru"
+let isNewKantor = false;
+let activeSection = 'rak';  // 'rak' | 'sweep'
+
+function renderRakGrid(){
+  const tb = document.getElementById('tblRakBody');
+  tb.innerHTML = glParaRak.map((r,i)=>{
+    return '<tr>'
+      + '<td>'+(i+1)+'</td>'
+      + '<td>'+officeName(r.brncd)+'</td>'
+      + '<td>'+(r.is_tran ? 'RAK Transaksi' : 'RAK Modal')+'</td>'
+      + '<td>'+coaLabelShort(r.brncd_coa)+'</td>'
+      + '<td>'+coaLabelShort(r.parent_coa)+'</td>'
+      + '<td><div class="td-act">'
+        + '<div class="act-btn act-edit" title="Edit" onclick="loadKantor(\''+r.id+'\')"><i class="ti ti-pencil"></i></div>'
+        + '<div class="act-btn act-del" title="Hapus" onclick="deleteRakGridRow(\''+r.id+'\')"><i class="ti ti-trash"></i></div>'
+        + '</div></td>'
+      + '</tr>';
+  }).join('') || '<tr><td colspan="6" style="text-align:center;padding:24px;color:#9aa5b4">Belum ada data</td></tr>';
+}
+
+function deleteRakGridRow(id){
+  if(findSweepByRakId(id)){
+    alert('Tidak bisa hapus - Kantor ini sudah punya setting COA Sweep (gl_raksweep). Hapus setting sweep-nya dulu.');
+    return;
+  }
+  glParaRak = glParaRak.filter(r=>r.id!==id);
+  if(selectedRakId === id){ selectedRakId = null; showPanel(false); }
+  renderRakGrid();
+  renderRateGrid();
+}
+
+function showPanel(show){
+  document.getElementById('pnPanel').style.display = show ? '' : 'none';
+  document.getElementById('pnEmpty').style.display = show ? 'none' : '';
+}
+
+function onKategoriChange(which){
+  const trans = document.getElementById('pnKatTransaksi');
+  const modal = document.getElementById('pnKatModal');
+  if(which === 'TRANSAKSI' && trans.checked){ modal.checked = false; }
+  if(which === 'MODAL' && modal.checked){ trans.checked = false; }
+  updateSweepFlagVisibility();
+}
+
+function updateSweepFlagVisibility(){
+  const isTransaksi = document.getElementById('pnKatTransaksi').checked;
+  document.getElementById('pnSweepFlagWrap').style.display = isTransaksi ? '' : 'none';
+  if(!isTransaksi){ document.getElementById('pnButuhSweep').checked = false; }
+}
+
+function loadKantor(id){
+  selectedRakId = id;
+  isNewKantor = false;
+  const rak = findRak(id);
+  document.getElementById('pnHdTitle').textContent = 'PARAMETER RAK - '+officeName(rak.brncd);
+  document.getElementById('pnHdDelete').style.display = '';
+  fillSelect(document.getElementById('pnKantorPick'), [{value:rak.brncd, label:officeName(rak.brncd)}], rak.brncd);
+  document.getElementById('pnKantorPick').disabled = true;
+  document.getElementById('pnKatTransaksi').checked = !!rak.is_tran;
+  document.getElementById('pnKatModal').checked = !rak.is_tran;
+  updateSweepFlagVisibility();
+  document.getElementById('pnButuhSweep').checked = !!rak.butuh_sweep;
+  fillSelect(document.getElementById('pnRakBrncdCoa'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), rak.brncd_coa);
+  fillSelect(document.getElementById('pnRakParentCoa'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), rak.parent_coa);
+  hideErr('errRak');
+  document.getElementById('railSweep').classList.toggle('disabled', !rak.butuh_sweep);
+  loadSweepFields();
+  showPanel(true);
+  switchSection('rak');
+}
+
+function startNewKantor(){
+  const incomplete = glParaRak.find(r=>r.butuh_sweep && !findSweepByRakId(r.id));
+  if(incomplete){
+    alert('Masih ada Kantor yang COA Sweep-nya belum diisi: '+officeName(incomplete.brncd)+'. Lengkapi dulu sebelum menambah Kantor baru.');
+    loadKantor(incomplete.id);
+    switchSection('sweep');
+    return;
+  }
+  selectedRakId = null;
+  isNewKantor = true;
+  document.getElementById('pnHdTitle').textContent = 'PARAMETER RAK - Kantor Baru';
+  document.getElementById('pnHdDelete').style.display = 'none';
+  fillSelect(document.getElementById('pnKantorPick'), OFFICES.map(o=>({value:o.brncd,label:o.brncd+' - '+o.name})), OFFICES[0].brncd);
+  document.getElementById('pnKantorPick').disabled = false;
+  document.getElementById('pnKatTransaksi').checked = true;
+  document.getElementById('pnKatModal').checked = false;
+  updateSweepFlagVisibility();
+  document.getElementById('pnButuhSweep').checked = true;
+  fillSelect(document.getElementById('pnRakBrncdCoa'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), COA_MASTER[0].id);
+  fillSelect(document.getElementById('pnRakParentCoa'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), COA_MASTER[1].id);
+  hideErr('errRak');
+  document.getElementById('railSweep').classList.add('disabled');
+  showPanel(true);
+  switchSection('rak');
+}
+
+function switchSection(name){
+  if(name === 'sweep'){
+    if(isNewKantor){
+      alert('Simpan Data Utama (COA RAK) dulu sebelum isi COA Sweep.');
+      return;
+    }
+    const rak = findRak(selectedRakId);
+    if(rak && !rak.butuh_sweep){
+      alert('Kantor/kategori ini gak butuh COA Sweep (checkbox "Butuh Sweep RAK?" gak dicentang di Data Utama).');
+      return;
+    }
+  }
+  activeSection = name;
+  document.getElementById('secRak').style.display = name==='rak' ? '' : 'none';
+  document.getElementById('secSweep').style.display = name==='sweep' ? '' : 'none';
+  document.getElementById('railRak').classList.toggle('active', name==='rak');
+  document.getElementById('railSweep').classList.toggle('active', name==='sweep');
+  if(name === 'sweep') loadSweepFields();
+}
+
+function loadSweepFields(){
+  if(!selectedRakId) return;
+  const rak = findRak(selectedRakId);
+  const sweep = findSweepByRakId(selectedRakId);
+  fillSelect(document.getElementById('pnSweepBrncdCoaRak'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), rak.brncd_coa);
+  fillSelect(document.getElementById('pnSweepParentCoaRak'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), rak.parent_coa);
+  fillSelect(document.getElementById('pnSweepBrncdCoaSweep'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), sweep ? sweep.brncd_coa_sweep : rak.parent_coa);
+  fillSelect(document.getElementById('pnSweepParentCoaSweep'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), sweep ? sweep.parent_coa_sweep : rak.brncd_coa);
+  hideErr('errSweep');
+}
+
+function cancelRakEdit(){
+  selectedRakId = null;
+  isNewKantor = false;
+  showPanel(false);
+}
+function cancelSweepEdit(){ loadSweepFields(); }
+
+function saveRakInline(){
+  const brncd = document.getElementById('pnKantorPick').value;
+  const brncd_coa = document.getElementById('pnRakBrncdCoa').value;
+  const parent_coa = document.getElementById('pnRakParentCoa').value;
+  const isTransaksi = document.getElementById('pnKatTransaksi').checked;
+  const isModal = document.getElementById('pnKatModal').checked;
+  if(!isTransaksi && !isModal){
+    showErr('errRak', 'Pilih kategori: RAK Transaksi atau RAK Modal.');
+    return;
+  }
+  if(brncd_coa === parent_coa){
+    showErr('errRak', 'COA RAK Kantor dan COA RAK Induk tidak boleh sama.');
+    return;
+  }
+  const is_tran = isTransaksi;
+  const butuh_sweep = isTransaksi && document.getElementById('pnButuhSweep').checked;
+  if(isNewKantor){
+    const newId = 'Rak'+(idSeq.rak++);
+    glParaRak.push({id:newId, brncd, brncd_coa, parent_coa, is_tran, butuh_sweep});
+    loadKantor(newId);
+    if(butuh_sweep){
+      switchSection('sweep');
+      alert('Data COA RAK tersimpan. Sekarang lengkapi COA Sweep untuk Kantor ini sebelum bisa menambah Kantor baru lagi.');
+    }
+  } else {
+    const r = findRak(selectedRakId);
+    r.brncd_coa = brncd_coa; r.parent_coa = parent_coa; r.is_tran = is_tran; r.butuh_sweep = butuh_sweep;
+    loadKantor(selectedRakId);
+  }
+  renderRakGrid();
+  renderRateGrid();
+}
+
+function saveSweepInline(){
+  const rak = findRak(selectedRakId);
+  const brncd_coa_sweep = document.getElementById('pnSweepBrncdCoaSweep').value;
+  const parent_coa_sweep = document.getElementById('pnSweepParentCoaSweep').value;
+  if(brncd_coa_sweep !== rak.parent_coa || parent_coa_sweep !== rak.brncd_coa){
+    showErr('errSweep', 'COA Sweep harus persis kebalikan dari COA RAK (COA Sweep Kantor = '+coaLabel(rak.parent_coa)+', COA Sweep Induk = '+coaLabel(rak.brncd_coa)+'). Tidak boleh sama seperti COA RAK, dan tidak boleh COA lain.');
+    return;
+  }
+  const existing = findSweepByRakId(selectedRakId);
+  if(existing){
+    existing.brncd_coa_sweep = brncd_coa_sweep;
+    existing.parent_coa_sweep = parent_coa_sweep;
+  } else {
+    glRakSweep.push({id:String(idSeq.sweep++).padStart(3,'0'), gl_para_rak_id: selectedRakId, brncd_coa_sweep, parent_coa_sweep});
+  }
+  hideErr('errSweep');
+  renderRateGrid();
+}
+
+function deleteCurrentKantor(){
+  if(!selectedRakId) return;
+  if(findSweepByRakId(selectedRakId)){
+    alert('Tidak bisa hapus - Kantor ini sudah punya setting COA Sweep (gl_raksweep). Hapus setting sweep-nya dulu.');
+    return;
+  }
+  glParaRak = glParaRak.filter(r=>r.id!==selectedRakId);
+  selectedRakId = null;
+  showPanel(false);
+  renderRakGrid();
+  renderRateGrid();
+}
+
+// ====================== render: Bunga RAK grid ======================
+function renderRateGrid(){
+  const tb = document.getElementById('tblRateBody');
+  tb.innerHTML = glParaRakRate.map((r,i)=>{
+    const sweep = findSweep(r.gl_para_raksweep_id);
+    const rak = sweep ? findRak(sweep.gl_para_rak_id) : null;
+    const brncd = rak ? rak.brncd : '-';
+    const coaRakLabel = rak ? coaLabelShort(rak.parent_coa) : '-';
+    const coaSweepLabel = sweep ? coaLabelShort(sweep.parent_coa_sweep) : '-';
+    return '<tr>'
+      + '<td>'+(i+1)+'</td>'
+      + '<td>'+officeName(brncd)+'</td>'
+      + '<td>'+coaRakLabel+'</td>'
+      + '<td class="mono">'+r.daily_interest_parent_coa_rak.toFixed(2)+'</td>'
+      + '<td>'+coaSweepLabel+'</td>'
+      + '<td class="mono">'+r.daily_interest_parent_coa_sweep.toFixed(2)+'</td>'
+      + '<td><div class="td-act">'
+        + '<div class="act-btn act-edit" title="Edit" onclick="openRateForm(\''+r.id+'\')"><i class="ti ti-pencil"></i></div>'
+        + '<div class="act-btn act-del" title="Hapus" onclick="deleteRate(\''+r.id+'\')"><i class="ti ti-trash"></i></div>'
+        + '</div></td>'
+      + '</tr>';
+  }).join('') || '<tr><td colspan="7" style="text-align:center;padding:24px;color:#9aa5b4">Belum ada data</td></tr>';
+}
+
+// ====================== gl_para_rakrate form ======================
+let editingRateId = null;
+function officesWithSweepReady(){
+  return glParaRak.filter(r=>findSweepByRakId(r.id));
+}
+function onRateBrncdChange(){
+  const brncd = document.getElementById('fRateBrncd').value;
+  const rak = glParaRak.find(r=>r.brncd===brncd);
+  const sweep = rak ? findSweepByRakId(rak.id) : null;
+  document.getElementById('fRateCoaRakLabel').value = rak ? coaLabelShort(rak.parent_coa) : '-';
+  document.getElementById('fRateCoaSweepLabel').value = sweep ? coaLabelShort(sweep.parent_coa_sweep) : '-';
+}
+function openRateForm(id){
+  editingRateId = id;
+  const r = id ? glParaRakRate.find(x=>x.id===id) : null;
+  const ready = officesWithSweepReady();
+  document.getElementById('modalRateTitle').textContent = id ? 'Edit Parameter Bunga RAK' : 'Tambah Parameter Bunga RAK';
+  let currentBrncd = null;
+  if(r){ const sweep = findSweep(r.gl_para_raksweep_id); const rak = sweep ? findRak(sweep.gl_para_rak_id) : null; currentBrncd = rak ? rak.brncd : null; }
+  const sel = document.getElementById('fRateBrncd');
+  if(ready.length === 0){
+    sel.innerHTML = '<option value="">- Belum ada Kantor dengan COA Sweep lengkap -</option>';
+  } else {
+    fillSelect(sel, ready.map(r2=>({value:r2.brncd, label:officeName(r2.brncd)})), currentBrncd || ready[0].brncd);
+  }
+  document.getElementById('fRateValRak').value = r ? r.daily_interest_parent_coa_rak : '';
+  document.getElementById('fRateValSweep').value = r ? r.daily_interest_parent_coa_sweep : '';
+  onRateBrncdChange();
+  hideErr('errRate');
+  openModal('modalRate');
+}
+function saveRate(){
+  const brncd = document.getElementById('fRateBrncd').value;
+  const valRak = parseFloat(document.getElementById('fRateValRak').value);
+  const valSweep = parseFloat(document.getElementById('fRateValSweep').value);
+  if(!brncd){ showErr('errRate', 'Kantor belum dipilih - pastikan COA Sweep-nya sudah diisi dulu di GLPM0041.'); return; }
+  if(isNaN(valRak) || isNaN(valSweep)){ showErr('errRate', 'Rate bunga harian wajib diisi angka.'); return; }
+  const rak = glParaRak.find(r=>r.brncd===brncd);
+  const sweep = findSweepByRakId(rak.id);
+  if(editingRateId){
+    const r = glParaRakRate.find(x=>x.id===editingRateId);
+    r.gl_para_raksweep_id = sweep.id;
+    r.daily_interest_parent_coa_rak = valRak;
+    r.daily_interest_parent_coa_sweep = valSweep;
+  } else {
+    glParaRakRate.push({id:String(idSeq.rate++).padStart(3,'0'), gl_para_raksweep_id: sweep.id, daily_interest_parent_coa_rak: valRak, daily_interest_parent_coa_sweep: valSweep});
+  }
+  closeModal('modalRate');
+  renderRateGrid();
+}
+function deleteRate(id){
+  glParaRakRate = glParaRakRate.filter(r=>r.id!==id);
+  renderRateGrid();
+}
+
+// ====================== nav ======================
+const VIEW_TITLES = {
+  glpm0041: ['GLPM0041 - Setting Parameter RAK', 'RAK &raquo; GLPM0041'],
+  bungarak: ['Menu Parameter Bunga RAK', 'RAK &raquo; Parameter Bunga RAK'],
+  skenario: ['Skenario C (EOD/EOM)', 'RAK &raquo; Skenario C'],
+};
+document.querySelectorAll('.sidebar-nav a').forEach(a=>{
+  a.addEventListener('click', ()=>{
+    document.querySelectorAll('.sidebar-nav a').forEach(x=>x.classList.remove('active'));
+    a.classList.add('active');
+    const view = a.getAttribute('data-view');
+    document.getElementById('view-glpm0041').style.display = view==='glpm0041' ? '' : 'none';
+    document.getElementById('view-bungarak').style.display = view==='bungarak' ? '' : 'none';
+    document.getElementById('view-skenario').style.display = view==='skenario' ? '' : 'none';
+    document.getElementById('topbarTitle').textContent = VIEW_TITLES[view][0];
+    document.getElementById('topbarBreadcrumb').innerHTML = VIEW_TITLES[view][1];
+  });
+});
+
+// ====================== Skenario C - dummy sama persis bunga_rak_menu_demo.html ======================
+function fmtNum(n){
+  const neg = n<0; n = Math.abs(Math.round(n));
+  const s = n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return (neg?'-':'')+s;
+}
+// posisi CABANG mentah (bukan Pusat) - diperluas dari SCENARIOS.C bunga_rak_menu_demo.html:
+// tiap hari beneran ada pergerakan/sweep (gak ada hari "kosong"). Bentuk data SEKARANG
+// {aktiva, pasiva} - 2 nilai TRANSIENT dari sudut pandang PUSAT (sama persis variabel
+// $pusatAktiva/$pusatPasiva di pseudocode buildKeteranganSweep, TEMUAN #37/#40) - BUKAN
+// {posisi,saldo} single-sided lagi. Kalau cuma 1 sisi nonzero = kondisi FLIP (posisi
+// gampang, cuma 1 sisi kepakai). Kalau DUA-DUANYA nonzero bersamaan = kondisi
+// NETTING_NORMAL/NETTING_ABNORMAL - inilah yg dimaksud "netting dalam 1 baris cabang":
+// dibandingin |aktiva| vs |pasiva| DALAM 1 CABANG YG SAMA, yg menang & selisihnya
+// (bukan gabungan lintas cabang) itu yg jadi posisi_hasil/saldo_hasil, dan itu jugalah
+// yg diposting ke gl_tran (lewat mekanisme FLIP/penambahan/pengurangan yg SAMA, lihat
+// skenHitungSweep). 02-03 Sep = FLIP biasa (1 sisi doang). 04 Sep = 371 kena
+// NETTING_NORMAL (Aktiva 80jt & Pasiva 25jt bersamaan, Aktiva menang, selisih 55jt).
+// 05 Sep = 372 kena NETTING_ABNORMAL (Aktiva -15jt/tanda kebalik & Pasiva -95jt,
+// Pasiva menang, selisih 80jt). 30 Sep = akhir bulan, balik FLIP biasa (fokus kapitalisasi).
+const SKEN_BRANCHES = ['371','372'];
+const SKEN_DAYS = [
+  {tgl:'02 Sep 2026', pos:{'371':{aktiva:50000000, pasiva:0}, '372':{aktiva:0, pasiva:-50000000}}},
+  {tgl:'03 Sep 2026', pos:{'371':{aktiva:0, pasiva:-30000000}, '372':{aktiva:30000000, pasiva:0}}},
+  {tgl:'04 Sep 2026', pos:{'371':{aktiva:80000000, pasiva:-25000000}, '372':{aktiva:30000000, pasiva:0}}, tag:'371 Netting Normal'},
+  {tgl:'05 Sep 2026', pos:{'371':{aktiva:55000000, pasiva:0}, '372':{aktiva:-15000000, pasiva:-95000000}}, tag:'372 Netting Abnormal'},
+  {tgl:'30 Sep 2026', pos:{'371':{aktiva:20000000, pasiva:0}, '372':{aktiva:0, pasiva:-20000000}}},
+];
+// Kas & Rekening Nasabah (non-RAK) - pola sama kaya CASE_C_NONRAK, biar gl_tran keliatan
+// lengkap (bukan cuma baris RAK) - sekarang ADA di tiap hari, gak ada hari kosong.
+const SKEN_NONRAK = [
+  {dayIdx:0, brncd:'372', akunLabel:'11010000 - KAS', dk:'D', amt:50000000, narasi:'Kas masuk - nasabah 371 setor tunai di loket 372'},
+  {dayIdx:0, brncd:'371', akunLabel:'21010000 - SIMPANAN NASABAH', dk:'K', amt:50000000, narasi:'Saldo rekening nasabah 371 bertambah'},
+  {dayIdx:1, brncd:'372', akunLabel:'11010000 - KAS', dk:'K', amt:80000000, narasi:'Kas keluar - nasabah 371 tarik tunai di loket 372'},
+  {dayIdx:1, brncd:'371', akunLabel:'21010000 - SIMPANAN NASABAH', dk:'D', amt:80000000, narasi:'Saldo rekening nasabah 371 berkurang'},
+  {dayIdx:2, brncd:'372', akunLabel:'11010000 - KAS', dk:'D', amt:85000000, narasi:'Kas masuk - nasabah 371 lunasi kewajiban lama + setor baru di loket 372 (posisi RAK 371 balik jadi Aktiva)'},
+  {dayIdx:2, brncd:'371', akunLabel:'21010000 - SIMPANAN NASABAH', dk:'K', amt:85000000, narasi:'Saldo rekening nasabah 371 bertambah besar'},
+  {dayIdx:3, brncd:'372', akunLabel:'11010000 - KAS', dk:'K', amt:110000000, narasi:'Kas keluar - transaksi nasabah 372 sendiri (penarikan besar, bikin posisi RAK 372 sempat abnormal)'},
+  {dayIdx:3, brncd:'372', akunLabel:'21010000 - SIMPANAN NASABAH', dk:'D', amt:110000000, narasi:'Saldo rekening nasabah 372 berkurang besar'},
+  {dayIdx:4, brncd:'372', akunLabel:'11010000 - KAS', dk:'D', amt:50000000, narasi:'Kas masuk - nasabah 371 setor tunai lagi di loket 372 (akhir bulan)'},
+  {dayIdx:4, brncd:'371', akunLabel:'21010000 - SIMPANAN NASABAH', dk:'K', amt:50000000, narasi:'Saldo rekening nasabah 371 bertambah lagi'},
+];
+const SKEN_NONRAK_SLIP = {0:'RAKC0001', 1:'RAKC0002', 2:'RAKC0003', 3:'RAKC0004', 4:'RAKC0005'};
+
+// SATU-SATUNYA tempat logic FLIP/NETTING_NORMAL/NETTING_ABNORMAL dihitung (TEMUAN #37,
+// TABEL KEPUTUSAN sequence-03-eksekusi-eod.puml) - dipakai BARENG skenBuildPosisiState
+// (buat sweepRows+bunga) DAN skenBuildLedgerEntries (buat gl_tran), biar 1 sumber
+// kebenaran, gak ada 2 logic yg bisa divergen kaya kemarin.
+function skenHitungSweep(pusatAktiva, pusatPasiva){
+  const adaAktiva = pusatAktiva !== 0, adaPasiva = pusatPasiva !== 0;
+  if(adaAktiva && !adaPasiva) return {kondisi:'FLIP', posisiHasil:'A', saldoHasil:pusatAktiva};
+  if(!adaAktiva && adaPasiva) return {kondisi:'FLIP', posisiHasil:'P', saldoHasil:Math.abs(pusatPasiva)};
+  const normal = pusatAktiva > 0 && pusatPasiva < 0;
+  const absA = Math.abs(pusatAktiva), absP = Math.abs(pusatPasiva);
+  const posisiHasil = absA >= absP ? 'A' : 'P';
+  return {kondisi: normal?'NETTING_NORMAL':'NETTING_ABNORMAL', posisiHasil, saldoHasil: Math.abs(absA-absP), pusatAktiva, pusatPasiva, normal};
+}
+// narasi otomatis buat kondisi NETTING_* - gaya sama persis pseudocode buildKeteranganSweep di ERD.
+function skenKeteranganNetting(sw){
+  const rp = n => 'Rp'+fmtNum(Math.abs(n));
+  const menangLabel = sw.posisiHasil==='A' ? 'Aktiva' : 'Pasiva';
+  const kalahLabel = sw.posisiHasil==='A' ? 'Pasiva' : 'Aktiva';
+  const absA = Math.abs(sw.pusatAktiva), absP = Math.abs(sw.pusatPasiva);
+  const menangAbs = sw.posisiHasil==='A' ? absA : absP;
+  const kalahAbs = sw.posisiHasil==='A' ? absP : absA;
+  let head;
+  if(sw.normal){
+    head = 'Aktiva '+rp(sw.pusatAktiva)+' & Pasiva '+rp(sw.pusatPasiva)+' sama-sama kepakai (tanda dua-duanya wajar).';
+  } else {
+    const abnormalBits = [];
+    if(sw.pusatAktiva<=0) abnormalBits.push('Aktiva '+(sw.pusatAktiva<0?'-':'')+rp(sw.pusatAktiva)+' (harusnya plus, ketemu minus)');
+    else abnormalBits.push('Aktiva '+rp(sw.pusatAktiva));
+    if(sw.pusatPasiva>=0) abnormalBits.push('Pasiva '+rp(sw.pusatPasiva)+' (harusnya minus, ketemu plus)');
+    else abnormalBits.push('Pasiva -'+rp(sw.pusatPasiva));
+    head = 'Kondisi abnormal: '+abnormalBits.join(' & ')+'.';
+  }
+  return head+' |'+menangLabel+'|='+rp(menangAbs)+' > |'+kalahLabel+'|='+rp(kalahAbs)+', '+menangLabel+' menang. Saldo hasil = '+rp(menangAbs)+' - '+rp(kalahAbs)+' = '+rp(sw.saldoHasil)+'. '+kalahLabel+' disweep ke 0.';
+}
+
+// Persis buildLedgerEntries() di bunga_rak_menu_demo.html - Kantor Pusat (370) CUMA
+// pakai 2 akun GENERIK/SHARED (Antar Kantor Aktiva 29700000 & Pasiva 39700000), dipakai
+// gantian tiap cabang, BUKAN 1 akun dedicated per cabang - biar "Aktiva Pusat" &
+// "Pasiva Pusat" kebaca sebagai 2 baris utuh (gabungan semua cabang), bukan kepecah
+// jadi banyak baris per-cabang yg keliatan "Pusat isinya Pasiva doang".
+// (Beda sama kapitalisasi bunga bulanan di bawah - itu TETAP pakai COA per-cabang asli
+// dari GLPM0041/gl_para_rak, krn itu emang didesain per-cabang - TEMUAN #20.)
+function skenCoaLabelGeneric(akun){ return akun==='AKTIVA' ? coaLabelShort('29700000') : coaLabelShort('39700000'); }
+
+// TAHAP 1 (gross, independen per sisi) - bawa cbal ke posisi RAW hari ini (coa_induk_1/
+// coa_induk_2 di tabel 1). TAHAP 2 (reclass) - begitu abis Tahap 1 dua-duanya nonzero
+// (kondisi NETTING_NORMAL/ABNORMAL), sisi KALAH ditutup ke 0 & sisi MENANG dikurangin
+// sebesar sisi kalah - INI baris yg bawa angka selisih (25jt) secara eksplisit ke
+// gl_tran, biar "yang jadi 0 itu yang dijurnal" (permintaan user 2026-09-28) sekaligus
+// nyisain saldo bersih (55jt) di sisi menang lewat aritmatika cbal biasa.
+// ARAH mirror: raw.aktiva/raw.pasiva itu dari SUDUT PANDANG PUSAT. Pusat Aktiva naik =
+// cabang PASIVA naik (mirror, cabang berutang lebih banyak); Pusat Pasiva (magnitude)
+// naik = cabang AKTIVA naik (mirror, cabang punya piutang lebih banyak) - sama persis
+// arah TEMUAN #38 ("Aktiva Menang: Cabang Kredit 397/Pusat Debit 297").
+function skenBuildLedgerEntries(){
+  const state = {};
+  const entries = [];
+  function post(dayIdx, slip, brncd, akun, dk, amt, tgl, narasi){
+    if(amt===0) return;
+    entries.push({dayIdx, slip, tgl, brncd, akun, dk, amt, narasi});
+  }
+  SKEN_DAYS.forEach((day, dayIdx)=>{
+    const slip = SKEN_NONRAK_SLIP[dayIdx] || ('RAKC'+String(dayIdx+1).padStart(4,'0'));
+    SKEN_BRANCHES.forEach(b=>{
+      const today = day.pos[b];
+      const prev = state[b] || {aktiva:0, pasiva:0};
+      const tgl = day.tgl;
+      const isAwal = prev.aktiva===0 && prev.pasiva===0;
+
+      // TAHAP 1: sisi AKTIVA Pusat (mirror -> cabang PASIVA)
+      const deltaAktiva = today.aktiva - prev.aktiva;
+      if(deltaAktiva > 0){
+        const label = isAwal ? 'Buka posisi awal - Aktiva Pusat vs '+b : 'Penambahan posisi - Aktiva Pusat vs '+b;
+        post(dayIdx,slip,b,'PASIVA','K',deltaAktiva,tgl,label); post(dayIdx,slip,'370','AKTIVA','D',deltaAktiva,tgl,'Cerminan - '+label);
+      } else if(deltaAktiva < 0){
+        const amt = -deltaAktiva;
+        const label = 'Pengurangan posisi - Aktiva Pusat vs '+b;
+        post(dayIdx,slip,b,'PASIVA','D',amt,tgl,label); post(dayIdx,slip,'370','AKTIVA','K',amt,tgl,'Cerminan - '+label);
+      }
+
+      // TAHAP 1: sisi PASIVA Pusat (mirror -> cabang AKTIVA). pasiva disimpen NEGATIF -
+      // delta NEGATIF (makin negatif) = magnitude Pasiva Pusat NAIK = cabang AKTIVA naik.
+      const deltaPasiva = today.pasiva - prev.pasiva;
+      if(deltaPasiva < 0){
+        const amt = -deltaPasiva;
+        const label = isAwal ? 'Buka posisi awal - Pasiva Pusat vs '+b : 'Penambahan posisi - Pasiva Pusat vs '+b;
+        post(dayIdx,slip,b,'AKTIVA','D',amt,tgl,label); post(dayIdx,slip,'370','PASIVA','K',amt,tgl,'Cerminan - '+label);
+      } else if(deltaPasiva > 0){
+        const label = 'Pengurangan posisi - Pasiva Pusat vs '+b;
+        post(dayIdx,slip,b,'AKTIVA','K',deltaPasiva,tgl,label); post(dayIdx,slip,'370','PASIVA','D',deltaPasiva,tgl,'Cerminan - '+label);
+      }
+
+      // TAHAP 2: abis Tahap 1, kalau dua-duanya nonzero -> RECLASS (zero-in sisi kalah)
+      let after = today;
+      if(today.aktiva !== 0 && today.pasiva !== 0){
+        const sw = skenHitungSweep(today.aktiva, today.pasiva);
+        const reclassAmt = Math.min(Math.abs(today.aktiva), Math.abs(today.pasiva));
+        const ket = 'Sweep/netting '+b+' ('+sw.kondisi+') - sisi kalah ditutup ke 0 (Rp'+fmtNum(reclassAmt)+'), sisi menang jadi saldo posisi Rp'+fmtNum(sw.saldoHasil)+' (detail: '+skenKeteranganNetting(sw)+')';
+        // sisi kalah = Pasiva Pusat (mirror cabang AKTIVA) -> tutup ke 0
+        if(today.pasiva < 0){ post(dayIdx,slip,b,'AKTIVA','K',reclassAmt,tgl,ket); post(dayIdx,slip,'370','PASIVA','D',reclassAmt,tgl,ket); }
+        else { post(dayIdx,slip,b,'AKTIVA','D',reclassAmt,tgl,ket); post(dayIdx,slip,'370','PASIVA','K',reclassAmt,tgl,ket); }
+        // sisi menang = Aktiva Pusat (mirror cabang PASIVA) -> dikurangin reclassAmt
+        if(today.aktiva > 0){ post(dayIdx,slip,b,'PASIVA','D',reclassAmt,tgl,ket); post(dayIdx,slip,'370','AKTIVA','K',reclassAmt,tgl,ket); }
+        else { post(dayIdx,slip,b,'PASIVA','K',reclassAmt,tgl,ket); post(dayIdx,slip,'370','AKTIVA','D',reclassAmt,tgl,ket); }
+        after = sw.posisiHasil==='A' ? {aktiva:sw.saldoHasil, pasiva:0} : {aktiva:0, pasiva:-sw.saldoHasil};
+      }
+      state[b] = after;
+    });
+  });
+  const nonRak = SKEN_NONRAK.map(nr=>({
+    dayIdx:nr.dayIdx, slip:SKEN_NONRAK_SLIP[nr.dayIdx], tgl:SKEN_DAYS[nr.dayIdx].tgl,
+    brncd:nr.brncd, akun:null, akunLabel:nr.akunLabel, dk:nr.dk, amt:nr.amt, narasi:nr.narasi
+  }));
+  return entries.concat(nonRak);
+}
+function skenAkunLabel(e){ return e.akunLabel || skenCoaLabelGeneric(e.akun); }
+function skenTrxBrncd(e){ return e.akunLabel ? '372' : e.brncd; } // non-RAK selalu lewat loket 372 (cerita kasusnya)
+
+const SKEN_EOM_DAYIDX = 4; // index hari yg diperlakukan sbg akhir bulan (30 Sep) - gabungan EOD+EOM
+let skenActiveTab = 0;
+
+// hitung posisi_pusat/saldo/riwayat sweep/bunga harian/kapitalisasi utk Cabang 371,
+// dari hari pertama s.d. uptoDayIdx - persis proses harian rak_func_interest (gabungan EOD+EOM).
+function skenRakIdFor(cabang){ return cabang==='371' ? 'Rak1' : 'Rak2'; }
+
+function skenBuildPosisiState(uptoDayIdx, cabang){
+  cabang = cabang || '371';
+  const rakId = skenRakIdFor(cabang);
+  const rak = findRak(rakId);
+  const sweep = findSweepByRakId(rakId);
+  const rate = glParaRakRate.find(r=>r.gl_para_raksweep_id===sweep.id);
+  let posisiSebelumnya = null, saldoSebelumnya = 0;
+  let bungaCoaInduk1Mtd = 0, bungaCoaInduk2Mtd = 0;
+  const sweepRows = [];
+  const intDailyRows = [];
+  const capEvents = [];
+  for(let d=0; d<=uptoDayIdx; d++){
+    const raw = SKEN_DAYS[d].pos[cabang];
+    const sw = skenHitungSweep(raw.aktiva, raw.pasiva);
+    const posisiHariIni = sw.posisiHasil;
+    const saldoHariIni = sw.saldoHasil;
+    const tgl = SKEN_DAYS[d].tgl;
+    if(posisiSebelumnya===null){
+      sweepRows.push({tgl, kondisi:'(posisi awal)', posisiSebelum:'-', saldoSebelum:0, posisiHasil:posisiHariIni, saldoHasil:saldoHariIni,
+        keterangan:'Posisi awal Cabang '+cabang+' terbentuk: Pusat '+(posisiHariIni==='P'?'PASIVA':'AKTIVA')+' Rp'+fmtNum(saldoHariIni)+'.'});
+    } else if(sw.kondisi==='NETTING_NORMAL' || sw.kondisi==='NETTING_ABNORMAL'){
+      // dua sisi (Aktiva Pusat & Pasiva Pusat) nonzero BERSAMAAN buat cabang INI SENDIRI -
+      // inilah netting yg dimaksud: dibandingin DALAM 1 baris ini, bukan gabungan cabang lain.
+      // SELALU dicatat (gak peduli posisi_sebelum apa/sama-atau-beda), krn sistem gak bisa
+      // nentuin kalau 2 sisi ada nilai sekaligus (TEMUAN #37).
+      sweepRows.push({tgl, kondisi:sw.kondisi, posisiSebelum:posisiSebelumnya, saldoSebelum:saldoSebelumnya, posisiHasil:posisiHariIni, saldoHasil:saldoHariIni,
+        keterangan:skenKeteranganNetting(sw)});
+    } else if(posisiHariIni !== posisiSebelumnya){
+      sweepRows.push({tgl, kondisi:'FLIP', posisiSebelum:posisiSebelumnya, saldoSebelum:saldoSebelumnya, posisiHasil:posisiHariIni, saldoHasil:saldoHariIni,
+        keterangan:'Posisi Pusat '+(posisiSebelumnya==='P'?'PASIVA':'AKTIVA')+' Rp'+fmtNum(saldoSebelumnya)+' HABIS ditutup (sweep), dibuka posisi baru '+(posisiHariIni==='P'?'PASIVA':'AKTIVA')+' Rp'+fmtNum(saldoHariIni)+'.'});
+    }
+    const rateHariIni = posisiHariIni==='P' ? rate.daily_interest_parent_coa_rak : rate.daily_interest_parent_coa_sweep;
+    const bunga = Math.round(saldoHariIni * rateHariIni / 100);
+    intDailyRows.push({tgl, posisiPusat:posisiHariIni, amount:bunga});
+    if(posisiHariIni==='P') bungaCoaInduk1Mtd += bunga; else bungaCoaInduk2Mtd += bunga;
+    if(d===SKEN_EOM_DAYIDX){
+      const netto = bungaCoaInduk1Mtd - bungaCoaInduk2Mtd;
+      capEvents.push({dayIdx:d, tgl, menang: netto>=0?'P':'A', amt: Math.abs(netto)});
+      bungaCoaInduk1Mtd = 0; bungaCoaInduk2Mtd = 0;
+    }
+    posisiSebelumnya = posisiHariIni;
+    saldoSebelumnya = saldoHariIni;
+  }
+  // TEMUAN #42/#44 (ERD): raw.aktiva/raw.pasiva hari TERAKHIR yg diproses (uptoDayIdx) -
+  // ini yg jadi NEW_gl_mast_rakposisi.saldo_coa_induk_2/saldo_coa_induk_1 (nama kolom
+  // SENGAJA gak nyebut aktiva/pasiva - permintaan user, niru konvensi gl_para_rakrate
+  // 'COA Induk 1/2'), BISA dua-duanya nonzero bersamaan (beda dari posisiPusat/
+  // saldoPosisi di bawah yg udah HASIL sweep, SELALU 1 sisi doang).
+  const rawTerakhir = SKEN_DAYS[uptoDayIdx].pos[cabang];
+  return {cabang, rak, sweep, rate, posisiPusat:posisiSebelumnya, saldoPosisi:saldoSebelumnya,
+    saldoCoaInduk2:rawTerakhir.aktiva, saldoCoaInduk1:rawTerakhir.pasiva,
+    bungaCoaInduk1Mtd, bungaCoaInduk2Mtd, sweepRows, intDailyRows, capEvents, lastAccrualDate:SKEN_DAYS[uptoDayIdx].tgl};
+}
+function skenEmptyState(cabang){
+  cabang = cabang || '371';
+  const rakId = skenRakIdFor(cabang);
+  return {cabang, rak:findRak(rakId), sweep:findSweepByRakId(rakId), posisiPusat:'-', saldoPosisi:0,
+    saldoCoaInduk1:0, saldoCoaInduk2:0,
+    bungaCoaInduk1Mtd:0, bungaCoaInduk2Mtd:0, sweepRows:[], intDailyRows:[], capEvents:[], lastAccrualDate:'-'};
+}
+function skenStateBefore(dayIdx, cabang){ return dayIdx===0 ? skenEmptyState(cabang) : skenBuildPosisiState(dayIdx-1, cabang); }
+function skenStateAfter(dayIdx, cabang){ return skenBuildPosisiState(dayIdx, cabang); }
+
+// entries lintas hari, dibedain non-RAK (teller, akunLabel - posting REAL-TIME hari itu
+// juga) vs RAK/induk (akun - CUMA kebentuk pas EOD/EOM batch jalan).
+function skenBuildEntries(dayIdx, phase){
+  return skenBuildLedgerEntries().filter(e=>{
+    if(e.akunLabel) return e.dayIdx <= dayIdx;
+    return phase==='after' ? e.dayIdx <= dayIdx : e.dayIdx < dayIdx;
+  });
+}
+
+// states = array, 1 per cabang (371 & 372) - biar 2-2nya kliatan, bukan cuma 371.
+// TEMUAN #42/#43/#44 (ERD): saldo_coa_induk_1/saldo_coa_induk_2 (RAW, bisa dua-duanya
+// nonzero bareng, nama kolom SENGAJA gak nyebut aktiva/pasiva - niru konvensi
+// gl_para_rakrate 'COA Induk 1/2') ditampilin BERDAMPINGAN sama posisi_pusat_hasil/
+// saldo_posisi_hasil (HASIL sweep, SELALU 1 sisi) - biar kebaca "sebelum" vs "sesudah"
+// langsung di 1 baris yg sama, gak perlu buka tabel lain.
+// TEMUAN #45 (ERD): coa_induk_1/coa_induk_2 itu FK ke 2 COA GENERIK Pusat yg TETAP/
+// SAMA di semua baris (gl_para_standard.NEW_rak_pasiva_coa/NEW_rak_aktiva_coa) - jadi
+// labelnya cukup di-resolve sekali via skenCoaLabelGeneric, TIDAK perlu disimpan di
+// state per-cabang. coa_posisi_hasil (dulu badge 'A'/'P') SEKARANG label COA juga -
+// dinamis, ngikutin posisiPusat cabang itu.
+function skenCoaPosisiLabel(posisi){
+  if(posisi==='-') return '-';
+  return skenCoaLabelGeneric(posisi==='A' ? 'AKTIVA' : 'PASIVA');
+}
+function skenTblPosisi(states, phase){
+  const hi = phase==='after' ? ' row-hi-eod' : '';
+  const coaInduk1 = skenCoaLabelGeneric('PASIVA'), coaInduk2 = skenCoaLabelGeneric('AKTIVA');
+  return states.map(state=>{
+    const duaSisi = state.saldoCoaInduk1!==0 && state.saldoCoaInduk2!==0;
+    const cls = hi + (duaSisi ? ' row-kondisi-netting' : '');
+    return '<tr class="'+cls+'"><td>'+officeName(state.cabang)+'</td>'
+    + '<td>'+coaInduk1+'</td><td class="mono">'+fmtNum(Math.abs(state.saldoCoaInduk1))+'</td>'
+    + '<td>'+coaInduk2+'</td><td class="mono">'+fmtNum(state.saldoCoaInduk2)+'</td>'
+    + '<td>'+skenCoaPosisiLabel(state.posisiPusat)+'</td><td class="mono">'+fmtNum(state.saldoPosisi)+'</td>'
+    + '<td class="mono">'+fmtNum(state.bungaCoaInduk1Mtd)+'</td><td class="mono">'+fmtNum(state.bungaCoaInduk2Mtd)+'</td><td>'+state.lastAccrualDate+'</td></tr>';
+  }).join('');
+}
+function skenTblSweep(states, phase){
+  const rows = [];
+  states.forEach(state=>{
+    const lastIdx = state.sweepRows.length-1;
+    state.sweepRows.forEach((r,i)=>{
+      let hi = (phase==='after' && i===lastIdx) ? ' row-hi-eod' : '';
+      if(r.kondisi==='NETTING_NORMAL' || r.kondisi==='NETTING_ABNORMAL') hi += ' row-kondisi-netting';
+      rows.push('<tr class="'+hi+'"><td>'+officeName(state.cabang)+'</td><td>'+r.tgl+'</td><td>'+r.kondisi+'</td>'
+        + '<td>'+skenCoaPosisiLabel(r.posisiSebelum)+'</td><td class="mono">'+fmtNum(r.saldoSebelum)+'</td>'
+        + '<td>'+skenCoaPosisiLabel(r.posisiHasil)+'</td><td class="mono">'+fmtNum(r.saldoHasil)+'</td>'
+        + '<td style="white-space:normal;min-width:260px">'+r.keterangan+'</td></tr>');
+    });
+  });
+  return rows.join('') || '<tr><td colspan="8" style="text-align:center;padding:14px;color:#9aa5b4">Belum ada baris</td></tr>';
+}
+function skenTblIntDaily(states, phase){
+  const rows = [];
+  states.forEach(state=>{
+    const lastIdx = state.intDailyRows.length-1;
+    state.intDailyRows.forEach((r,i)=>{
+      const hi = (phase==='after' && i===lastIdx) ? ' row-hi-eod' : '';
+      rows.push('<tr class="'+hi+'"><td>'+r.tgl+'</td><td>'+officeName(state.cabang)+'</td><td>'+skenCoaPosisiLabel(r.posisiPusat)+'</td><td class="mono">'+fmtNum(r.amount)+'</td></tr>');
+    });
+  });
+  return rows.join('') || '<tr><td colspan="4" style="text-align:center;padding:14px;color:#9aa5b4">Belum ada baris</td></tr>';
+}
+function skenTblGlMastGlTran(dayIdx, phase, states){
+  const entries = skenBuildEntries(dayIdx, phase);
+
+  // key dinamis dari entry yg beneran ada. Kantor Pusat (370) pake akun GENERIK
+  // (AKTIVA/PASIVA, shared semua cabang) - jadi paling banyak 2 baris Pusat: Aktiva
+  // Pusat & Pasiva Pusat, gampang dibaca gabungannya.
+  const keys = [];
+  const seenKeys = new Set();
+  entries.forEach(e=>{
+    const keyId = e.brncd+'|'+(e.akun || e.akunLabel);
+    if(!seenKeys.has(keyId)){ seenKeys.add(keyId); keys.push({brncd:e.brncd, akun:e.akun, akunLabel:e.akunLabel}); }
+  });
+  const glMastRows = [];
+  keys.forEach(k=>{
+    const rel = entries.filter(e=> e.brncd===k.brncd && (k.akun ? e.akun===k.akun : e.akunLabel===k.akunLabel));
+    if(!rel.length) return;
+    const accumDebit = rel.reduce((s,e)=>s+(e.dk==='D'?e.amt:0),0);
+    const accumCredit = rel.reduce((s,e)=>s+(e.dk==='K'?e.amt:0),0);
+    const dailyRel = rel.filter(e=>e.dayIdx===dayIdx);
+    const dailyDebit = dailyRel.reduce((s,e)=>s+(e.dk==='D'?e.amt:0),0);
+    const dailyCredit = dailyRel.reduce((s,e)=>s+(e.dk==='K'?e.amt:0),0);
+    const label = k.akun ? skenCoaLabelGeneric(k.akun) : k.akunLabel;
+    glMastRows.push({brncd:k.brncd, label, dailyDebit, dailyCredit, accumDebit, accumCredit, cbal:accumDebit-accumCredit, lastTrn:rel[rel.length-1].tgl, akun:k.akun});
+  });
+
+  // kapitalisasi bunga RAK bulanan (TEMUAN #38) - CUMA muncul di kolom SESUDAH hari
+  // akhir bulan (30 Sep), gak pernah di kolom SEBELUM - itu yg bikin before/after beda.
+  // Dijalanin per cabang (371 & 372), masing-masing pake rate & COA sendiri-sendiri.
+  let extraTranHtml = '';
+  if(phase==='after' && dayIdx===SKEN_EOM_DAYIDX){
+    let capSeq = 0;
+    SKEN_BRANCHES.forEach(cabang=>{
+      const state = skenBuildPosisiState(SKEN_EOM_DAYIDX, cabang);
+      state.capEvents.forEach(cap=>{
+        capSeq++;
+        const label = cap.menang==='P' ? 'Pasiva Menang (Beban Bunga Untuk Pusat)' : 'Aktiva Menang (Pendapatan Bunga Untuk Pusat)';
+        // TEMUAN #38: akunnya SELALU brncd_coa (cabang) & parent_coa (induk Pusat) yg SAMA
+        // di 2 arah - yg beda cuma Debit/Kredit-nya (mirror), BUKAN akunnya ikut ketuker.
+        const coaInduk = state.rak.parent_coa;
+        const coaIndukLabel = coaLabelShort(coaInduk);
+        const coaKantorLabel = coaLabelShort(state.rak.brncd_coa);
+        const amt = cap.amt;
+        let kantorRow = glMastRows.find(r=>r.brncd===cabang && r.label===coaKantorLabel);
+        if(!kantorRow){ kantorRow = {brncd:cabang, label:coaKantorLabel, dailyDebit:0, dailyCredit:0, accumDebit:0, accumCredit:0, cbal:0, lastTrn:cap.tgl, akun:'AKTIVA'}; glMastRows.push(kantorRow); }
+        if(cap.menang==='P'){ kantorRow.accumDebit+=amt; kantorRow.cbal+=amt; kantorRow.dailyDebit+=amt; } else { kantorRow.accumCredit+=amt; kantorRow.cbal-=amt; kantorRow.dailyCredit+=amt; }
+        kantorRow.lastTrn = cap.tgl;
+        let indukRow = glMastRows.find(r=>r.brncd==='370' && r.label===coaIndukLabel);
+        if(!indukRow){ indukRow = {brncd:'370', label:coaIndukLabel, dailyDebit:0, dailyCredit:0, accumDebit:0, accumCredit:0, cbal:0, lastTrn:cap.tgl, akun:'PASIVA'}; glMastRows.push(indukRow); }
+        if(cap.menang==='P'){ indukRow.accumCredit+=amt; indukRow.cbal-=amt; indukRow.dailyCredit+=amt; }
+        else { indukRow.accumDebit+=amt; indukRow.cbal+=amt; indukRow.dailyDebit+=amt; }
+        indukRow.lastTrn = cap.tgl;
+        extraTranHtml +=
+          '<tr class="row-hi-eom"><td>RAKEOM000'+capSeq+'</td><td>'+cap.tgl+'</td><td>'+officeName(cabang)+'</td><td>'+officeName(cabang)+'</td><td>'+coaKantorLabel+'</td><td>'+(cap.menang==='P'?'Debit':'Kredit')+'</td><td class="mono">'+fmtNum(amt)+'</td><td style="white-space:normal;min-width:200px">KAPITALISASI BUNGA RAK BULANAN - '+label+'</td></tr>'
+        + '<tr class="row-hi-eom"><td>RAKEOM000'+capSeq+'</td><td>'+cap.tgl+'</td><td>'+officeName('370')+'</td><td>'+officeName('370')+'</td><td>'+coaIndukLabel+'</td><td>'+(cap.menang==='P'?'Kredit':'Debit')+'</td><td class="mono">'+fmtNum(amt)+'</td><td style="white-space:normal;min-width:200px">KAPITALISASI BUNGA RAK BULANAN - '+label+'</td></tr>';
+      });
+    });
+  }
+
+  // gl_mast diwarnain per PASANGAN COA (bukan status EOD/EOM lagi) - biar keliatan mana
+  // punya cabang 371 (biru, kantor+induk-nya) vs punya cabang 372 (hijau, kantor+induk-nya).
+  // "Posisi Pusat" - kolom JOIN dari NEW_gl_mast_rakposisi (bukan kolom asli gl_mast),
+  // ditambahin krn cbal signed doang bikin bingung pas posisi lagi FLIP (nama akun "PASIVA"
+  // TETAP tertulis PASIVA walau cbal-nya kebalik/lagi Aktiva) - biar user gak salah baca.
+  // urutan tampilan: Kantor Pusat (370) dulu - biar Aktiva Pusat & Pasiva Pusat-nya
+  // kliatan bareng di atas - baru cabang (371, 372, ...), baru akun non-RAK (Kas dkk).
+  // urutan: Kantor Pusat (370) dulu - Aktiva Pusat lalu Pasiva Pusat bareng di atas -
+  // baru cabang (371, 372, ...), baru akun non-RAK (Kas dkk) paling akhir.
+  glMastRows.sort((a,b)=>{
+    const rank = r => r.brncd==='370' ? 0 : (r.akun ? 1 : 2);
+    const ra = rank(a), rb = rank(b);
+    if(ra!==rb) return ra-rb;
+    if(ra===0){ return (a.akun==='AKTIVA'?0:1) - (b.akun==='AKTIVA'?0:1); }
+    if(a.brncd!==b.brncd) return a.brncd<b.brncd ? -1 : 1;
+    return a.label<b.label ? -1 : (a.label>b.label ? 1 : 0);
+  });
+
+  // warna per JENIS akun (Aktiva vs Pasiva), bukan per cabang lagi - biar "Aktiva Pusat"
+  // & "Pasiva Pusat" langsung kebaca kelompoknya, di baris manapun akun itu muncul
+  // (baik di buku cabang sendiri maupun cerminannya di buku Pusat).
+  const glMastHtml = glMastRows.map(r=>{
+    const hi = r.akun==='AKTIVA' ? ' row-akun-aktiva' : (r.akun==='PASIVA' ? ' row-akun-pasiva' : '');
+    return '<tr class="'+hi+'"><td>'+officeName(r.brncd)+'</td><td>'+r.label+'</td><td class="mono">'+fmtNum(r.dailyDebit)+'</td><td class="mono">'+fmtNum(r.dailyCredit)+'</td><td class="mono">'+fmtNum(r.accumDebit)+'</td><td class="mono">'+fmtNum(r.accumCredit)+'</td><td class="mono">'+fmtNum(r.cbal)+'</td><td>'+r.lastTrn+'</td></tr>';
+  }).join('') || '<tr><td colspan="8" style="text-align:center;padding:14px;color:#9aa5b4">Belum ada baris</td></tr>';
+
+  const glTranHtml = (entries.map(e=>{
+    let hi = (phase==='after' && !e.akunLabel && e.dayIdx===dayIdx) ? ' row-hi-eod' : '';
+    if(e.narasi && e.narasi.indexOf('RECLASS NETTING')===0) hi += ' row-kondisi-netting';
+    return '<tr class="'+hi+'"><td>'+e.slip+'</td><td>'+e.tgl+'</td><td>'+officeName(skenTrxBrncd(e))+'</td><td>'+officeName(e.brncd)+'</td><td>'+skenAkunLabel(e)+'</td><td>'+(e.dk==='D'?'Debit':'Kredit')+'</td><td class="mono">'+fmtNum(e.amt)+'</td><td style="white-space:normal;min-width:200px">'+e.narasi+'</td></tr>';
+  }).join('') + extraTranHtml) || '<tr><td colspan="8" style="text-align:center;padding:14px;color:#9aa5b4">Belum ada baris</td></tr>';
+
+  return {glMastHtml, glTranHtml};
+}
+
+function skenColHtml(dayIdx, phase){
+  const states = SKEN_BRANCHES.map(cabang => phase==='before' ? skenStateBefore(dayIdx, cabang) : skenStateAfter(dayIdx, cabang));
+  const {glMastHtml, glTranHtml} = skenTblGlMastGlTran(dayIdx, phase, states);
+  const isEomDay = dayIdx===SKEN_EOM_DAYIDX;
+  const label = phase==='before' ? (isEomDay?'SEBELUM EOD+EOM':'SEBELUM EOD') : (isEomDay?'SESUDAH EOD+EOM':'SESUDAH EOD');
+  return '<div class="sken-col">'
+    + '<div class="sken-col-hd'+(phase==='after'?' after':'')+'">'+label+'</div>'
+    + '<div class="sken-col-bd">'
+    + '<div class="sken-tbl-title">1. NEW_gl_mast_rakposisi</div>'
+    + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>coa_induk_1</th><th>saldo_coa_induk_1</th><th>coa_induk_2</th><th>saldo_coa_induk_2</th><th>coa_posisi_hasil</th><th>saldo_posisi_hasil</th><th>bunga_coa_induk_1_mtd</th><th>bunga_coa_induk_2_mtd</th><th>last_accrual_date</th></tr></thead><tbody>'+skenTblPosisi(states, phase)+'</tbody></table></div>'
+    + '<div class="sken-tbl-title">2. NEW_gl_hist_raksweep</div>'
+    + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>tgl_sweep</th><th>kondisi</th><th>coa_sebelum</th><th>saldo_sebelum</th><th>coa_hasil</th><th>saldo_hasil</th><th>keterangan</th></tr></thead><tbody>'+skenTblSweep(states, phase)+'</tbody></table></div>'
+    + '<div class="sken-tbl-title">3. NEW_gl_hist_rakintdaily</div>'
+    + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>tanggal</th><th>brncd (via gl_mast_rakposisi_id)</th><th>coa_posisi_hasil</th><th>amount</th></tr></thead><tbody>'+skenTblIntDaily(states, phase)+'</tbody></table></div>'
+    + '<div class="sken-tbl-title">4. gl_mast</div>'
+    + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>gl_para_coa_id</th><th>daily_debit</th><th>daily_credit</th><th>accum_debit</th><th>accum_credit</th><th>cbal</th><th>last_trn_date</th></tr></thead><tbody>'+glMastHtml+'</tbody></table></div>'
+    + '<div class="sken-tbl-title">5. gl_tran</div>'
+    + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>slipno</th><th>eff_date</th><th>trx_brncd</th><th>acc_brncd</th><th>COA</th><th>D/K</th><th>amount</th><th>descr</th></tr></thead><tbody>'+glTranHtml+'</tbody></table></div>'
+    + '</div></div>';
+}
+
+function switchSkenTab(dayIdx){
+  skenActiveTab = dayIdx;
+  document.querySelectorAll('.sken-tab-btn').forEach((el,i)=>{ el.classList.toggle('active', i===dayIdx); });
+  document.getElementById('skenTabContent').innerHTML = '<div class="sken-cols">'+skenColHtml(dayIdx,'before')+skenColHtml(dayIdx,'after')+'</div>';
+}
+
+function skenInitTabs(){
+  document.getElementById('skenTabBar').innerHTML = SKEN_DAYS.map((d,i)=>
+    '<button type="button" class="sken-tab-btn'+(i===0?' active':'')+'" onclick="switchSkenTab('+i+')">'+d.tgl+(d.tag?' ('+d.tag+')':(i===SKEN_EOM_DAYIDX?' (Akhir Bulan)':''))+'</button>'
+  ).join('');
+  switchSkenTab(0);
+}
+
+// ====================== init ======================
+renderRakGrid();
+showPanel(false);
+renderRateGrid();
+skenInitTabs();
+</script>
+</body>
+</html>

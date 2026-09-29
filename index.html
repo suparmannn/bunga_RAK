@@ -359,17 +359,28 @@ const OFFICES = [
 ];
 
 const COA_MASTER = [
-  // GENERIK - dipakai GANTIAN oleh SEMUA cabang (bukan punya 371 doang, meski nomornya
-  // "dasar"/base) - ini yg dipakai netting harian non-bunga di Skenario (skenCoaLabelGeneric).
-  {id:'29700000', name:'ANTAR KANTOR AKTIVA - GENERIK (semua cabang)'},
-  {id:'39700000', name:'ANTAR KANTOR PASIVA - GENERIK (semua cabang)'},
-  {id:'29700001', name:'ANTAR KANTOR AKTIVA - 372 GENUK'},
-  {id:'39700001', name:'ANTAR KANTOR PASIVA - 372 GENUK'},
-  // COA Induk DEDICATED milik 371 (kapitalisasi bunga bulanan, gl_para_rak.brncd_coa/
-  // parent_coa) - SENGAJA nomor beda dari akun generik di atas, biar gak numpuk jadi 1
-  // baris pas kapitalisasi EOM (dulu collision krn Rak1 kepake nomor generik yg sama).
-  {id:'29700002', name:'ANTAR KANTOR AKTIVA - 371 NGALIYAN (INDUK)'},
-  {id:'39700002', name:'ANTAR KANTOR PASIVA - 371 NGALIYAN (INDUK)'},
+  // SUDAH TIDAK DIPAKAI Skenario C lagi (TEMUAN 2026-09-30) - dulu GENERIK, dipakai
+  // GANTIAN oleh SEMUA cabang buat netting harian. Sekarang netting harian pake COA
+  // DEDICATED per cabang (29700001/39700001 punya 371, 29700002/39700002 punya 372 -
+  // di bawah, nomor belakang KONSISTEN sama nomor urut cabang - permintaan user
+  // 2026-09-30), SAMA persis yg dipakai kapitalisasi bunga bulanan, biar coa_induk_1/
+  // coa_induk_2 gak collision antar cabang. Baris ini dibiarin nongol di master data
+  // sbg contoh nomor "belum di-dedicated-in" (referensi historis), tapi gak ke-refer
+  // lagi dari kode Skenario C manapun.
+  {id:'29700000', name:'ANTAR KANTOR AKTIVA - GENERIK (semua cabang, TIDAK DIPAKAI LAGI)'},
+  {id:'39700000', name:'ANTAR KANTOR PASIVA - GENERIK (semua cabang, TIDAK DIPAKAI LAGI)'},
+  // COA Induk DEDICATED milik 371 (kapitalisasi bunga bulanan DAN netting harian,
+  // gl_para_rak.brncd_coa/parent_coa - SATU set akun yg sama buat 2 keperluan itu,
+  // biar gak kepecah 2 baris beda per cabang). Nomor belakang "...01" konsisten sama
+  // cabang 371 (permintaan user 2026-09-30 - sblmnya kebalik/gak konsisten).
+  {id:'29700001', name:'ANTAR KANTOR AKTIVA - 371 NGALIYAN (INDUK)'},
+  {id:'39700001', name:'ANTAR KANTOR PASIVA - 371 NGALIYAN (INDUK)'},
+  // COA Induk DEDICATED milik 372 (kapitalisasi bunga bulanan DAN netting harian) -
+  // SENGAJA nomor beda dari akun generik di atas, biar gak numpuk jadi 1 baris pas
+  // kapitalisasi EOM (dulu collision krn Rak1 kepake nomor generik yg sama). Nomor
+  // belakang "...02" konsisten sama cabang 372.
+  {id:'29700002', name:'ANTAR KANTOR AKTIVA - 372 GENUK'},
+  {id:'39700002', name:'ANTAR KANTOR PASIVA - 372 GENUK'},
   // contoh COA non-Aktiva/Pasiva (RAK Modal, gak butuh sweep) - nomor asli dari screenshot GLPM0041 produksi
   {id:'69201000', name:'BIAYA BUNGA RAK - 371 NGALIYAN'},
   {id:'59201000', name:'PEND. BUNGA RAK - 371 NGALIYAN'},
@@ -378,8 +389,8 @@ const COA_MASTER = [
 // gl_para_rak (existing GLPM0041 table) - TIDAK DIUBAH SAMA SEKALI (TEMUAN #46,
 // is_sweep DIPINDAH ke gl_para_raksweep, bukan kolom di sini lagi).
 let glParaRak = [
-  {id:'Rak1', brncd:'371', brncd_coa:'29700002', parent_coa:'39700002', is_tran:true},
-  {id:'Rak2', brncd:'372', brncd_coa:'29700001', parent_coa:'39700001', is_tran:true},
+  {id:'Rak1', brncd:'371', brncd_coa:'29700001', parent_coa:'39700001', is_tran:true},
+  {id:'Rak2', brncd:'372', brncd_coa:'29700002', parent_coa:'39700002', is_tran:true},
   {id:'Rak3', brncd:'371', brncd_coa:'69201000', parent_coa:'59201000', is_tran:false},
 ];
 
@@ -387,8 +398,8 @@ let glParaRak = [
 // "Butuh Sweep RAK?" (TEMUAN #46, DIPINDAH ke sini dari gl_para_rak) - baris ini BISA
 // tetep ADA meski is_sweep=false (COA mapping kesimpen, tinggal diaktifin lagi nanti).
 let glRakSweep = [
-  {id:'001', gl_para_rak_id:'Rak1', is_sweep:true, brncd_coa_sweep:'39700002', parent_coa_sweep:'29700002'},
-  {id:'002', gl_para_rak_id:'Rak2', is_sweep:true, brncd_coa_sweep:'39700001', parent_coa_sweep:'29700001'},
+  {id:'001', gl_para_rak_id:'Rak1', is_sweep:true, brncd_coa_sweep:'39700001', parent_coa_sweep:'29700001'},
+  {id:'002', gl_para_rak_id:'Rak2', is_sweep:true, brncd_coa_sweep:'39700002', parent_coa_sweep:'29700002'},
 ];
 
 // gl_para_rakrate (ganti total desain lama, sekarang cuma nyimpen rate + FK ke gl_raksweep)
@@ -751,19 +762,27 @@ const SKEN_DAYS = [
   {tgl:'05 Sep 2026', pos:{'371':{aktiva:55000000, pasiva:0}, '372':{aktiva:-15000000, pasiva:-95000000}}, tag:'372 Netting Abnormal'},
   {tgl:'30 Sep 2026', pos:{'371':{aktiva:20000000, pasiva:0}, '372':{aktiva:0, pasiva:-20000000}}},
 ];
-// Kas & Rekening Nasabah (non-RAK) - pola sama kaya CASE_C_NONRAK, biar gl_tran keliatan
-// lengkap (bukan cuma baris RAK) - sekarang ADA di tiap hari, gak ada hari kosong.
+// TEMUAN baru (2026-09-30, permintaan user): dulu pake Kas/Simpanan Nasabah (COA di luar
+// RAK) - diganti pake COA RAK DEDICATED cabang terkait (sama kaya yg dipakai netting
+// harian/kapitalisasi), narasinya jadi "Setor Tunai"/"Tarik Tunai" biar debit/kreditnya
+// LANGSUNG kebaca sbg pergerakan RAK, bukan mikir dulu "Kas ini nyambungnya ke RAK gimana".
+// SENGAJA dikasih suffix "(Transaksi Harian)" di label - biar baris ini TETAP entry
+// TERPISAH dari baris RAK asli hasil skenBuildLedgerEntries (gak numpuk jadi 1 cbal),
+// krn ini CUMA ilustrasi "kejadian apa yg bikin posisi RAK berubah", nominalnya BUKAN
+// sumber kebenaran cbal RAK (itu tetep dari SKEN_DAYS) - permintaan user, opsi
+// "cuma ganti label & narasi" (bukan opsi "transaksi jadi sumber angka RAK" yg
+// pernah dicoba & di-revert krn kerumitan, TEMUAN sesi sblmnya).
 const SKEN_NONRAK = [
-  {dayIdx:0, brncd:'372', akunLabel:'11010000 - KAS', dk:'D', amt:50000000, narasi:'Kas masuk - nasabah 371 setor tunai di loket 372'},
-  {dayIdx:0, brncd:'371', akunLabel:'21010000 - SIMPANAN NASABAH', dk:'K', amt:50000000, narasi:'Saldo rekening nasabah 371 bertambah'},
-  {dayIdx:1, brncd:'372', akunLabel:'11010000 - KAS', dk:'K', amt:80000000, narasi:'Kas keluar - nasabah 371 tarik tunai di loket 372'},
-  {dayIdx:1, brncd:'371', akunLabel:'21010000 - SIMPANAN NASABAH', dk:'D', amt:80000000, narasi:'Saldo rekening nasabah 371 berkurang'},
-  {dayIdx:2, brncd:'372', akunLabel:'11010000 - KAS', dk:'D', amt:85000000, narasi:'Kas masuk - nasabah 371 lunasi kewajiban lama + setor baru di loket 372 (posisi RAK 371 balik jadi Aktiva)'},
-  {dayIdx:2, brncd:'371', akunLabel:'21010000 - SIMPANAN NASABAH', dk:'K', amt:85000000, narasi:'Saldo rekening nasabah 371 bertambah besar'},
-  {dayIdx:3, brncd:'372', akunLabel:'11010000 - KAS', dk:'K', amt:110000000, narasi:'Kas keluar - transaksi nasabah 372 sendiri (penarikan besar, bikin posisi RAK 372 sempat abnormal)'},
-  {dayIdx:3, brncd:'372', akunLabel:'21010000 - SIMPANAN NASABAH', dk:'D', amt:110000000, narasi:'Saldo rekening nasabah 372 berkurang besar'},
-  {dayIdx:4, brncd:'372', akunLabel:'11010000 - KAS', dk:'D', amt:50000000, narasi:'Kas masuk - nasabah 371 setor tunai lagi di loket 372 (akhir bulan)'},
-  {dayIdx:4, brncd:'371', akunLabel:'21010000 - SIMPANAN NASABAH', dk:'K', amt:50000000, narasi:'Saldo rekening nasabah 371 bertambah lagi'},
+  {dayIdx:0, brncd:'372', akunLabel:coaLabelShort('29700001')+' (Transaksi Harian)', dk:'D', amt:50000000, narasi:'Setor Tunai - nasabah 371 setor tunai di loket 372'},
+  {dayIdx:0, brncd:'371', akunLabel:coaLabelShort('39700001')+' (Transaksi Harian)', dk:'K', amt:50000000, narasi:'Setor Tunai - saldo RAK cabang 371 terhadap pusat bertambah'},
+  {dayIdx:1, brncd:'372', akunLabel:coaLabelShort('29700001')+' (Transaksi Harian)', dk:'K', amt:80000000, narasi:'Tarik Tunai - nasabah 371 tarik tunai di loket 372'},
+  {dayIdx:1, brncd:'371', akunLabel:coaLabelShort('39700001')+' (Transaksi Harian)', dk:'D', amt:80000000, narasi:'Tarik Tunai - saldo RAK cabang 371 terhadap pusat berkurang'},
+  {dayIdx:2, brncd:'372', akunLabel:coaLabelShort('29700001')+' (Transaksi Harian)', dk:'D', amt:85000000, narasi:'Setor Tunai - nasabah 371 lunasi kewajiban lama + setor baru di loket 372 (posisi RAK 371 balik jadi Aktiva)'},
+  {dayIdx:2, brncd:'371', akunLabel:coaLabelShort('39700001')+' (Transaksi Harian)', dk:'K', amt:85000000, narasi:'Setor Tunai - saldo RAK cabang 371 terhadap pusat bertambah besar'},
+  {dayIdx:3, brncd:'372', akunLabel:coaLabelShort('29700002')+' (Transaksi Harian)', dk:'K', amt:110000000, narasi:'Tarik Tunai - transaksi nasabah 372 sendiri (penarikan besar, bikin posisi RAK 372 sempat abnormal)'},
+  {dayIdx:3, brncd:'372', akunLabel:coaLabelShort('39700002')+' (Transaksi Harian)', dk:'D', amt:110000000, narasi:'Tarik Tunai - saldo RAK cabang 372 terhadap pusat berkurang besar'},
+  {dayIdx:4, brncd:'372', akunLabel:coaLabelShort('29700001')+' (Transaksi Harian)', dk:'D', amt:50000000, narasi:'Setor Tunai - nasabah 371 setor tunai lagi di loket 372 (akhir bulan)'},
+  {dayIdx:4, brncd:'371', akunLabel:coaLabelShort('39700001')+' (Transaksi Harian)', dk:'K', amt:50000000, narasi:'Setor Tunai - saldo RAK cabang 371 terhadap pusat bertambah lagi'},
 ];
 const SKEN_NONRAK_SLIP = {0:'RAKC0001', 1:'RAKC0002', 2:'RAKC0003', 3:'RAKC0004', 4:'RAKC0005'};
 
@@ -802,21 +821,27 @@ function skenKeteranganNetting(sw){
   return head+' |'+menangLabel+'|='+rp(menangAbs)+' > |'+kalahLabel+'|='+rp(kalahAbs)+', '+menangLabel+' menang. Saldo hasil = '+rp(menangAbs)+' - '+rp(kalahAbs)+' = '+rp(sw.saldoHasil)+'. '+kalahLabel+' disweep ke 0.';
 }
 
-// Persis buildLedgerEntries() di bunga_rak_menu_demo.html - Kantor Pusat (370) CUMA
-// pakai 2 akun GENERIK/SHARED (Antar Kantor Aktiva 29700000 & Pasiva 39700000), dipakai
-// gantian tiap cabang, BUKAN 1 akun dedicated per cabang - biar "Aktiva Pusat" &
-// "Pasiva Pusat" kebaca sebagai 2 baris utuh (gabungan semua cabang), bukan kepecah
-// jadi banyak baris per-cabang yg keliatan "Pusat isinya Pasiva doang".
-// (Beda sama kapitalisasi bunga bulanan di bawah - itu TETAP pakai COA per-cabang asli
-// dari GLPM0041/gl_para_rak, krn itu emang didesain per-cabang - TEMUAN #20.)
-function skenCoaLabelGeneric(akun){ return akun==='AKTIVA' ? coaLabelShort('29700000') : coaLabelShort('39700000'); }
+// TEMUAN baru (2026-09-30, permintaan user - "pasiva/aktiva kantor pusat cabang A dan B
+// disamain, gak dibedain"): akun Pusat buat netting HARIAN SEKARANG per-cabang DEDICATED
+// (reuse gl_para_rak.brncd_coa/parent_coa yg SAMA dipakai kapitalisasi EOM - TEMUAN
+// #20/#38), BUKAN akun generik gabungan lagi. brncd_coa (297-family) = akun 'AKTIVA'-type
+// dedicated cabang ybs, parent_coa (397-family) = akun 'PASIVA'-type dedicated cabang ybs -
+// PERSIS pola yg sama kayak kapitalisasi, biar 2 kejadian (netting harian & kapitalisasi
+// bulanan) ke akun YANG SAMA otomatis kegabung jadi 1 baris cbal per cabang.
+// KONSEKUENSI (SUDAH dikonfirmasi user): tabel 4 gl_mast "Aktiva Pusat"/"Pasiva Pusat"
+// PECAH per cabang lagi (371 pakai 297...02/397...02, 372 pakai 297...01/397...01) -
+// BUKAN 2 baris gabungan generik lagi kayak sebelumnya.
+function skenCoaIndukLabel(cabang, akun){
+  const rak = findRak(skenRakIdFor(cabang));
+  return coaLabelShort(akun==='AKTIVA' ? rak.brncd_coa : rak.parent_coa);
+}
 
 // TAHAP 1 (gross, independen per sisi) - bawa cbal ke posisi RAW hari ini (coa_induk_1/
 // coa_induk_2 di tabel 1). TAHAP 2 (reclass) - begitu abis Tahap 1 dua-duanya nonzero
 // (kondisi NETTING_NORMAL/ABNORMAL), sisi KALAH ditutup ke 0 & sisi MENANG dikurangin
-// sebesar sisi kalah - INI baris yg bawa angka selisih (25jt) secara eksplisit ke
-// gl_tran, biar "yang jadi 0 itu yang dijurnal" (permintaan user 2026-09-28) sekaligus
-// nyisain saldo bersih (55jt) di sisi menang lewat aritmatika cbal biasa.
+// sebesar sisi kalah - INI baris yg bawa angka selisih secara eksplisit ke gl_tran, biar
+// "yang jadi 0 itu yang dijurnal" (permintaan user 2026-09-28) sekaligus nyisain saldo
+// bersih di sisi menang lewat aritmatika cbal biasa.
 // ARAH mirror: raw.aktiva/raw.pasiva itu dari SUDUT PANDANG PUSAT. Pusat Aktiva naik =
 // cabang PASIVA naik (mirror, cabang berutang lebih banyak); Pusat Pasiva (magnitude)
 // naik = cabang AKTIVA naik (mirror, cabang punya piutang lebih banyak) - sama persis
@@ -824,13 +849,16 @@ function skenCoaLabelGeneric(akun){ return akun==='AKTIVA' ? coaLabelShort('2970
 function skenBuildLedgerEntries(){
   const state = {};
   const entries = [];
-  function post(dayIdx, slip, brncd, akun, dk, amt, tgl, narasi){
-    if(amt===0) return;
-    entries.push({dayIdx, slip, tgl, brncd, akun, dk, amt, narasi});
-  }
   SKEN_DAYS.forEach((day, dayIdx)=>{
     const slip = SKEN_NONRAK_SLIP[dayIdx] || ('RAKC'+String(dayIdx+1).padStart(4,'0'));
     SKEN_BRANCHES.forEach(b=>{
+      // post() didefinisiin DI DALAM loop cabang ini biar bisa nutup ('closure') variabel
+      // b - dipakai buat resolve akun DEDICATED cabang ybs (skenCoaIndukLabel), baik buat
+      // baris cabang sendiri MAUPUN baris cerminan Pusat (keduanya milik cabang b yg sama).
+      function post(brncd, akun, dk, amt, tgl, narasi){
+        if(amt===0) return;
+        entries.push({dayIdx, slip, tgl, brncd, akun, label:skenCoaIndukLabel(b, akun), dk, amt, narasi});
+      }
       const today = day.pos[b];
       const prev = state[b] || {aktiva:0, pasiva:0};
       const tgl = day.tgl;
@@ -840,11 +868,11 @@ function skenBuildLedgerEntries(){
       const deltaAktiva = today.aktiva - prev.aktiva;
       if(deltaAktiva > 0){
         const label = isAwal ? 'Buka posisi awal - Aktiva Pusat vs '+b : 'Penambahan posisi - Aktiva Pusat vs '+b;
-        post(dayIdx,slip,b,'PASIVA','K',deltaAktiva,tgl,label); post(dayIdx,slip,'370','AKTIVA','D',deltaAktiva,tgl,'Cerminan - '+label);
+        post(b,'PASIVA','K',deltaAktiva,tgl,label); post('370','AKTIVA','D',deltaAktiva,tgl,'Cerminan - '+label);
       } else if(deltaAktiva < 0){
         const amt = -deltaAktiva;
         const label = 'Pengurangan posisi - Aktiva Pusat vs '+b;
-        post(dayIdx,slip,b,'PASIVA','D',amt,tgl,label); post(dayIdx,slip,'370','AKTIVA','K',amt,tgl,'Cerminan - '+label);
+        post(b,'PASIVA','D',amt,tgl,label); post('370','AKTIVA','K',amt,tgl,'Cerminan - '+label);
       }
 
       // TAHAP 1: sisi PASIVA Pusat (mirror -> cabang AKTIVA). pasiva disimpen NEGATIF -
@@ -853,10 +881,10 @@ function skenBuildLedgerEntries(){
       if(deltaPasiva < 0){
         const amt = -deltaPasiva;
         const label = isAwal ? 'Buka posisi awal - Pasiva Pusat vs '+b : 'Penambahan posisi - Pasiva Pusat vs '+b;
-        post(dayIdx,slip,b,'AKTIVA','D',amt,tgl,label); post(dayIdx,slip,'370','PASIVA','K',amt,tgl,'Cerminan - '+label);
+        post(b,'AKTIVA','D',amt,tgl,label); post('370','PASIVA','K',amt,tgl,'Cerminan - '+label);
       } else if(deltaPasiva > 0){
         const label = 'Pengurangan posisi - Pasiva Pusat vs '+b;
-        post(dayIdx,slip,b,'AKTIVA','K',deltaPasiva,tgl,label); post(dayIdx,slip,'370','PASIVA','D',deltaPasiva,tgl,'Cerminan - '+label);
+        post(b,'AKTIVA','K',deltaPasiva,tgl,label); post('370','PASIVA','D',deltaPasiva,tgl,'Cerminan - '+label);
       }
 
       // TAHAP 2: abis Tahap 1, kalau dua-duanya nonzero -> RECLASS (zero-in sisi kalah)
@@ -866,11 +894,11 @@ function skenBuildLedgerEntries(){
         const reclassAmt = Math.min(Math.abs(today.aktiva), Math.abs(today.pasiva));
         const ket = 'Sweep/netting '+b+' ('+sw.kondisi+') - sisi kalah ditutup ke 0 (Rp'+fmtNum(reclassAmt)+'), sisi menang jadi saldo posisi Rp'+fmtNum(sw.saldoHasil)+' (detail: '+skenKeteranganNetting(sw)+')';
         // sisi kalah = Pasiva Pusat (mirror cabang AKTIVA) -> tutup ke 0
-        if(today.pasiva < 0){ post(dayIdx,slip,b,'AKTIVA','K',reclassAmt,tgl,ket); post(dayIdx,slip,'370','PASIVA','D',reclassAmt,tgl,ket); }
-        else { post(dayIdx,slip,b,'AKTIVA','D',reclassAmt,tgl,ket); post(dayIdx,slip,'370','PASIVA','K',reclassAmt,tgl,ket); }
+        if(today.pasiva < 0){ post(b,'AKTIVA','K',reclassAmt,tgl,ket); post('370','PASIVA','D',reclassAmt,tgl,ket); }
+        else { post(b,'AKTIVA','D',reclassAmt,tgl,ket); post('370','PASIVA','K',reclassAmt,tgl,ket); }
         // sisi menang = Aktiva Pusat (mirror cabang PASIVA) -> dikurangin reclassAmt
-        if(today.aktiva > 0){ post(dayIdx,slip,b,'PASIVA','D',reclassAmt,tgl,ket); post(dayIdx,slip,'370','AKTIVA','K',reclassAmt,tgl,ket); }
-        else { post(dayIdx,slip,b,'PASIVA','K',reclassAmt,tgl,ket); post(dayIdx,slip,'370','AKTIVA','D',reclassAmt,tgl,ket); }
+        if(today.aktiva > 0){ post(b,'PASIVA','D',reclassAmt,tgl,ket); post('370','AKTIVA','K',reclassAmt,tgl,ket); }
+        else { post(b,'PASIVA','K',reclassAmt,tgl,ket); post('370','AKTIVA','D',reclassAmt,tgl,ket); }
         after = sw.posisiHasil==='A' ? {aktiva:sw.saldoHasil, pasiva:0} : {aktiva:0, pasiva:-sw.saldoHasil};
       }
       state[b] = after;
@@ -882,7 +910,7 @@ function skenBuildLedgerEntries(){
   }));
   return entries.concat(nonRak);
 }
-function skenAkunLabel(e){ return e.akunLabel || skenCoaLabelGeneric(e.akun); }
+function skenAkunLabel(e){ return e.akunLabel || e.label; }
 function skenTrxBrncd(e){ return e.akunLabel ? '372' : e.brncd; } // non-RAK selalu lewat loket 372 (cerita kasusnya)
 
 const SKEN_EOM_DAYIDX = 4; // index hari yg diperlakukan sbg akhir bulan (30 Sep) - gabungan EOD+EOM
@@ -971,25 +999,33 @@ function skenBuildEntries(dayIdx, phase){
 // gl_para_rakrate 'COA Induk 1/2') ditampilin BERDAMPINGAN sama posisi_pusat_hasil/
 // saldo_posisi_hasil (HASIL sweep, SELALU 1 sisi) - biar kebaca "sebelum" vs "sesudah"
 // langsung di 1 baris yg sama, gak perlu buka tabel lain.
-// TEMUAN #45 (ERD): coa_induk_1/coa_induk_2 itu FK ke 2 COA GENERIK Pusat yg TETAP/
-// SAMA di semua baris (gl_para_standard.NEW_rak_pasiva_coa/NEW_rak_aktiva_coa) - jadi
-// labelnya cukup di-resolve sekali via skenCoaLabelGeneric, TIDAK perlu disimpan di
-// state per-cabang. coa_posisi_hasil (dulu badge 'A'/'P') SEKARANG label COA juga -
-// dinamis, ngikutin posisiPusat cabang itu.
-function skenCoaPosisiLabel(posisi){
+// TEMUAN baru (2026-09-30, permintaan user): coa_induk_1/coa_induk_2 SEKARANG per-cabang
+// DEDICATED (skenCoaIndukLabel, reuse rak.brncd_coa/parent_coa) - BUKAN 2 COA generik
+// yg sama di semua baris lagi (revisi dari TEMUAN #45). coa_posisi_hasil (dulu badge
+// 'A'/'P') tetep label COA dinamis, ngikutin posisiPusat cabang itu, tapi resolve-nya
+// juga per-cabang sekarang - makanya butuh parameter cabang.
+function skenCoaPosisiLabel(cabang, posisi){
   if(posisi==='-') return '-';
-  return skenCoaLabelGeneric(posisi==='A' ? 'AKTIVA' : 'PASIVA');
+  return skenCoaIndukLabel(cabang, posisi==='A' ? 'AKTIVA' : 'PASIVA');
+}
+// TEMUAN baru (2026-09-30, permintaan user): kolom crdr - saldo normal COA 297... (Aktiva,
+// coa_induk_2) itu DEBET, 397... (Pasiva, coa_induk_1) itu KREDIT - dikasih kolom eksplisit
+// biar user gak perlu apal konvensi nomor COA, langsung kebaca "kalau ada transaksi,
+// debetnya kemana kreditnya kemana" dari coa_posisi_hasil yg lagi aktif hari itu.
+function skenCrdrForPosisi(posisi){
+  if(posisi==='-') return '-';
+  return posisi==='A' ? 'D' : 'K';
 }
 function skenTblPosisi(states, phase){
   const hi = phase==='after' ? ' row-hi-eod' : '';
-  const coaInduk1 = skenCoaLabelGeneric('PASIVA'), coaInduk2 = skenCoaLabelGeneric('AKTIVA');
   return states.map(state=>{
+    const coaInduk1 = skenCoaIndukLabel(state.cabang,'PASIVA'), coaInduk2 = skenCoaIndukLabel(state.cabang,'AKTIVA');
     const duaSisi = state.saldoCoaInduk1!==0 && state.saldoCoaInduk2!==0;
     const cls = hi + (duaSisi ? ' row-kondisi-netting' : '');
     return '<tr class="'+cls+'"><td>'+officeName(state.cabang)+'</td>'
     + '<td>'+coaInduk1+'</td><td class="mono">'+fmtNum(Math.abs(state.saldoCoaInduk1))+'</td>'
     + '<td>'+coaInduk2+'</td><td class="mono">'+fmtNum(state.saldoCoaInduk2)+'</td>'
-    + '<td>'+skenCoaPosisiLabel(state.posisiPusat)+'</td><td class="mono">'+fmtNum(state.saldoPosisi)+'</td>'
+    + '<td>'+skenCoaPosisiLabel(state.cabang, state.posisiPusat)+'</td><td>'+skenCrdrForPosisi(state.posisiPusat)+'</td><td class="mono">'+fmtNum(state.saldoPosisi)+'</td>'
     + '<td class="mono">'+fmtNum(state.bungaCoaInduk1Mtd)+'</td><td class="mono">'+fmtNum(state.bungaCoaInduk2Mtd)+'</td><td>'+state.lastAccrualDate+'</td></tr>';
   }).join('');
 }
@@ -1001,8 +1037,8 @@ function skenTblSweep(states, phase){
       let hi = (phase==='after' && i===lastIdx) ? ' row-hi-eod' : '';
       if(r.kondisi==='NETTING_NORMAL' || r.kondisi==='NETTING_ABNORMAL') hi += ' row-kondisi-netting';
       rows.push('<tr class="'+hi+'"><td>'+officeName(state.cabang)+'</td><td>'+r.tgl+'</td><td>'+r.kondisi+'</td>'
-        + '<td>'+skenCoaPosisiLabel(r.posisiSebelum)+'</td><td class="mono">'+fmtNum(r.saldoSebelum)+'</td>'
-        + '<td>'+skenCoaPosisiLabel(r.posisiHasil)+'</td><td class="mono">'+fmtNum(r.saldoHasil)+'</td>'
+        + '<td>'+skenCoaPosisiLabel(state.cabang, r.posisiSebelum)+'</td><td class="mono">'+fmtNum(r.saldoSebelum)+'</td>'
+        + '<td>'+skenCoaPosisiLabel(state.cabang, r.posisiHasil)+'</td><td class="mono">'+fmtNum(r.saldoHasil)+'</td>'
         + '<td style="white-space:normal;min-width:260px">'+r.keterangan+'</td></tr>');
     });
   });
@@ -1014,35 +1050,37 @@ function skenTblIntDaily(states, phase){
     const lastIdx = state.intDailyRows.length-1;
     state.intDailyRows.forEach((r,i)=>{
       const hi = (phase==='after' && i===lastIdx) ? ' row-hi-eod' : '';
-      rows.push('<tr class="'+hi+'"><td>'+r.tgl+'</td><td>'+officeName(state.cabang)+'</td><td>'+skenCoaPosisiLabel(r.posisiPusat)+'</td><td class="mono">'+fmtNum(r.amount)+'</td></tr>');
+      rows.push('<tr class="'+hi+'"><td>'+r.tgl+'</td><td>'+officeName(state.cabang)+'</td><td>'+skenCoaPosisiLabel(state.cabang, r.posisiPusat)+'</td><td>'+skenCrdrForPosisi(r.posisiPusat)+'</td><td class="mono">'+fmtNum(r.amount)+'</td></tr>');
     });
   });
-  return rows.join('') || '<tr><td colspan="4" style="text-align:center;padding:14px;color:#9aa5b4">Belum ada baris</td></tr>';
+  return rows.join('') || '<tr><td colspan="5" style="text-align:center;padding:14px;color:#9aa5b4">Belum ada baris</td></tr>';
 }
 function skenTblGlMastGlTran(dayIdx, phase, states){
   const entries = skenBuildEntries(dayIdx, phase);
 
-  // key dinamis dari entry yg beneran ada. Kantor Pusat (370) pake akun GENERIK
-  // (AKTIVA/PASIVA, shared semua cabang) - jadi paling banyak 2 baris Pusat: Aktiva
-  // Pusat & Pasiva Pusat, gampang dibaca gabungannya.
+  // key dinamis dari entry yg beneran ada. Kantor Pusat (370) SEKARANG pake akun
+  // DEDICATED per-cabang (label udah di-resolve per entry lewat skenCoaIndukLabel di
+  // skenBuildLedgerEntries, disimpen di e.label) - jadi key-nya brncd+label (BUKAN
+  // brncd+akun lagi), biar entry cabang beda yg kebetulan sama-sama tag 'AKTIVA'/
+  // 'PASIVA' gak numpuk ke baris yg sama kalau akunnya beda (dedicated per cabang).
   function buildGlMastRows(ents){
     const ks = [];
     const seen = new Set();
     ents.forEach(e=>{
-      const keyId = e.brncd+'|'+(e.akun || e.akunLabel);
-      if(!seen.has(keyId)){ seen.add(keyId); ks.push({brncd:e.brncd, akun:e.akun, akunLabel:e.akunLabel}); }
+      const lbl = e.label || e.akunLabel;
+      const keyId = e.brncd+'|'+lbl;
+      if(!seen.has(keyId)){ seen.add(keyId); ks.push({brncd:e.brncd, akun:e.akun, akunLabel:e.akunLabel, label:lbl}); }
     });
     const rows = [];
     ks.forEach(k=>{
-      const rel = ents.filter(e=> e.brncd===k.brncd && (k.akun ? e.akun===k.akun : e.akunLabel===k.akunLabel));
+      const rel = ents.filter(e=> e.brncd===k.brncd && (e.label || e.akunLabel)===k.label);
       if(!rel.length) return;
       const accumDebit = rel.reduce((s,e)=>s+(e.dk==='D'?e.amt:0),0);
       const accumCredit = rel.reduce((s,e)=>s+(e.dk==='K'?e.amt:0),0);
       const dailyRel = rel.filter(e=>e.dayIdx===dayIdx);
       const dailyDebit = dailyRel.reduce((s,e)=>s+(e.dk==='D'?e.amt:0),0);
       const dailyCredit = dailyRel.reduce((s,e)=>s+(e.dk==='K'?e.amt:0),0);
-      const label = k.akun ? skenCoaLabelGeneric(k.akun) : k.akunLabel;
-      rows.push({brncd:k.brncd, label, dailyDebit, dailyCredit, accumDebit, accumCredit, cbal:accumDebit-accumCredit, lastTrn:rel[rel.length-1].tgl, akun:k.akun, contrib:rel.slice()});
+      rows.push({brncd:k.brncd, label:k.label, dailyDebit, dailyCredit, accumDebit, accumCredit, cbal:accumDebit-accumCredit, lastTrn:rel[rel.length-1].tgl, akun:k.akun, contrib:rel.slice()});
     });
     return rows;
   }
@@ -1181,11 +1219,11 @@ function skenColHtml(dayIdx, phase){
     + '<div class="sken-col-hd'+(phase==='after'?' after':'')+'">'+label+'</div>'
     + '<div class="sken-col-bd">'
     + '<div class="sken-tbl-title">1. NEW_gl_mast_rakposisi</div>'
-    + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>coa_induk_1</th><th>saldo_coa_induk_1</th><th>coa_induk_2</th><th>saldo_coa_induk_2</th><th>coa_posisi_hasil</th><th>saldo_posisi_hasil</th><th>bunga_coa_induk_1_mtd</th><th>bunga_coa_induk_2_mtd</th><th>last_accrual_date</th></tr></thead><tbody>'+skenTblPosisi(states, phase)+'</tbody></table></div>'
+    + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>coa_induk_1</th><th>saldo_coa_induk_1</th><th>coa_induk_2</th><th>saldo_coa_induk_2</th><th>coa_posisi_hasil</th><th>crdr</th><th>saldo_posisi_hasil</th><th>bunga_coa_induk_1_mtd</th><th>bunga_coa_induk_2_mtd</th><th>last_accrual_date</th></tr></thead><tbody>'+skenTblPosisi(states, phase)+'</tbody></table></div>'
     + '<div class="sken-tbl-title">2. NEW_gl_hist_raksweep</div>'
     + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>tgl_sweep</th><th>kondisi</th><th>coa_sebelum</th><th>saldo_sebelum</th><th>coa_hasil</th><th>saldo_hasil</th><th>keterangan</th></tr></thead><tbody>'+skenTblSweep(states, phase)+'</tbody></table></div>'
     + '<div class="sken-tbl-title">3. NEW_gl_hist_rakintdaily</div>'
-    + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>tanggal</th><th>brncd (via gl_mast_rakposisi_id)</th><th>coa_posisi_hasil</th><th>amount</th></tr></thead><tbody>'+skenTblIntDaily(states, phase)+'</tbody></table></div>'
+    + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>tanggal</th><th>brncd (via gl_mast_rakposisi_id)</th><th>coa_posisi_hasil</th><th>crdr</th><th>amount</th></tr></thead><tbody>'+skenTblIntDaily(states, phase)+'</tbody></table></div>'
     + '<div class="sken-tbl-title">4. gl_mast</div>'
     + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>gl_para_coa_id</th><th>daily_debit</th><th>daily_credit</th><th>accum_debit</th><th>accum_credit</th><th>cbal</th><th>last_trn_date</th></tr></thead><tbody>'+glMastHtml+'</tbody></table></div>'
     + '<div class="sken-tbl-title">5. gl_tran</div>'

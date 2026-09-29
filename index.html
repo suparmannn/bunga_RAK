@@ -59,6 +59,9 @@ table.appr-tbl tr.row-hi-eom td{background:#dcfce7!important}
 table.appr-tbl tr.row-akun-aktiva td{background:#dbeafe!important}
 table.appr-tbl tr.row-akun-pasiva td{background:#fde7c7!important}
 table.appr-tbl tr.row-kondisi-netting td{border-left:3px solid #b45309}
+table.appr-tbl tr td.cbal-berubah{background:#fecaca!important;font-weight:700;color:#7f1d1d}
+table.appr-tbl tr td.cbal-clickable{cursor:pointer}
+table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-decoration:underline}
 .sken-legend{display:flex;gap:22px;flex-wrap:wrap;background:#fff;border:1px solid #c7d0da;border-radius:4px;padding:9px 16px;margin:0 0 14px;font-size:12px;align-items:center}
 .legend-dot{display:inline-block;width:13px;height:13px;border-radius:3px;margin-right:6px;vertical-align:middle;border:1px solid rgba(0,0,0,.15)}
 .coa-legend b{color:#1a2430}
@@ -274,7 +277,8 @@ table.appr-tbl tr.row-kondisi-netting td{border-left:3px solid #b45309}
       <!-- ======================= VIEW: SKENARIO C (EOD/EOM) ======================= -->
       <div id="view-skenario" style="display:none">
         <div class="page-title">Skenario C &ndash; Studi Kasus Setor/Tarik Tunai 371 via 372 (Alur Data EOD/EOM)</div>
-        <div class="page-sub">Dikembangin dari Skenario C di <span class="mono">bunga_rak_menu_demo.html</span>: nasabah pemilik rekening Cabang 371 setor tunai Rp50.000.000 di loket Cabang 372 (02 Sep, posisi FLIP biasa) &rarr; tarik tunai Rp80.000.000 (03 Sep, FLIP balik ke Pasiva) &rarr; 371 punya gerakan Aktiva Rp80jt DAN Pasiva Rp25jt BERSAMAAN hari yg sama (04 Sep &ndash; kondisi <b>NETTING_NORMAL</b>, Aktiva menang selisih Rp55.000.000) &rarr; 371 nyicil/settle sebagian (05 Sep, konsolidasi jadi Aktiva bersih Rp55jt), giliran 372 yg kena Aktiva -Rp15jt (tanda kebalik/abnormal) DAN Pasiva -Rp95jt bersamaan (kondisi <b>NETTING_ABNORMAL</b>, Pasiva menang selisih Rp80.000.000) &rarr; akhir bulan (30 Sep) kedua cabang cuma berkurang posisi, fokus ke kapitalisasi EOM. Pilih tab tanggal, lihat SEBELUM vs SESUDAH proses EOD (atau EOD+EOM khusus 30 Sep). <b>PENTING soal pencatatan</b>: kondisi NETTING_NORMAL/ABNORMAL di tabel <b>2. NEW_gl_hist_raksweep</b> (kolom keterangan auto-narasi) itu yg jelasin DARI MANA selisihnya dihitung (dibandingin dalam 1 baris cabang) - tapi yang keposting ke <b>5. gl_tran</b> BUKAN 1 angka selisih itu. Aktiva Pusat &amp; Pasiva Pusat terhadap cabang itu masing-masing dicatat SENDIRI-SENDIRI, 2 baris independen (Aktiva Pusat vs cabang X = sekian, Pasiva Pusat vs cabang X = sekian) - biar dari gl_tran/gl_mast langsung kebaca berapa Aktiva DAN berapa Pasiva-nya, gak perlu itung selisih manual.</div>
+        <div class="sken-tbl-title" style="margin-top:0">Ringkasan Ekspektasi cbal gl_mast (Sebelum &rarr; Sesudah EOD/EOM, per hari)</div>
+        <div class="appr-grid-wrap" style="margin-bottom:16px"><table class="appr-tbl"><thead><tr><th>tanggal</th><th>kantor</th><th>gl_para_coa_id</th><th>cbal SEBELUM</th><th>cbal SESUDAH</th></tr></thead><tbody id="skenRingkasanCbal"></tbody></table></div>
 
         <div class="toolbar" id="skenTabBar"></div>
         <div class="sken-legend">
@@ -287,6 +291,7 @@ table.appr-tbl tr.row-kondisi-netting td{border-left:3px solid #b45309}
           <div><b>Legend gl_mast (beda arti - ini JENIS akun, bukan status EOD/EOM):</b></div>
           <div><span class="legend-dot" style="background:#dbeafe"></span> Akun AKTIVA (297...) - di baris manapun dia muncul, cabang sendiri maupun cerminan Kantor Pusat</div>
           <div><span class="legend-dot" style="background:#fde7c7"></span> Akun PASIVA (397...) - sama, cabang sendiri maupun cerminan Kantor Pusat</div>
+          <div><span class="legend-dot" style="background:#fecaca"></span> <b>cbal BERUBAH</b> dibanding kolom SEBELUM (cuma di kolom SESUDAH) - ini yang kena impact EOD/EOM hari itu, bandingin ke angka di kolom SEBELUM buat liat dari berapa ke berapa</div>
         </div>
         <div class="note">Kantor Pusat (370) selalu ditaruh paling atas, Aktiva Pusat &amp; Pasiva Pusat berdampingan - jadi gampang liat posisi total Pusat gabungan semua cabang. cbal di sini itu AKUMULASI dari semua hari (bukan cuma hari ini) - kalau mau tau "kenapa Rp sekian keposting HARI INI", lihat tabel 2 (kondisi + keterangan) dan tabel 5 (gl_tran), BUKAN cbal di tabel 4. Kapitalisasi bunga bulanan (EOM) TETAP pakai COA per-cabang asli dari GLPM0041 (beda dari 2 akun generik Aktiva/Pasiva di atas, yang dipakai buat netting harian non-bunga).</div>
         <div id="skenTabContent"></div>
@@ -335,6 +340,17 @@ table.appr-tbl tr.row-kondisi-netting td{border-left:3px solid #b45309}
   </div>
 </div>
 
+<!-- ======================= MODAL: Breakdown cbal (Skenario C) ======================= -->
+<div class="modal-overlay" id="modalCbalBreakdown">
+  <div class="modal-box" style="width:720px">
+    <div class="modal-hd plain">
+      <span id="cbalBreakdownTitle">Breakdown cbal</span>
+      <div class="x-btn" onclick="closeModal('modalCbalBreakdown')">&times;</div>
+    </div>
+    <div class="modal-bd" id="cbalBreakdownBody"></div>
+  </div>
+</div>
+
 <script>
 // ====================== master data ======================
 const OFFICES = [
@@ -359,18 +375,20 @@ const COA_MASTER = [
   {id:'59201000', name:'PEND. BUNGA RAK - 371 NGALIYAN'},
 ];
 
-// gl_para_rak (existing GLPM0041 table). is_tran = kolom yg SUDAH ADA di produksi
-// (Y=RAK Transaksi, T=RAK Modal). butuh_sweep = kolom BARU (dicatat dulu, ERD nyusul).
+// gl_para_rak (existing GLPM0041 table) - TIDAK DIUBAH SAMA SEKALI (TEMUAN #46,
+// is_sweep DIPINDAH ke gl_para_raksweep, bukan kolom di sini lagi).
 let glParaRak = [
-  {id:'Rak1', brncd:'371', brncd_coa:'29700002', parent_coa:'39700002', is_tran:true, butuh_sweep:true},
-  {id:'Rak2', brncd:'372', brncd_coa:'29700001', parent_coa:'39700001', is_tran:true, butuh_sweep:true},
-  {id:'Rak3', brncd:'371', brncd_coa:'69201000', parent_coa:'59201000', is_tran:false, butuh_sweep:false},
+  {id:'Rak1', brncd:'371', brncd_coa:'29700002', parent_coa:'39700002', is_tran:true},
+  {id:'Rak2', brncd:'372', brncd_coa:'29700001', parent_coa:'39700001', is_tran:true},
+  {id:'Rak3', brncd:'371', brncd_coa:'69201000', parent_coa:'59201000', is_tran:false},
 ];
 
-// gl_raksweep (baru, nempel ke gl_para_rak via gl_para_rak_id)
+// gl_para_raksweep (baru, nempel ke gl_para_rak via gl_para_rak_id). is_sweep = checkbox
+// "Butuh Sweep RAK?" (TEMUAN #46, DIPINDAH ke sini dari gl_para_rak) - baris ini BISA
+// tetep ADA meski is_sweep=false (COA mapping kesimpen, tinggal diaktifin lagi nanti).
 let glRakSweep = [
-  {id:'001', gl_para_rak_id:'Rak1', brncd_coa_sweep:'39700002', parent_coa_sweep:'29700002'},
-  {id:'002', gl_para_rak_id:'Rak2', brncd_coa_sweep:'39700001', parent_coa_sweep:'29700001'},
+  {id:'001', gl_para_rak_id:'Rak1', is_sweep:true, brncd_coa_sweep:'39700002', parent_coa_sweep:'29700002'},
+  {id:'002', gl_para_rak_id:'Rak2', is_sweep:true, brncd_coa_sweep:'39700001', parent_coa_sweep:'29700001'},
 ];
 
 // gl_para_rakrate (ganti total desain lama, sekarang cuma nyimpen rate + FK ke gl_raksweep)
@@ -391,6 +409,9 @@ function coaLabel(coaId){ const c = COA_MASTER.find(x=>x.id===coaId); return c ?
 function coaLabelShort(coaId){ const c = COA_MASTER.find(x=>x.id===coaId); if(!c) return coaId||'-'; return c.id+' - '+c.name.split(' - ')[0]; }
 function findRak(id){ return glParaRak.find(r=>r.id===id); }
 function findSweepByRakId(rakId){ return glRakSweep.find(s=>s.gl_para_rak_id===rakId); }
+// TEMUAN #46: is_sweep sekarang kolom gl_para_raksweep, BUKAN gl_para_rak - baris
+// sweep BISA ada dgn is_sweep=false (COA mapping kesimpen, tinggal diaktifin lagi).
+function rakButuhSweep(rakId){ const s = findSweepByRakId(rakId); return !!s && !!s.is_sweep; }
 function findSweep(id){ return glRakSweep.find(s=>s.id===id); }
 function fillSelect(sel, options, selectedVal){
   sel.innerHTML = options.map(o=>'<option value="'+o.value+'"'+(o.value===selectedVal?' selected':'')+'>'+o.label+'</option>').join('');
@@ -463,24 +484,20 @@ function loadKantor(id){
   document.getElementById('pnKatTransaksi').checked = !!rak.is_tran;
   document.getElementById('pnKatModal').checked = !rak.is_tran;
   updateSweepFlagVisibility();
-  document.getElementById('pnButuhSweep').checked = !!rak.butuh_sweep;
+  document.getElementById('pnButuhSweep').checked = rakButuhSweep(rak.id);
   fillSelect(document.getElementById('pnRakBrncdCoa'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), rak.brncd_coa);
   fillSelect(document.getElementById('pnRakParentCoa'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), rak.parent_coa);
   hideErr('errRak');
-  document.getElementById('railSweep').classList.toggle('disabled', !rak.butuh_sweep);
+  document.getElementById('railSweep').classList.toggle('disabled', !rakButuhSweep(rak.id));
   loadSweepFields();
   showPanel(true);
   switchSection('rak');
 }
 
 function startNewKantor(){
-  const incomplete = glParaRak.find(r=>r.butuh_sweep && !findSweepByRakId(r.id));
-  if(incomplete){
-    alert('Masih ada Kantor yang COA Sweep-nya belum diisi: '+officeName(incomplete.brncd)+'. Lengkapi dulu sebelum menambah Kantor baru.');
-    loadKantor(incomplete.id);
-    switchSection('sweep');
-    return;
-  }
+  // TEMUAN #46: cek "incomplete" (checklist true tapi sub-form sweep belum disave)
+  // gak relevan lagi di model baru - is_sweep sekarang kolom gl_para_raksweep SENDIRI,
+  // jadi gak ada lagi state "checklist true tapi baris sweep belum ada" yg tersimpan.
   selectedRakId = null;
   isNewKantor = true;
   document.getElementById('pnHdTitle').textContent = 'PARAMETER RAK - Kantor Baru';
@@ -506,7 +523,7 @@ function switchSection(name){
       return;
     }
     const rak = findRak(selectedRakId);
-    if(rak && !rak.butuh_sweep){
+    if(rak && !rakButuhSweep(rak.id)){
       alert('Kantor/kategori ini gak butuh COA Sweep (checkbox "Butuh Sweep RAK?" gak dicentang di Data Utama).');
       return;
     }
@@ -552,18 +569,24 @@ function saveRakInline(){
     return;
   }
   const is_tran = isTransaksi;
-  const butuh_sweep = isTransaksi && document.getElementById('pnButuhSweep').checked;
+  // TEMUAN #46: checkbox "Butuh Sweep RAK?" TIDAK lagi nulis ke gl_para_rak - kalau
+  // baris gl_para_raksweep-nya UDAH ADA, langsung sync is_sweep-nya di sini (toggle
+  // aktif/nonaktif, baris TETAP ADA). Kalau BELUM ADA baris, biarin dulu - baris baru
+  // kebentuk pas sub-form sweep beneran disave (saveSweepInline), is_sweep=true di situ.
+  const wantSweep = isTransaksi && document.getElementById('pnButuhSweep').checked;
   if(isNewKantor){
     const newId = 'Rak'+(idSeq.rak++);
-    glParaRak.push({id:newId, brncd, brncd_coa, parent_coa, is_tran, butuh_sweep});
+    glParaRak.push({id:newId, brncd, brncd_coa, parent_coa, is_tran});
     loadKantor(newId);
-    if(butuh_sweep){
+    if(wantSweep){
       switchSection('sweep');
       alert('Data COA RAK tersimpan. Sekarang lengkapi COA Sweep untuk Kantor ini sebelum bisa menambah Kantor baru lagi.');
     }
   } else {
     const r = findRak(selectedRakId);
-    r.brncd_coa = brncd_coa; r.parent_coa = parent_coa; r.is_tran = is_tran; r.butuh_sweep = butuh_sweep;
+    r.brncd_coa = brncd_coa; r.parent_coa = parent_coa; r.is_tran = is_tran;
+    const existingSweep = findSweepByRakId(r.id);
+    if(existingSweep){ existingSweep.is_sweep = wantSweep; }
     loadKantor(selectedRakId);
   }
   renderRakGrid();
@@ -583,7 +606,7 @@ function saveSweepInline(){
     existing.brncd_coa_sweep = brncd_coa_sweep;
     existing.parent_coa_sweep = parent_coa_sweep;
   } else {
-    glRakSweep.push({id:String(idSeq.sweep++).padStart(3,'0'), gl_para_rak_id: selectedRakId, brncd_coa_sweep, parent_coa_sweep});
+    glRakSweep.push({id:String(idSeq.sweep++).padStart(3,'0'), gl_para_rak_id: selectedRakId, is_sweep:true, brncd_coa_sweep, parent_coa_sweep});
   }
   hideErr('errSweep');
   renderRateGrid();
@@ -864,6 +887,7 @@ function skenTrxBrncd(e){ return e.akunLabel ? '372' : e.brncd; } // non-RAK sel
 
 const SKEN_EOM_DAYIDX = 4; // index hari yg diperlakukan sbg akhir bulan (30 Sep) - gabungan EOD+EOM
 let skenActiveTab = 0;
+let skenCbalBreakdownStore = []; // isi ulang tiap render gl_mast - dipake modal breakdown cbal
 
 // hitung posisi_pusat/saldo/riwayat sweep/bunga harian/kapitalisasi utk Cabang 371,
 // dari hari pertama s.d. uptoDayIdx - persis proses harian rak_func_interest (gabungan EOD+EOM).
@@ -1001,24 +1025,39 @@ function skenTblGlMastGlTran(dayIdx, phase, states){
   // key dinamis dari entry yg beneran ada. Kantor Pusat (370) pake akun GENERIK
   // (AKTIVA/PASIVA, shared semua cabang) - jadi paling banyak 2 baris Pusat: Aktiva
   // Pusat & Pasiva Pusat, gampang dibaca gabungannya.
-  const keys = [];
-  const seenKeys = new Set();
-  entries.forEach(e=>{
-    const keyId = e.brncd+'|'+(e.akun || e.akunLabel);
-    if(!seenKeys.has(keyId)){ seenKeys.add(keyId); keys.push({brncd:e.brncd, akun:e.akun, akunLabel:e.akunLabel}); }
-  });
-  const glMastRows = [];
-  keys.forEach(k=>{
-    const rel = entries.filter(e=> e.brncd===k.brncd && (k.akun ? e.akun===k.akun : e.akunLabel===k.akunLabel));
-    if(!rel.length) return;
-    const accumDebit = rel.reduce((s,e)=>s+(e.dk==='D'?e.amt:0),0);
-    const accumCredit = rel.reduce((s,e)=>s+(e.dk==='K'?e.amt:0),0);
-    const dailyRel = rel.filter(e=>e.dayIdx===dayIdx);
-    const dailyDebit = dailyRel.reduce((s,e)=>s+(e.dk==='D'?e.amt:0),0);
-    const dailyCredit = dailyRel.reduce((s,e)=>s+(e.dk==='K'?e.amt:0),0);
-    const label = k.akun ? skenCoaLabelGeneric(k.akun) : k.akunLabel;
-    glMastRows.push({brncd:k.brncd, label, dailyDebit, dailyCredit, accumDebit, accumCredit, cbal:accumDebit-accumCredit, lastTrn:rel[rel.length-1].tgl, akun:k.akun});
-  });
+  function buildGlMastRows(ents){
+    const ks = [];
+    const seen = new Set();
+    ents.forEach(e=>{
+      const keyId = e.brncd+'|'+(e.akun || e.akunLabel);
+      if(!seen.has(keyId)){ seen.add(keyId); ks.push({brncd:e.brncd, akun:e.akun, akunLabel:e.akunLabel}); }
+    });
+    const rows = [];
+    ks.forEach(k=>{
+      const rel = ents.filter(e=> e.brncd===k.brncd && (k.akun ? e.akun===k.akun : e.akunLabel===k.akunLabel));
+      if(!rel.length) return;
+      const accumDebit = rel.reduce((s,e)=>s+(e.dk==='D'?e.amt:0),0);
+      const accumCredit = rel.reduce((s,e)=>s+(e.dk==='K'?e.amt:0),0);
+      const dailyRel = rel.filter(e=>e.dayIdx===dayIdx);
+      const dailyDebit = dailyRel.reduce((s,e)=>s+(e.dk==='D'?e.amt:0),0);
+      const dailyCredit = dailyRel.reduce((s,e)=>s+(e.dk==='K'?e.amt:0),0);
+      const label = k.akun ? skenCoaLabelGeneric(k.akun) : k.akunLabel;
+      rows.push({brncd:k.brncd, label, dailyDebit, dailyCredit, accumDebit, accumCredit, cbal:accumDebit-accumCredit, lastTrn:rel[rel.length-1].tgl, akun:k.akun, contrib:rel.slice()});
+    });
+    return rows;
+  }
+  const glMastRows = buildGlMastRows(entries);
+
+  // TEMUAN baru (2026-09-29, permintaan user): tandain baris yg cbal-nya BENERAN
+  // berubah dibanding SEBELUM hari ini - biar impact EOD/EOM ke cbal keliatan
+  // langsung, bukan cuma nebak dari narasi gl_tran. Baseline "sebelum" dihitung
+  // ulang di sini (entries dayIdx<hari ini) - TERPISAH dari kapitalisasi EOM
+  // (itu SELALU baru muncul di 'after', jadi otomatis kehitung "berubah" juga).
+  let cbalBeforeMap = null;
+  if(phase==='after'){
+    cbalBeforeMap = new Map();
+    buildGlMastRows(skenBuildEntries(dayIdx, 'before')).forEach(r=>cbalBeforeMap.set(r.brncd+'|'+r.label, r.cbal));
+  }
 
   // kapitalisasi bunga RAK bulanan (TEMUAN #38) - CUMA muncul di kolom SESUDAH hari
   // akhir bulan (30 Sep), gak pernah di kolom SEBELUM - itu yg bikin before/after beda.
@@ -1037,15 +1076,20 @@ function skenTblGlMastGlTran(dayIdx, phase, states){
         const coaIndukLabel = coaLabelShort(coaInduk);
         const coaKantorLabel = coaLabelShort(state.rak.brncd_coa);
         const amt = cap.amt;
+        const capSlip = 'RAKEOM'+String(capSeq).padStart(4,'0');
         let kantorRow = glMastRows.find(r=>r.brncd===cabang && r.label===coaKantorLabel);
-        if(!kantorRow){ kantorRow = {brncd:cabang, label:coaKantorLabel, dailyDebit:0, dailyCredit:0, accumDebit:0, accumCredit:0, cbal:0, lastTrn:cap.tgl, akun:'AKTIVA'}; glMastRows.push(kantorRow); }
+        if(!kantorRow){ kantorRow = {brncd:cabang, label:coaKantorLabel, dailyDebit:0, dailyCredit:0, accumDebit:0, accumCredit:0, cbal:0, lastTrn:cap.tgl, akun:'AKTIVA', contrib:[]}; glMastRows.push(kantorRow); }
+        if(!kantorRow.contrib) kantorRow.contrib = [];
         if(cap.menang==='P'){ kantorRow.accumDebit+=amt; kantorRow.cbal+=amt; kantorRow.dailyDebit+=amt; } else { kantorRow.accumCredit+=amt; kantorRow.cbal-=amt; kantorRow.dailyCredit+=amt; }
         kantorRow.lastTrn = cap.tgl;
+        kantorRow.contrib.push({dayIdx:SKEN_EOM_DAYIDX, slip:capSlip, tgl:cap.tgl, brncd:cabang, dk: cap.menang==='P'?'D':'K', amt, narasi:'KAPITALISASI BUNGA RAK BULANAN - '+label});
         let indukRow = glMastRows.find(r=>r.brncd==='370' && r.label===coaIndukLabel);
-        if(!indukRow){ indukRow = {brncd:'370', label:coaIndukLabel, dailyDebit:0, dailyCredit:0, accumDebit:0, accumCredit:0, cbal:0, lastTrn:cap.tgl, akun:'PASIVA'}; glMastRows.push(indukRow); }
+        if(!indukRow){ indukRow = {brncd:'370', label:coaIndukLabel, dailyDebit:0, dailyCredit:0, accumDebit:0, accumCredit:0, cbal:0, lastTrn:cap.tgl, akun:'PASIVA', contrib:[]}; glMastRows.push(indukRow); }
+        if(!indukRow.contrib) indukRow.contrib = [];
         if(cap.menang==='P'){ indukRow.accumCredit+=amt; indukRow.cbal-=amt; indukRow.dailyCredit+=amt; }
         else { indukRow.accumDebit+=amt; indukRow.cbal+=amt; indukRow.dailyDebit+=amt; }
         indukRow.lastTrn = cap.tgl;
+        indukRow.contrib.push({dayIdx:SKEN_EOM_DAYIDX, slip:capSlip, tgl:cap.tgl, brncd:'370', dk: cap.menang==='P'?'K':'D', amt, narasi:'KAPITALISASI BUNGA RAK BULANAN - '+label});
         extraTranHtml +=
           '<tr class="row-hi-eom"><td>RAKEOM000'+capSeq+'</td><td>'+cap.tgl+'</td><td>'+officeName(cabang)+'</td><td>'+officeName(cabang)+'</td><td>'+coaKantorLabel+'</td><td>'+(cap.menang==='P'?'Debit':'Kredit')+'</td><td class="mono">'+fmtNum(amt)+'</td><td style="white-space:normal;min-width:200px">KAPITALISASI BUNGA RAK BULANAN - '+label+'</td></tr>'
         + '<tr class="row-hi-eom"><td>RAKEOM000'+capSeq+'</td><td>'+cap.tgl+'</td><td>'+officeName('370')+'</td><td>'+officeName('370')+'</td><td>'+coaIndukLabel+'</td><td>'+(cap.menang==='P'?'Kredit':'Debit')+'</td><td class="mono">'+fmtNum(amt)+'</td><td style="white-space:normal;min-width:200px">KAPITALISASI BUNGA RAK BULANAN - '+label+'</td></tr>';
@@ -1074,9 +1118,31 @@ function skenTblGlMastGlTran(dayIdx, phase, states){
   // warna per JENIS akun (Aktiva vs Pasiva), bukan per cabang lagi - biar "Aktiva Pusat"
   // & "Pasiva Pusat" langsung kebaca kelompoknya, di baris manapun akun itu muncul
   // (baik di buku cabang sendiri maupun cerminannya di buku Pusat).
+  // TEMUAN baru (2026-09-29, permintaan user): sel cbal yg "berubah" bisa DIKLIK,
+  // munculin breakdown asal-usulnya (baris gl_tran mana aja yg numpuk jadi cbal itu,
+  // urut tanggal + running subtotal) - via modal. Data breakdown disimpen di array
+  // global skenCbalBreakdownStore, di-reset tiap render, diakses via INDEX (onclick
+  // gak bisa bawa object kompleks langsung).
+  skenCbalBreakdownStore = [];
   const glMastHtml = glMastRows.map(r=>{
     const hi = r.akun==='AKTIVA' ? ' row-akun-aktiva' : (r.akun==='PASIVA' ? ' row-akun-pasiva' : '');
-    return '<tr class="'+hi+'"><td>'+officeName(r.brncd)+'</td><td>'+r.label+'</td><td class="mono">'+fmtNum(r.dailyDebit)+'</td><td class="mono">'+fmtNum(r.dailyCredit)+'</td><td class="mono">'+fmtNum(r.accumDebit)+'</td><td class="mono">'+fmtNum(r.accumCredit)+'</td><td class="mono">'+fmtNum(r.cbal)+'</td><td>'+r.lastTrn+'</td></tr>';
+    let cbalCls = 'mono';
+    let before = 0;
+    let berubah = false;
+    if(cbalBeforeMap){
+      before = cbalBeforeMap.has(r.brncd+'|'+r.label) ? cbalBeforeMap.get(r.brncd+'|'+r.label) : 0;
+      berubah = before !== r.cbal;
+      if(berubah) cbalCls += ' cbal-berubah cbal-clickable';
+    }
+    let cbalTd;
+    if(berubah){
+      const idx = skenCbalBreakdownStore.length;
+      skenCbalBreakdownStore.push({brncd:r.brncd, label:r.label, before, after:r.cbal, contrib:(r.contrib||[]).slice().sort((a,b)=>a.dayIdx-b.dayIdx)});
+      cbalTd = '<td class="'+cbalCls+'" onclick="skenShowCbalBreakdown('+idx+')" title="Klik buat lihat asal-usul cbal ini">'+fmtNum(r.cbal)+' <i class="ti ti-list-search" style="font-size:11px;vertical-align:middle"></i></td>';
+    } else {
+      cbalTd = '<td class="'+cbalCls+'">'+fmtNum(r.cbal)+'</td>';
+    }
+    return '<tr class="'+hi+'"><td>'+officeName(r.brncd)+'</td><td>'+r.label+'</td><td class="mono">'+fmtNum(r.dailyDebit)+'</td><td class="mono">'+fmtNum(r.dailyCredit)+'</td><td class="mono">'+fmtNum(r.accumDebit)+'</td><td class="mono">'+fmtNum(r.accumCredit)+'</td>'+cbalTd+'<td>'+r.lastTrn+'</td></tr>';
   }).join('') || '<tr><td colspan="8" style="text-align:center;padding:14px;color:#9aa5b4">Belum ada baris</td></tr>';
 
   const glTranHtml = (entries.map(e=>{
@@ -1085,7 +1151,25 @@ function skenTblGlMastGlTran(dayIdx, phase, states){
     return '<tr class="'+hi+'"><td>'+e.slip+'</td><td>'+e.tgl+'</td><td>'+officeName(skenTrxBrncd(e))+'</td><td>'+officeName(e.brncd)+'</td><td>'+skenAkunLabel(e)+'</td><td>'+(e.dk==='D'?'Debit':'Kredit')+'</td><td class="mono">'+fmtNum(e.amt)+'</td><td style="white-space:normal;min-width:200px">'+e.narasi+'</td></tr>';
   }).join('') + extraTranHtml) || '<tr><td colspan="8" style="text-align:center;padding:14px;color:#9aa5b4">Belum ada baris</td></tr>';
 
-  return {glMastHtml, glTranHtml};
+  return {glMastHtml, glTranHtml, glMastRows, cbalBeforeMap};
+}
+
+// Modal breakdown cbal - dipanggil pas sel cbal-berubah diklik. Nunjukin SEMUA baris
+// gl_tran yg numpuk jadi cbal ini (urut tanggal, running subtotal), biar "cbal dapat
+// dari mana" langsung kejawab by table, gak perlu itung manual/tebak dari narasi.
+function skenShowCbalBreakdown(idx){
+  const d = skenCbalBreakdownStore[idx];
+  if(!d) return;
+  let running = 0;
+  const rows = d.contrib.map(c=>{
+    running += (c.dk==='D' ? c.amt : -c.amt);
+    return '<tr><td>'+c.tgl+'</td><td>'+c.slip+'</td><td>'+(c.dk==='D'?'Debit':'Kredit')+'</td><td class="mono">'+fmtNum(c.amt)+'</td><td class="mono">'+fmtNum(running)+'</td><td style="white-space:normal;min-width:220px">'+c.narasi+'</td></tr>';
+  }).join('');
+  document.getElementById('cbalBreakdownTitle').textContent = 'Breakdown cbal - '+officeName(d.brncd)+' / '+d.label;
+  document.getElementById('cbalBreakdownBody').innerHTML =
+    '<div class="note" style="margin-bottom:10px">Semua baris <span class="mono">gl_tran</span> (tabel 5) yang numpuk jadi cbal ini, urut tanggal. cbal SEBELUM hari ini: <b class="mono">'+fmtNum(d.before)+'</b> &rarr; cbal SESUDAH: <b class="mono">'+fmtNum(d.after)+'</b>.</div>'
+    + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>tgl</th><th>slipno</th><th>D/K</th><th>amount</th><th>running cbal</th><th>descr</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  openModal('modalCbalBreakdown');
 }
 
 function skenColHtml(dayIdx, phase){
@@ -1115,10 +1199,30 @@ function switchSkenTab(dayIdx){
   document.getElementById('skenTabContent').innerHTML = '<div class="sken-cols">'+skenColHtml(dayIdx,'before')+skenColHtml(dayIdx,'after')+'</div>';
 }
 
+// Ringkasan ekspektasi cbal per hari (permintaan user: gak usah teks panjang, cukup
+// tabel "cbal sebelumnya berapa, sesudah EOD berapa") - dihitung LANGSUNG dari fungsi
+// yg sama dipakai tab detail, jadi gak akan pernah nyimpang dari angka yg beneran
+// ditampilin di tab (bukan tabel hardcode terpisah).
+function skenRingkasanCbalHtml(){
+  const rows = [];
+  for(let d=0; d<SKEN_DAYS.length; d++){
+    const statesAfter = SKEN_BRANCHES.map(c=>skenStateAfter(d,c));
+    const {glMastRows, cbalBeforeMap} = skenTblGlMastGlTran(d, 'after', statesAfter);
+    glMastRows.filter(r=>r.akun).forEach(r=>{
+      const before = cbalBeforeMap.has(r.brncd+'|'+r.label) ? cbalBeforeMap.get(r.brncd+'|'+r.label) : 0;
+      const berubah = before !== r.cbal;
+      rows.push('<tr'+(berubah?' class="row-kondisi-netting"':'')+'><td>'+SKEN_DAYS[d].tgl+'</td><td>'+officeName(r.brncd)+'</td><td>'+r.label+'</td>'
+        + '<td class="mono">'+fmtNum(before)+'</td><td class="mono'+(berubah?' cbal-berubah':'')+'">'+fmtNum(r.cbal)+'</td></tr>');
+    });
+  }
+  return rows.join('');
+}
+
 function skenInitTabs(){
   document.getElementById('skenTabBar').innerHTML = SKEN_DAYS.map((d,i)=>
     '<button type="button" class="sken-tab-btn'+(i===0?' active':'')+'" onclick="switchSkenTab('+i+')">'+d.tgl+(d.tag?' ('+d.tag+')':(i===SKEN_EOM_DAYIDX?' (Akhir Bulan)':''))+'</button>'
   ).join('');
+  document.getElementById('skenRingkasanCbal').innerHTML = skenRingkasanCbalHtml();
   switchSkenTab(0);
 }
 

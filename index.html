@@ -409,25 +409,28 @@ const COA_MASTER = [
 // TEMUAN #49 (2026-09-30): parent_coa Rak1 (371) balik ke 39700000 (COA Induk GENERIK,
 // persis screenshot user) - BUKAN 39700001 dedicated lagi (liat catatan di COA_MASTER
 // di atas soal kenapa ini gak kontradiksi TEMUAN #47).
-// TEMUAN baru (2026-09-30) - kolom is_modal DITAMBAHIN (BUKAN gantiin is_tran) krn user
-// nunjukin contoh baris yg is_tran=T DAN is_modal=T BARENGAN (kapitalisasi bunga RAK,
-// Rak4/Rak5 di bawah) - beda dari Rak3 (is_tran=false, MURNI RAK Modal, gak transaksi
-// sama sekali). Rak1/Rak2/Rak3 dikasih is_modal:false eksplisit (skema lengkap, gak
-// ada yg nyangkut undefined).
+// RALAT (2026-09-30) - percobaan sblumnya (is_tran=YA DAN is_modal=YA BARENGAN buat
+// Rak4/Rak5) TERNYATA SALAH. User tegasin ulang liat langsung di form editornya:
+// "4 dan 5 bro harusnya gak ada yang di ceklis" - jadi Rak4/Rak5 itu DUA-DUANYA
+// is_tran:false DAN is_modal:false. Alasannya: pasangan COA kapitalisasi bunga RAK
+// (Biaya/Pendapatan Bunga, 69107200/59107200) itu BUKAN "RAK Transaksi" (bukan akun
+// buat posting mutasi harian antar kantor) DAN BUKAN "RAK Modal" (bukan placeholder
+// modal) - dia kategori TERSENDIRI (murni P&L kapitalisasi EOM), jadi gak masuk
+// kategori checkbox manapun, checkbox-nya harus KOSONG dua-duanya.
 let glParaRak = [
   {id:'Rak1', brncd:'371', brncd_coa:'29700001', parent_coa:'39700000', is_tran:true, is_modal:false},
   {id:'Rak2', brncd:'372', brncd_coa:'29700002', parent_coa:'39700002', is_tran:true, is_modal:false},
   {id:'Rak3', brncd:'371', brncd_coa:'69201000', parent_coa:'59201000', is_tran:false, is_modal:true},
-  // TEMUAN baru (2026-09-30, screenshot GLPM0041 produksi user) - pasangan COA
-  // kapitalisasi bunga RAK cabang 371, is_tran=T DAN is_modal=T BARENGAN (beda dari
-  // Rak3). 2 baris, brncd_coa/parent_coa KEBALIK satu sama lain (persis gambar) - biar
+  // Pasangan COA kapitalisasi bunga RAK cabang 371 (screenshot GLPM0041 produksi user).
+  // 2 baris, brncd_coa/parent_coa KEBALIK satu sama lain (persis gambar) - biar
   // kapitalisasi bisa jalan 2 arah (Aktiva menang ATAU Pasiva menang) tanpa perlu
-  // nuker-nuker 1 baris. SENGAJA GAK ADA baris gl_para_raksweep buat Rak4/Rak5
-  // (permintaan user eksplisit: "jangan diisi bagian table rak sweepnya... kalo is_tran
-  // Y dan is_sweep Y baru ditulis bolak-baliknya di rak_sweep" - pasangan bunga ini gak
-  // butuh sweep, murni P&L, jadi is_sweep gak relevan/gak usah ada baris sweep-nya).
-  {id:'Rak4', brncd:'371', brncd_coa:'59107200', parent_coa:'69107200', is_tran:true, is_modal:true},
-  {id:'Rak5', brncd:'371', brncd_coa:'69107200', parent_coa:'59107200', is_tran:true, is_modal:true},
+  // nuker-nuker 1 baris. is_tran:false DAN is_modal:false (lihat RALAT di atas).
+  // SENGAJA GAK ADA baris gl_para_raksweep buat Rak4/Rak5 (permintaan user eksplisit:
+  // "jangan diisi bagian table rak sweepnya... kalo is_tran Y dan is_sweep Y baru
+  // ditulis bolak-baliknya di rak_sweep" - pasangan bunga ini gak butuh sweep, murni
+  // P&L, jadi is_sweep gak relevan/gak usah ada baris sweep-nya).
+  {id:'Rak4', brncd:'371', brncd_coa:'59107200', parent_coa:'69107200', is_tran:false, is_modal:false},
+  {id:'Rak5', brncd:'371', brncd_coa:'69107200', parent_coa:'59107200', is_tran:false, is_modal:false},
 ];
 
 // gl_para_raksweep (baru, nempel ke gl_para_rak via gl_para_rak_id). is_sweep = checkbox
@@ -485,7 +488,7 @@ function renderRakGrid(){
     return '<tr>'
       + '<td>'+(i+1)+'</td>'
       + '<td>'+officeName(r.brncd)+'</td>'
-      + '<td>'+[r.is_tran?'RAK Transaksi':null, r.is_modal?'RAK Modal':null].filter(Boolean).join(' + ')+'</td>'
+      + '<td>'+([r.is_tran?'RAK Transaksi':null, r.is_modal?'RAK Modal':null].filter(Boolean).join(' + ') || 'Kapitalisasi Bunga (P&amp;L)')+'</td>'
       + '<td>'+coaLabelShort(r.brncd_coa)+'</td>'
       + '<td>'+coaLabelShort(r.parent_coa)+'</td>'
       + '<td><div class="td-act">'
@@ -1101,18 +1104,40 @@ function rakTblGlMast(scenario, dayIdx, phase){
       const before = cbalBeforeMap.has(r.brncd+'|'+r.label) ? cbalBeforeMap.get(r.brncd+'|'+r.label) : 0;
       if(before !== r.cbal) cbalCls += ' cbal-berubah';
     }
-    return '<tr class="'+hi+'"><td>'+officeName(r.brncd)+'</td><td>'+r.label+'</td><td class="mono">'+fmtNum(r.dailyDebit)+'</td><td class="mono">'+fmtNum(r.dailyCredit)+'</td><td class="mono">'+fmtNum(r.accumDebit)+'</td><td class="mono">'+fmtNum(r.accumCredit)+'</td><td class="'+cbalCls+'">'+fmtNum(r.cbal)+'</td><td>'+r.lastTrn+'</td></tr>';
+    return '<tr class="'+hi+'"><td>'+officeName(r.brncd)+'</td><td>'+r.label+'</td><td class="'+cbalCls+'">'+fmtNum(r.cbal)+'</td><td class="mono">'+fmtNum(r.dailyDebit)+'</td><td class="mono">'+fmtNum(r.dailyCredit)+'</td><td class="mono">'+fmtNum(r.accumDebit)+'</td><td class="mono">'+fmtNum(r.accumCredit)+'</td><td>'+r.lastTrn+'</td></tr>';
   }).join('');
-  const glTranHtml = rakSortGlTranBySlip(entries).map(e=>{
-    let hi = (phase==='after' && e.dayIdx===dayIdx) ? ' row-hi-eod' : '';
-    if(e.adj) hi += ' row-kondisi-netting';
+  // TEMUAN baru (2026-09-30, permintaan user - "user bingung") - gl_tran SEBELUM EOD
+  // SELALU disembunyiin totalnya (bukan cuma dikosongin) di SEMUA kondisi (normal,
+  // sweep, EOM). SESUDAH EOD: kalau hari itu POSISI NORMAL (gak ada sweep, gak ada
+  // kapitalisasi) - tabel-nya JUGA disembunyiin total (gak ada yg menarik buat
+  // ditunjukin). Kalau hari itu ada SWEEP - tabel CUMA nampilin baris jurnal sweep hari
+  // ini doang (adj===true, dayIdx===hari ini), BUKAN histori kumulatif dari entries
+  // yg lain, biar user fokus liat 1 contoh jurnalnya. Kalau hari itu KAPITALISASI EOM -
+  // tabel CUMA nampilin baris hijau (capTranRows) doang, gak dicampur sama baris biasa.
+  let glTranRowsToShow = [];
+  let glTranVisible = false;
+  let glTranIsCap = false;
+  if(phase==='after'){
+    if(scenario.isEom && dayIdx===scenario.days.length-1 && capTranRows.length){
+      glTranRowsToShow = capTranRows;
+      glTranVisible = true;
+      glTranIsCap = true;
+    } else {
+      const todaySweepRows = entries.filter(e=>e.dayIdx===dayIdx && e.adj);
+      if(todaySweepRows.length){
+        glTranRowsToShow = todaySweepRows;
+        glTranVisible = true;
+      }
+    }
+  }
+  const glTranHtml = rakSortGlTranBySlip(glTranRowsToShow).map(e=>{
+    const hi = glTranIsCap ? ' row-hi-eom' : ' row-kondisi-netting';
     return '<tr class="'+hi+'"><td>'+e.slip+'</td><td>'+e.tgl+'</td><td>'+officeName(e.brncd)+'</td><td>'+officeName(e.brncd)+'</td><td>'+coaLabelShort(e.coaId)+'</td><td>'+(e.dk==='D'?'Debit':'Kredit')+'</td><td class="mono">'+fmtNum(e.amt)+'</td><td style="white-space:normal;min-width:260px">'+e.narasi+'</td></tr>';
-  }).join('') + rakSortGlTranBySlip(capTranRows).map(e=>
-    '<tr class="row-hi-eom"><td>'+e.slip+'</td><td>'+e.tgl+'</td><td>'+officeName(e.brncd)+'</td><td>'+officeName(e.brncd)+'</td><td>'+coaLabelShort(e.coaId)+'</td><td>'+(e.dk==='D'?'Debit':'Kredit')+'</td><td class="mono">'+fmtNum(e.amt)+'</td><td style="white-space:normal;min-width:260px">'+e.narasi+'</td></tr>'
-  ).join('');
+  }).join('');
   return {
     glMastHtml: glMastHtml || '<tr><td colspan="8" style="text-align:center;padding:14px;color:#9aa5b4">Belum ada baris</td></tr>',
-    glTranHtml: glTranHtml || '<tr><td colspan="8" style="text-align:center;padding:14px;color:#9aa5b4">Belum ada baris</td></tr>',
+    glTranHtml,
+    glTranVisible,
   };
 }
 // posisi PUSAT thd cabang ini, HASIL query cbal gl_mast (bukan tabel status terpisah) -
@@ -1142,30 +1167,50 @@ function rakTblIntDaily(scenario, dayIdx, phase){
   return rows;
 }
 function rakColHtml(scenario, dayIdx, phase){
-  const {glMastHtml, glTranHtml} = rakTblGlMast(scenario, dayIdx, phase);
+  const {glMastHtml, glTranHtml, glTranVisible} = rakTblGlMast(scenario, dayIdx, phase);
   const intRows = rakTblIntDaily(scenario, dayIdx, phase);
   const label = phase==='before' ? 'SEBELUM EOD' : 'SESUDAH EOD';
+
+  // Table 4 (BARU, permintaan user 2026-09-30 - "buatin table baru untuk accrue
+  // bunganya... untuk bunga RAK ada 2 table, yang 1 daily yang satu akumulasi/accrue-
+  // nya") - SELALU tampil (beda dari "extra" di bawah yg cuma nongol pas hari
+  // kapitalisasi EOM) - 1 baris per cabang, akumulasi bunga_aktiva & bunga_pasiva s.d.
+  // tanggal kolom ini (before/after), ditarik dari angka yg SAMA kaya Table 3 di atas -
+  // biar user liat "bunga yg udah numpuk sejauh ini" tiap hari, bukan cuma pas EOM.
+  const accrueAktiva = intRows.filter(r=>r.isAktiva).reduce((s,r)=>s+r.bunga,0);
+  const accruePasiva = intRows.filter(r=>!r.isAktiva).reduce((s,r)=>s+r.bunga,0);
+  const cutoffTgl = phase==='before' ? (dayIdx>0?scenario.days[dayIdx-1].tgl:'-') : scenario.days[dayIdx].tgl;
+  const accrueHtml = '<div class="sken-tbl-title">4. NEW_gl_hist_rakaccrue (akumulasi bunga RAK per sisi, s.d. '+cutoffTgl+')</div>'
+    + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>end_date</th><th>accrue_rate_aktiva</th><th>accrue_rate_pasiva</th></tr></thead><tbody>'
+    + '<tr><td>'+officeName(RAK_CABANG)+'</td><td>'+cutoffTgl+'</td><td class="mono">'+fmtNum(accrueAktiva)+'</td><td class="mono">'+fmtNum(accruePasiva)+'</td></tr>'
+    + '</tbody></table></div>';
+
   let extra = '';
   if(scenario.isEom && phase==='after' && dayIdx===scenario.days.length-1){
-    const bungaAktiva = intRows.filter(r=>r.isAktiva).reduce((s,r)=>s+r.bunga,0);
-    const bungaPasiva = intRows.filter(r=>!r.isAktiva).reduce((s,r)=>s+r.bunga,0);
+    const bungaAktiva = accrueAktiva, bungaPasiva = accruePasiva;
     const hasilNetto = Math.abs(bungaAktiva - bungaPasiva);
     const menangAktiva = bungaAktiva >= bungaPasiva;
     const statusHasil = menangAktiva ? 'Aktiva Menang (Pendapatan Bunga Untuk Pusat)' : 'Pasiva Menang (Beban Bunga Untuk Pusat)';
-    extra = '<div class="sken-tbl-title">4. Rekap Bunga RAK Bulan Ini (netting bunga_aktiva_mtd vs bunga_pasiva_mtd dari NEW_gl_hist_rakintdaily - gantiin kolom NEW_gl_para_rakeom yg dihapus)</div>'
+    extra = '<div class="sken-tbl-title">5. Hasil Netting Kapitalisasi EOM (bandingin 2 angka di Table 4 di atas, tentuin pemenang - gantiin kolom NEW_gl_para_rakeom yg dihapus)</div>'
       + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>periode</th><th>total_bunga_aktiva</th><th>total_bunga_pasiva</th><th>hasil_netto</th><th>status_hasil</th></tr></thead><tbody>'
       + '<tr class="row-hi-eod"><td>'+officeName(RAK_CABANG)+'</td><td>Januari 2027</td><td class="mono">'+fmtNum(bungaAktiva)+'</td><td class="mono">'+fmtNum(bungaPasiva)+'</td><td class="mono">'+fmtNum(hasilNetto)+'</td><td>'+statusHasil+'</td></tr>'
       + '</tbody></table></div>';
   }
+
+  const glTranBlock = glTranVisible
+    ? ('<div class="sken-tbl-title">2. gl_tran</div>'
+      + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>slipno</th><th>eff_date</th><th>trx_brncd</th><th>acc_brncd</th><th>COA</th><th>D/K</th><th>amount</th><th>descr</th></tr></thead><tbody>'+glTranHtml+'</tbody></table></div>')
+    : '';
+
   return '<div class="sken-col">'
     + '<div class="sken-col-hd'+(phase==='after'?' after':'')+'">'+label+'</div>'
     + '<div class="sken-col-bd">'
     + '<div class="sken-tbl-title">1. gl_mast</div>'
-    + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>gl_para_coa_id</th><th>daily_debit</th><th>daily_credit</th><th>accum_debit</th><th>accum_credit</th><th>cbal</th><th>last_trn_date</th></tr></thead><tbody>'+glMastHtml+'</tbody></table></div>'
-    + '<div class="sken-tbl-title">2. gl_tran</div>'
-    + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>slipno</th><th>eff_date</th><th>trx_brncd</th><th>acc_brncd</th><th>COA</th><th>D/K</th><th>amount</th><th>descr</th></tr></thead><tbody>'+glTranHtml+'</tbody></table></div>'
+    + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>gl_para_coa_id</th><th>cbal</th><th>daily_debit</th><th>daily_credit</th><th>accum_debit</th><th>accum_credit</th><th>last_trn_date</th></tr></thead><tbody>'+glMastHtml+'</tbody></table></div>'
+    + glTranBlock
     + '<div class="sken-tbl-title">3. NEW_gl_hist_rakintdaily (bunga dihitung: posisi AFTER EOD x rate gl_para_rakrate)</div>'
     + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>tanggal</th><th>brncd</th><th>coa_posisi_hasil</th><th>crdr</th><th>amount</th></tr></thead><tbody>'+(intRows.map(r=>r.html).join('') || '<tr><td colspan="5" style="text-align:center;padding:14px;color:#9aa5b4">Belum ada baris</td></tr>')+'</tbody></table></div>'
+    + accrueHtml
     + extra
     + '</div></div>';
 }

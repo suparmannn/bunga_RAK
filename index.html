@@ -1017,13 +1017,16 @@ function rakTblGlMast(scenario, dayIdx, phase){
     const rank = r => r.isPusatPasiva?0 : (r.isPusatAktiva?1 : (r.isCabangAktiva?2 : (r.isCabangPasiva?3:4)));
     return rank(a)-rank(b);
   });
-  // KAPITALISASI BUNGA EOM - RALAT BESAR (2026-10-01, pisah fungsi gl_rak_func_EOD
-  // (sweep) vs gl_rak_func_EOM (bunga, opsional)). Formula bunga BUKAN LAGI netting 2
-  // akumulasi harian (bunga_aktiva_mtd vs bunga_pasiva_mtd dibandingin) - user tegas:
-  // "jadi ga ada tuh netting bunga pasiva vs bunga aktiva lagi". Sekarang: cbal akhir
-  // bulan (HARI INI doang, gak peduli histori) x rate HARI INI = bunga, titik. Posisi
-  // mana yg aktif (Aktiva/Pasiva) ditentuin PERSIS kaya rakPosisiHasil nentuin posisi
-  // harian (dalam model baru ini cuma dipanggil 1x, di hari terakhir bulan).
+  // KAPITALISASI BUNGA EOM - RALAT (2026-10-01, pisah fungsi gl_rak_func_EOD (sweep)
+  // vs gl_rak_func_EOM (bunga, opsional)). Formula bunga BUKAN LAGI netting 2 akumulasi
+  // harian (bunga_aktiva_mtd vs bunga_pasiva_mtd dibandingin) - user tegas: "jadi ga ada
+  // tuh netting bunga pasiva vs bunga aktiva lagi". RALAT KEDUA (2026-10-01, revisi
+  // rumus): posisi yg dipakai TETAP cbal SAAT EOM (hari terakhir bulan, gak peduli
+  // histori harian), TAPI bunganya BUKAN cuma 1 hari - rumus FINAL: posisi gl_mast.cbal
+  // (akhir bulan) x rate harian sesuai posisi x JUMLAH HARI DALAM BULAN itu (pakai
+  // rakJumlahHariBulan - Januari=31, Februari 2027=28, dst). Posisi mana yg aktif
+  // (Aktiva/Pasiva) ditentuin PERSIS kaya rakPosisiHasil nentuin posisi harian (dalam
+  // model ini cuma dipanggil 1x, di hari terakhir bulan).
   // Arah jurnal - SETIAP kantor (370 & 371) SELF-BALANCED sendiri, persis 2 pasangan
   // Rak4/Rak5: Pasiva aktif (Beban buat Pusat) - 370: D Biaya(69107200)/K posisi
   // Aktiva Pusat(29700000). 371: D posisi Pasiva Cabang(39700001)/K Pendapatan(59107200).
@@ -1032,12 +1035,13 @@ function rakTblGlMast(scenario, dayIdx, phase){
   const capTranRows = [];
   if(phase==='after' && scenario.isEom && dayIdx===scenario.days.length-1){
     const posEom = rakPosisiHasil(scenario, dayIdx);
-    const totalBunga = Math.round(posEom.saldo * posEom.rate / 100);
+    const jumlahHariEom = rakJumlahHariBulan(scenario.periodeLabel);
+    const totalBunga = Math.round(posEom.saldo * posEom.rate / 100 * jumlahHariEom);
     if(totalBunga > 0){
       const menangAktiva = posEom.coaId === RAK_COA_SWEEP_INDUK;
       const tgl = scenario.days[dayIdx].tgl;
       const capSlip = 'RAKCAP'+String(dayIdx+1).padStart(4,'0');
-      const ket = 'Bunga RAK akhir bulan (gl_rak_func_EOM) - posisi '+(menangAktiva?'Aktiva':'Pasiva')+' Rp'+fmtNum(posEom.saldo)+' x rate '+posEom.rate.toFixed(2)+'% = Rp'+fmtNum(totalBunga)+' ('+(menangAktiva?'Pendapatan Bunga Untuk Pusat':'Beban Bunga Untuk Pusat')+')';
+      const ket = 'Bunga RAK akhir bulan (gl_rak_func_EOM) - posisi '+(menangAktiva?'Aktiva':'Pasiva')+' Rp'+fmtNum(posEom.saldo)+' x rate '+posEom.rate.toFixed(2)+'% x '+jumlahHariEom+' hari = Rp'+fmtNum(totalBunga)+' ('+(menangAktiva?'Pendapatan Bunga Untuk Pusat':'Beban Bunga Untuk Pusat')+')';
       function findOrAddRow(brncd, coaId){
         let r = rows.find(x=>x.brncd===brncd && x.label===coaLabelShort(coaId));
         if(!r){
@@ -1154,6 +1158,19 @@ function rakPosisiHasil(scenario, dayIdx){
   const cbalPasiva = cbalOf(RAK_COA_INDUK);
   return {coaId:RAK_COA_INDUK, crdr:'K', saldo:Math.abs(cbalPasiva), rate:RAK_RATE_PARA.daily_interest_parent_coa_rak};
 }
+// RALAT (2026-10-01, revisi rumus bunga EOM) - bunga BUKAN cuma posisi x rate 1 hari,
+// tapi posisi x rate x JUMLAH HARI DALAM BULAN ybs (posisi-nya TETAP cbal SAAT EOM
+// doang, gak ada akumulasi harian - cuma pengali hari-nya yg ditambahin). periodeLabel
+// formatnya 'NamaBulan-Tahun' (cth 'Januari-2027'), dipakai juga sbg kolom periode
+// di gl_hist_rakaccrue.
+function rakJumlahHariBulan(periodeLabel){
+  const BULAN_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const parts = (periodeLabel||'').split('-');
+  const bulanIdx = BULAN_ID.indexOf(parts[0]);
+  const tahun = parseInt(parts[1], 10);
+  if(bulanIdx<0 || isNaN(tahun)) return 30;
+  return new Date(tahun, bulanIdx+1, 0).getDate();
+}
 // RALAT BESAR (2026-10-01) - NEW_gl_hist_rakintdaily (dulu "Table 3") DIHAPUS TOTAL,
 // gak dipakai lagi (rakTblIntDaily yg dulu ngitung bunga TIAP HARI juga dihapus) -
 // user tegas: "Table gl_hist_rakintdaily di hapus tidak di pakai". Alasannya: bunga
@@ -1175,7 +1192,8 @@ function rakColHtml(scenario, dayIdx, phase){
   let accrueHtml = '';
   if(scenario.isEom && phase==='after' && dayIdx===scenario.days.length-1){
     const pos = rakPosisiHasil(scenario, dayIdx);
-    const totalBungaAccrue = Math.round(pos.saldo * pos.rate / 100);
+    const jumlahHari = rakJumlahHariBulan(scenario.periodeLabel);
+    const totalBungaAccrue = Math.round(pos.saldo * pos.rate / 100 * jumlahHari);
     const rateTxt = pos.rate.toFixed(2)+'%';
     accrueHtml = '<div class="sken-tbl-title">3. gl_hist_rakaccrue (hasil kapitalisasi bunga RAK akhir bulan - gl_rak_func_EOM)</div>'
       + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>periode</th><th>coa_posisi_hasil</th><th>crdr</th><th>amount</th><th>rate_rak</th><th>total_bunga</th></tr></thead><tbody>'

@@ -137,7 +137,7 @@ table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-deco
       <!-- ======================= VIEW: GLPM0041 ======================= -->
       <div id="view-glpm0041">
         <div class="page-title">GLPM0041 - Setting Parameter RAK</div>
-        <div class="page-sub">1 halaman, 1 Kantor per waktu &ndash; icon di kanan buka bagian COA Sweep buat Kantor yang sama, bukan popup/aksi campuran. Menu persetujuan belum dipasang di demo ini.</div>
+        <div class="page-sub">1 halaman, 1 Kantor per waktu &ndash; icon di kanan buka bagian Normalisasi RAK buat Kantor yang sama, bukan popup/aksi campuran. Menu persetujuan belum dipasang di demo ini.</div>
 
         <div class="coa-legend">
           <div><b>COA RAK (referensi)</b></div>
@@ -190,9 +190,9 @@ table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-deco
                       <label class="coa-checkbox"><input type="checkbox" id="pnKatModal" onchange="onKategoriChange('MODAL')"> RAK Modal</label>
                     </div>
                   </div>
-                  <div class="pn-fgrp" id="pnSweepFlagWrap">
-                    <label>Butuh Sweep RAK?</label>
-                    <label class="coa-checkbox"><input type="checkbox" id="pnButuhSweep"> Ya</label>
+                  <div class="pn-fgrp" id="pnReversFlagWrap">
+                    <label>Normalisasi Rekening RAK?</label>
+                    <label class="coa-checkbox"><input type="checkbox" id="pnButuhRevers"> Ya</label>
                   </div>
                   <div class="pn-fgrp">
                     <label class="req">COA RAK Kantor</label>
@@ -204,45 +204,45 @@ table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-deco
                   </div>
                 </div>
                 <div class="err-msg" id="errRak"></div>
-                <div class="pn-note">"Butuh Sweep RAK?" cuma muncul kalau kategorinya RAK Transaksi &ndash; RAK Modal sudah pasti gak ada sweep.</div>
+                <div class="pn-note">"Normalisasi Rekening RAK?" cuma muncul kalau kategorinya RAK Transaksi &ndash; RAK Modal sudah pasti gak ada normalisasi.</div>
                 <div class="pn-form-actions">
                   <button class="coa-btn" onclick="cancelRakEdit()">Batal</button>
                   <button class="coa-btn primary" onclick="saveRakInline()">Simpan</button>
                 </div>
               </div>
 
-              <div id="secSweep" style="display:none">
-                <div class="pn-sec-title">Data COA Sweep (gl_raksweep)</div>
+              <div id="secRevers" style="display:none">
+                <div class="pn-sec-title">Data Normalisasi RAK (gl_para_rakrevers)</div>
                 <div class="pn-note">COA RAK Kantor/Induk di bawah ini disabled &ndash; kalau mau diubah, harus dari bagian Data Utama.</div>
                 <div class="pn-grid">
                   <div class="pn-fgrp opt">
                     <label>COA RAK Kantor</label>
-                    <select id="pnSweepBrncdCoaRak" disabled></select>
+                    <select id="pnReversBrncdCoaRak" disabled></select>
                   </div>
                   <div class="pn-fgrp opt">
                     <label>COA RAK Induk</label>
-                    <select id="pnSweepParentCoaRak" disabled></select>
+                    <select id="pnReversParentCoaRak" disabled></select>
                   </div>
                   <div class="pn-fgrp">
-                    <label class="req">COA Sweep Kantor</label>
-                    <select id="pnSweepBrncdCoaSweep"></select>
+                    <label class="req">Normalisasi COA RAK Kantor</label>
+                    <select id="pnReversBrncdCoaRevers"></select>
                   </div>
                   <div class="pn-fgrp">
-                    <label class="req">COA Sweep Induk</label>
-                    <select id="pnSweepParentCoaSweep"></select>
+                    <label class="req">Normalisasi COA RAK Induk</label>
+                    <select id="pnReversParentCoaRevers"></select>
                   </div>
                 </div>
-                <div class="err-msg" id="errSweep"></div>
+                <div class="err-msg" id="errRevers"></div>
                 <div class="pn-form-actions">
-                  <button class="coa-btn" onclick="cancelSweepEdit()">Batal</button>
-                  <button class="coa-btn primary" onclick="saveSweepInline()">Simpan</button>
+                  <button class="coa-btn" onclick="cancelReversEdit()">Batal</button>
+                  <button class="coa-btn primary" onclick="saveReversInline()">Simpan</button>
                 </div>
               </div>
 
             </div>
             <div class="pn-rail">
               <div class="pn-rail-icon active" id="railRak" onclick="switchSection('rak')" title="Data COA RAK"><i class="ti ti-building-bank"></i></div>
-              <div class="pn-rail-icon" id="railSweep" onclick="switchSection('sweep')" title="Data COA Sweep"><i class="ti ti-arrows-left-right"></i></div>
+              <div class="pn-rail-icon" id="railRevers" onclick="switchSection('revers')" title="Data Normalisasi RAK"><i class="ti ti-arrows-left-right"></i></div>
             </div>
           </div>
         </div>
@@ -251,7 +251,7 @@ table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-deco
       <!-- ======================= VIEW: BUNGA RAK ======================= -->
       <div id="view-bungarak" style="display:none">
         <div class="page-title">Menu Parameter Bunga RAK</div>
-        <div class="page-sub">Rate bunga harian per Kantor. Mapping COA-nya sudah pasti benar karena ditarik langsung dari <b>gl_raksweep</b> (gl_para_raksweep_id) &ndash; modul ini gak nyimpen COA sendiri.</div>
+        <div class="page-sub">Rate bunga harian per Kantor. Mapping COA-nya sudah pasti benar karena ditarik langsung dari <b>gl_para_rakrevers</b> (gl_para_rakrevers_id) &ndash; modul ini gak nyimpen COA sendiri.</div>
 
         <div class="toolbar">
           <button class="btn btn-primary" onclick="openRateForm(null)"><i class="ti ti-plus"></i> Tambah</button>
@@ -264,9 +264,11 @@ table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-deco
                 <th class="col-no">No</th>
                 <th>Kantor</th>
                 <th>COA RAK Induk 1</th>
-                <th>Bunga Harian RAK Induk 1 (%)</th>
+                <th>Bunga RAK Induk 1 (%/Tahun)</th>
                 <th>COA RAK Induk 2</th>
-                <th>Bunga Harian RAK Induk 2 (%)</th>
+                <th>Bunga RAK Induk 2 (%/Tahun)</th>
+                <th>Mulai Berlaku</th>
+                <th>Akhir Berlaku</th>
                 <th class="col-act">Aksi</th>
               </tr>
             </thead>
@@ -275,11 +277,11 @@ table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-deco
         </div>
       </div>
 
-      <!-- ======================= VIEW: SKENARIO (Posisi RAK Abnormal & Sweep EOD) ======================= -->
+      <!-- ======================= VIEW: SKENARIO (Posisi RAK Abnormal & Normalisasi EOD) ======================= -->
       <div id="view-skenario" style="display:none">
-        <div class="page-title">Skenario &ndash; Posisi RAK Abnormal & Sweep EOD (Pusat thd Cabang 371)</div>
-        <div class="page-sub">NEW_gl_mast_rakposisi/NEW_gl_hist_raksweep/NEW_gl_hist_rakintadjust/NEW_gl_para_rakeom/NEW_gl_hist_rakintdaily DIHAPUS dari desain - posisi RAK cukup diquery langsung dari cbal <b>gl_mast</b>. Sweep (gl_rak_func_EOD) dan bunga akhir bulan (gl_rak_func_EOM, opsional - TERPISAH dari sweep) itu 2 fungsi beda. Demo ini nunjukin gl_mast, gl_tran, &amp; gl_hist_rakaccrue - KEDUA buku (Pusat 370 &amp; Cabang 371) diposting (mirror pair, 4 akun total persis setting GLPM0041 cabang 371), tapi ACUAN deteksi/narasi abnormal SELALU dari SISI PUSAT.</div>
-        <div class="note">4 akun (2 milik Pusat, 2 milik Cabang, mirror pair): <b>Pasiva Pusat</b> (RAK Induk) &harr; <b>Aktiva Cabang</b> (RAK Kantor) - dipakai transaksi harian biasa. <b>Aktiva Pusat</b> (Sweep Induk) &harr; <b>Pasiva Cabang</b> (Sweep Kantor) - KOSONG selama posisi masih normal, baru keisi kalau ada jurnal otomatis EOD. gl_mast itu tabel MASTER - baris (brncd+COA) yang PERNAH ke-touch TETAP ada baik di kolom SEBELUM maupun SESUDAH EOD (cuma cbal-nya beda), BUKAN baris baru nongol pas EOD - yang nambah baris tiap transaksi itu gl_tran.</div>
+        <div class="page-title">Skenario &ndash; Posisi RAK Abnormal & Normalisasi EOD (Pusat thd Cabang 371)</div>
+        <div class="page-sub">NEW_gl_mast_rakposisi/NEW_gl_hist_rakrevers/NEW_gl_hist_rakintadjust/NEW_gl_para_rakeom/NEW_gl_hist_rakintdaily/gl_hist_rakaccrue DIHAPUS dari desain - posisi RAK cukup diquery langsung dari cbal <b>gl_mast</b>. Normalisasi (gl_rak_func_EOD) dan bunga akhir bulan (gl_rak_func_EOM, opsional - TERPISAH dari normalisasi) itu 2 fungsi beda. Demo ini nunjukin gl_mast, gl_tran, &amp; gl_hist_rakrate (gabungan gl_hist_rakaccrue, TEMUAN #61) - KEDUA buku (Pusat 370 &amp; Cabang 371) diposting (mirror pair, 4 akun total persis setting GLPM0041 cabang 371), tapi ACUAN deteksi/narasi abnormal SELALU dari SISI PUSAT.</div>
+        <div class="note">4 akun (2 milik Pusat, 2 milik Cabang, mirror pair): <b>Pasiva Pusat</b> (RAK Induk) &harr; <b>Aktiva Cabang</b> (RAK Kantor) - dipakai transaksi harian biasa. <b>Aktiva Pusat</b> (Normalisasi Induk) &harr; <b>Pasiva Cabang</b> (Normalisasi Kantor) - KOSONG selama posisi masih normal, baru keisi kalau ada jurnal otomatis EOD. gl_mast itu tabel MASTER - baris (brncd+COA) yang PERNAH ke-touch TETAP ada baik di kolom SEBELUM maupun SESUDAH EOD (cuma cbal-nya beda), BUKAN baris baru nongol pas EOD - yang nambah baris tiap transaksi itu gl_tran.</div>
 
         <div class="toolbar" id="rakScenarioBar" style="margin-bottom:8px"></div>
         <div class="toolbar" id="rakTabBar"></div>
@@ -287,7 +289,7 @@ table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-deco
           <div><b>Legend:</b></div>
           <div><span class="legend-dot" style="background:#fef3c7"></span> Baris/nilai yang muncul atau berubah hasil proses hari itu</div>
           <div><span class="legend-dot" style="background:#fde7c7"></span> Pasiva Pusat (RAK Induk) / Aktiva Cabang (RAK Kantor) - transaksi harian biasa</div>
-          <div><span class="legend-dot" style="background:#dbeafe"></span> Aktiva Pusat (Sweep Induk) / Pasiva Cabang (Sweep Kantor) - CUMA keisi via jurnal otomatis EOD</div>
+          <div><span class="legend-dot" style="background:#dbeafe"></span> Aktiva Pusat (Normalisasi Induk) / Pasiva Cabang (Normalisasi Kantor) - CUMA keisi via jurnal otomatis EOD</div>
           <div><span class="legend-dot" style="background:#fff;border-left:3px solid #b45309"></span> Jurnal otomatis EOD (nutup akun Pusat yang tidak normal, pindahin ke akun seberang)</div>
           <div><span class="legend-dot" style="background:#dcfce7"></span> Kapitalisasi bunga RAK bulanan (khusus Skenario 3, hari akhir bulan - nambahin bunga sebulan ke cbal akun yang lagi pegang posisi)</div>
           <div><span class="legend-dot" style="background:#fecaca"></span> <b>cbal BERUBAH</b> dibanding kolom SEBELUM</div>
@@ -299,7 +301,7 @@ table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-deco
       <div id="view-rakstress" style="display:none">
         <div class="page-title">Stress Test &ndash; Kondisi Netting Ekstrem (Pusat thd Cabang 371)</div>
         <div class="page-sub">Menu BARU, TERPISAH dari menu Skenario (gak nimpa 3 skenario yang udah ada). Kalau menu Skenario SENGAJA cuma nunjukin 1 sisi (Aktiva ATAU Pasiva) yang nonzero, menu ini JUSTRU nunjukin kondisi yang di luar kebiasaan tapi bisa aja kejadian: akun Aktiva Pusat DAN Pasiva Pusat dua-duanya ada isinya bersamaan - fungsi EOD tetep harus netting biar salah satunya jadi nol.</div>
-        <div class="note">3 kombinasi tanda: <b>Stress 1</b> - Pasiva plus &amp; Aktiva minus (dua-duanya tidak normal). <b>Stress 2</b> - Pasiva minus/normal &amp; Aktiva minus/tidak normal. <b>Stress 3</b> - Pasiva plus/tidak normal &amp; Aktiva plus/normal. Rumus penentu pemenang (rakHitungSweep, SAMA fungsi yang dipakai menu Skenario) pakai jumlah bertanda (Aktiva + Pasiva, Pasiva disimpen negatif) - otomatis benar buat kombinasi tanda apa pun, karena isi yang KEBALIK di 1 sisi itu SUBSTANSI ekonominya jadi punya sisi seberang.</div>
+        <div class="note">3 kombinasi tanda: <b>Stress 1</b> - Pasiva plus &amp; Aktiva minus (dua-duanya tidak normal). <b>Stress 2</b> - Pasiva minus/normal &amp; Aktiva minus/tidak normal. <b>Stress 3</b> - Pasiva plus/tidak normal &amp; Aktiva plus/normal. Rumus penentu pemenang (rakHitungRevers, SAMA fungsi yang dipakai menu Skenario) pakai jumlah bertanda (Aktiva + Pasiva, Pasiva disimpen negatif) - otomatis benar buat kombinasi tanda apa pun, karena isi yang KEBALIK di 1 sisi itu SUBSTANSI ekonominya jadi punya sisi seberang.</div>
 
         <div class="toolbar" id="stressScenarioBar" style="margin-bottom:8px"></div>
         <div class="toolbar" id="stressTabBar"></div>
@@ -307,7 +309,7 @@ table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-deco
           <div><b>Legend:</b></div>
           <div><span class="legend-dot" style="background:#fef3c7"></span> Baris/nilai yang muncul atau berubah hasil proses hari itu</div>
           <div><span class="legend-dot" style="background:#fde7c7"></span> Pasiva Pusat (RAK Induk) / Aktiva Cabang (RAK Kantor)</div>
-          <div><span class="legend-dot" style="background:#dbeafe"></span> Aktiva Pusat (Sweep Induk) / Pasiva Cabang (Sweep Kantor)</div>
+          <div><span class="legend-dot" style="background:#dbeafe"></span> Aktiva Pusat (Normalisasi Induk) / Pasiva Cabang (Normalisasi Kantor)</div>
           <div><span class="legend-dot" style="background:#fff;border-left:3px solid #b45309"></span> Jurnal otomatis EOD (netting - nutup sisi kalah, sisi menang jadi saldo bersih)</div>
           <div><span class="legend-dot" style="background:#fecaca"></span> <b>cbal BERUBAH</b> dibanding kolom SEBELUM</div>
         </div>
@@ -332,21 +334,30 @@ table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-deco
           <select id="fRateBrncd" onchange="onRateBrncdChange()"></select>
         </div>
         <div class="frow">
+          <label>Mulai Berlaku <span style="color:#c53030">*</span></label>
+          <input type="text" id="fRateStartMonth" placeholder="MMMM-YYYY">
+        </div>
+        <div class="frow">
+          <label>Akhir Berlaku <span style="color:#c53030">*</span></label>
+          <input type="text" id="fRateEndMonth" placeholder="MMMM-YYYY">
+        </div>
+        <div class="frow">
           <label>COA RAK Induk 1</label>
           <input type="text" id="fRateCoaRakLabel" disabled>
         </div>
         <div class="frow">
-          <label>Bunga Harian RAK Induk 1 (%) <span style="color:#c53030">*</span></label>
-          <input type="number" step="0.01" id="fRateValRak">
+          <label>Bunga RAK Induk 1 (%/Tahun) <span style="color:#c53030">*</span></label>
+          <input type="number" step="0.01" id="fRateYearValRak">
         </div>
         <div class="frow">
           <label>COA RAK Induk 2</label>
-          <input type="text" id="fRateCoaSweepLabel" disabled>
+          <input type="text" id="fRateCoaReversLabel" disabled>
         </div>
         <div class="frow">
-          <label>Bunga Harian RAK Induk 2 (%) <span style="color:#c53030">*</span></label>
-          <input type="number" step="0.01" id="fRateValSweep">
+          <label>Bunga RAK Induk 2 (%/Tahun) <span style="color:#c53030">*</span></label>
+          <input type="number" step="0.01" id="fRateYearValRevers">
         </div>
+        <div class="note" style="margin:4px 0 0">TEMUAN #61 (2026-10-12) - sudah tidak ada lagi "Jumlah Hari Dalam 1 Tahun" maupun "Bunga Harian" auto-calculate. Rate yang diisi di sini MURNI tahunan - pembagian ke basis bulanan (rate tahunan &divide; 12) baru terjadi nanti saat <b>gl_rak_func_EOM</b> jalan di akhir bulan, dicatat sebagai <code>rak_rate</code> di <b>gl_hist_rakrate</b> (lihat tab Skenario 3).</div>
         <div class="err-msg" id="errRate"></div>
         <div class="frow-actions">
           <button class="coa-btn" onclick="closeModal('modalRate')">Batal</button>
@@ -366,25 +377,25 @@ const OFFICES = [
 
 const COA_MASTER = [
   // TEMUAN #49 (2026-09-30): balik kepake lagi sbg COA Induk (Pusat) MILIK CABANG 371 -
-  // persis setting gl_para_rak/gl_para_raksweep 371 di screenshot user (COA RAK
-  // Induk=39700000, COA Sweep Induk=29700000). Ini KONSISTEN sama keputusan PALING AWAL
+  // persis setting gl_para_rak/gl_para_rakrevers 371 di screenshot user (COA RAK
+  // Induk=39700000, COA Revers Induk=29700000). Ini KONSISTEN sama keputusan PALING AWAL
   // (TEMUAN #8: "COA aktiva/pasiva RAK itu 1 COA GENERIK per server") - gak lagi
   // kontradiksi TEMUAN #47 krn TEMUAN #47 itu KHUSUS soal kolom coa_induk_1/2 di
   // NEW_gl_mast_rakposisi (tabel itu SEKARANG UDAH DIHAPUS - liat TEMUAN #49), bukan soal
-  // gl_para_rak/gl_para_raksweep itu sendiri.
-  {id:'29700000', name:'ANTAR KANTOR AKTIVA - INDUK (Sweep, punya Pusat thd 371)'},
+  // gl_para_rak/gl_para_rakrevers itu sendiri.
+  {id:'29700000', name:'ANTAR KANTOR AKTIVA - INDUK (Normalisasi, punya Pusat thd 371)'},
   {id:'39700000', name:'ANTAR KANTOR PASIVA - INDUK (RAK, punya Pusat thd 371)'},
-  // COA Kantor (Cabang) 371 - pasangan RAK (297...) & Sweep (397...), gl_para_rak.brncd_coa
-  // / gl_para_raksweep.brncd_coa_sweep.
+  // COA Kantor (Cabang) 371 - pasangan RAK (297...) & Normalisasi (397...), gl_para_rak.brncd_coa
+  // / gl_para_rakrevers.brncd_coa_revers.
   {id:'29700001', name:'ANTAR KANTOR AKTIVA - 371 NGALIYAN (Kantor/RAK)'},
-  {id:'39700001', name:'ANTAR KANTOR PASIVA - 371 NGALIYAN (Kantor/Sweep)'},
+  {id:'39700001', name:'ANTAR KANTOR PASIVA - 371 NGALIYAN (Kantor/Normalisasi)'},
   // COA Induk DEDICATED milik 372 (kapitalisasi bunga bulanan DAN netting harian) -
   // SENGAJA nomor beda dari akun generik di atas, biar gak numpuk jadi 1 baris pas
   // kapitalisasi EOM (dulu collision krn Rak1 kepake nomor generik yg sama). Nomor
   // belakang "...02" konsisten sama cabang 372.
   {id:'29700002', name:'ANTAR KANTOR AKTIVA - 372 GENUK'},
   {id:'39700002', name:'ANTAR KANTOR PASIVA - 372 GENUK'},
-  // contoh COA non-Aktiva/Pasiva (RAK Modal, gak butuh sweep) - nomor asli dari screenshot GLPM0041 produksi
+  // contoh COA non-Aktiva/Pasiva (RAK Modal, gak butuh revers) - nomor asli dari screenshot GLPM0041 produksi
   {id:'69201000', name:'BIAYA BUNGA RAK - 371 NGALIYAN'},
   {id:'59201000', name:'PEND. BUNGA RAK - 371 NGALIYAN'},
   // KHUSUS Skenario D (studi kasus jurnal produksi asli, "jurnal RAK.pdf") - COA di
@@ -405,7 +416,7 @@ const COA_MASTER = [
 ];
 
 // gl_para_rak (existing GLPM0041 table) - TIDAK DIUBAH SAMA SEKALI (TEMUAN #46,
-// is_sweep DIPINDAH ke gl_para_raksweep, bukan kolom di sini lagi).
+// is_revers DIPINDAH ke gl_para_rakrevers, bukan kolom di sini lagi).
 // TEMUAN #49 (2026-09-30): parent_coa Rak1 (371) balik ke 39700000 (COA Induk GENERIK,
 // persis screenshot user) - BUKAN 39700001 dedicated lagi (liat catatan di COA_MASTER
 // di atas soal kenapa ini gak kontradiksi TEMUAN #47).
@@ -425,30 +436,38 @@ let glParaRak = [
   // 2 baris, brncd_coa/parent_coa KEBALIK satu sama lain (persis gambar) - biar
   // kapitalisasi bisa jalan 2 arah (Aktiva menang ATAU Pasiva menang) tanpa perlu
   // nuker-nuker 1 baris. is_tran:false DAN is_modal:false (lihat RALAT di atas).
-  // SENGAJA GAK ADA baris gl_para_raksweep buat Rak4/Rak5 (permintaan user eksplisit:
-  // "jangan diisi bagian table rak sweepnya... kalo is_tran Y dan is_sweep Y baru
-  // ditulis bolak-baliknya di rak_sweep" - pasangan bunga ini gak butuh sweep, murni
-  // P&L, jadi is_sweep gak relevan/gak usah ada baris sweep-nya).
+  // SENGAJA GAK ADA baris gl_para_rakrevers buat Rak4/Rak5 (permintaan user eksplisit:
+  // "jangan diisi bagian table rak reversnya... kalo is_tran Y dan is_revers Y baru
+  // ditulis bolak-baliknya di rak_revers" - pasangan bunga ini gak butuh revers, murni
+  // P&L, jadi is_revers gak relevan/gak usah ada baris revers-nya).
   {id:'Rak4', brncd:'371', brncd_coa:'59107200', parent_coa:'69107200', is_tran:false, is_modal:false},
   {id:'Rak5', brncd:'371', brncd_coa:'69107200', parent_coa:'59107200', is_tran:false, is_modal:false},
 ];
 
-// gl_para_raksweep (baru, nempel ke gl_para_rak via gl_para_rak_id). is_sweep = checkbox
-// "Butuh Sweep RAK?" (TEMUAN #46, DIPINDAH ke sini dari gl_para_rak) - baris ini BISA
-// tetep ADA meski is_sweep=false (COA mapping kesimpen, tinggal diaktifin lagi nanti).
-// TEMUAN #49: parent_coa_sweep Rak1 (371) balik ke 29700000 (pasangan Sweep Induk GENERIK).
-let glRakSweep = [
-  {id:'001', gl_para_rak_id:'Rak1', is_sweep:true, brncd_coa_sweep:'39700001', parent_coa_sweep:'29700000'},
-  {id:'002', gl_para_rak_id:'Rak2', is_sweep:true, brncd_coa_sweep:'39700002', parent_coa_sweep:'29700002'},
+// gl_para_rakrevers (baru, nempel ke gl_para_rak via gl_para_rak_id). is_revers = checkbox
+// "Butuh Revers RAK?" (TEMUAN #46, DIPINDAH ke sini dari gl_para_rak) - baris ini BISA
+// tetep ADA meski is_revers=false (COA mapping kesimpen, tinggal diaktifin lagi nanti).
+// TEMUAN #49: parent_coa_revers Rak1 (371) balik ke 29700000 (pasangan Revers Induk GENERIK).
+let glRakRevers = [
+  {id:'001', gl_para_rak_id:'Rak1', is_revers:true, brncd_coa_revers:'39700001', parent_coa_revers:'29700000'},
+  {id:'002', gl_para_rak_id:'Rak2', is_revers:true, brncd_coa_revers:'39700002', parent_coa_revers:'29700002'},
 ];
 
-// gl_para_rakrate (ganti total desain lama, sekarang cuma nyimpen rate + FK ke gl_raksweep)
+// gl_para_rakrate (ganti total desain lama, sekarang cuma nyimpen rate + FK ke gl_rakrevers).
+// TEMUAN #54 (2026-10-07) - rate SEKARANG diinput TAHUNAN (year_interest_*) + basis hari
+// (total_day_inyear), daily_interest_* jadi HASIL BAGI-nya (year_interest/total_day_inyear),
+// bukan input manual lagi - nilai di bawah ini SUDAH konsisten (144/360=0.4, 216/360=0.6, dst).
+// TEMUAN #51 - start_month/end_month ('Mulai Berlaku'/'Akhir Berlaku') contoh persis dari
+// screenshot user (371: Oktober-2026 s.d. November-2026).
+// TEMUAN #61 (2026-10-12) - total_day_inyear & daily_interest_* DIHAPUS. year_interest_*
+// sekarang MURNI rate tahunan (cth 0.4%/0.6% per tahun) - rate bulanan (rak_rate) BARU
+// dihitung nanti saat gl_rak_func_EOM jalan (year_interest/12), dicatat di gl_hist_rakrate.
 let glParaRakRate = [
-  {id:'001', gl_para_raksweep_id:'001', daily_interest_parent_coa_rak:0.4, daily_interest_parent_coa_sweep:0.6},
-  {id:'002', gl_para_raksweep_id:'002', daily_interest_parent_coa_rak:0.3, daily_interest_parent_coa_sweep:0.5},
+  {id:'001', gl_para_rakrevers_id:'001', start_month:'Oktober-2026', end_month:'November-2026', year_interest_parent_coa_rak:0.4, year_interest_parent_coa_revers:0.6},
+  {id:'002', gl_para_rakrevers_id:'002', start_month:'Oktober-2026', end_month:'Desember-2026', year_interest_parent_coa_rak:0.3, year_interest_parent_coa_revers:0.5},
 ];
 
-let idSeq = {rak:4, sweep:3, rate:3};
+let idSeq = {rak:4, revers:3, rate:3};
 
 // ====================== helpers ======================
 function officeName(brncd){
@@ -464,11 +483,11 @@ function fmtNum(n){
   return (neg?'-':'')+s;
 }
 function findRak(id){ return glParaRak.find(r=>r.id===id); }
-function findSweepByRakId(rakId){ return glRakSweep.find(s=>s.gl_para_rak_id===rakId); }
-// TEMUAN #46: is_sweep sekarang kolom gl_para_raksweep, BUKAN gl_para_rak - baris
-// sweep BISA ada dgn is_sweep=false (COA mapping kesimpen, tinggal diaktifin lagi).
-function rakButuhSweep(rakId){ const s = findSweepByRakId(rakId); return !!s && !!s.is_sweep; }
-function findSweep(id){ return glRakSweep.find(s=>s.id===id); }
+function findReversByRakId(rakId){ return glRakRevers.find(s=>s.gl_para_rak_id===rakId); }
+// TEMUAN #46: is_revers sekarang kolom gl_para_rakrevers, BUKAN gl_para_rak - baris
+// revers BISA ada dgn is_revers=false (COA mapping kesimpen, tinggal diaktifin lagi).
+function rakButuhRevers(rakId){ const s = findReversByRakId(rakId); return !!s && !!s.is_revers; }
+function findRevers(id){ return glRakRevers.find(s=>s.id===id); }
 function fillSelect(sel, options, selectedVal){
   sel.innerHTML = options.map(o=>'<option value="'+o.value+'"'+(o.value===selectedVal?' selected':'')+'>'+o.label+'</option>').join('');
 }
@@ -480,7 +499,7 @@ function hideErr(id){ const e = document.getElementById(id); e.textContent=''; e
 // ====================== GLPM0041: state ======================
 let selectedRakId = null;   // gl_para_rak.id yang lagi diedit, atau null kalau lagi "tambah baru"
 let isNewKantor = false;
-let activeSection = 'rak';  // 'rak' | 'sweep'
+let activeSection = 'rak';  // 'rak' | 'revers'
 
 function renderRakGrid(){
   const tb = document.getElementById('tblRakBody');
@@ -500,8 +519,8 @@ function renderRakGrid(){
 }
 
 function deleteRakGridRow(id){
-  if(findSweepByRakId(id)){
-    alert('Tidak bisa hapus - Kantor ini sudah punya setting COA Sweep (gl_raksweep). Hapus setting sweep-nya dulu.');
+  if(findReversByRakId(id)){
+    alert('Tidak bisa hapus - Kantor ini sudah punya setting Normalisasi COA RAK (gl_para_rakrevers). Hapus setting normalisasinya dulu.');
     return;
   }
   glParaRak = glParaRak.filter(r=>r.id!==id);
@@ -520,13 +539,13 @@ function onKategoriChange(which){
   const modal = document.getElementById('pnKatModal');
   if(which === 'TRANSAKSI' && trans.checked){ modal.checked = false; }
   if(which === 'MODAL' && modal.checked){ trans.checked = false; }
-  updateSweepFlagVisibility();
+  updateReversFlagVisibility();
 }
 
-function updateSweepFlagVisibility(){
+function updateReversFlagVisibility(){
   const isTransaksi = document.getElementById('pnKatTransaksi').checked;
-  document.getElementById('pnSweepFlagWrap').style.display = isTransaksi ? '' : 'none';
-  if(!isTransaksi){ document.getElementById('pnButuhSweep').checked = false; }
+  document.getElementById('pnReversFlagWrap').style.display = isTransaksi ? '' : 'none';
+  if(!isTransaksi){ document.getElementById('pnButuhRevers').checked = false; }
 }
 
 function loadKantor(id){
@@ -539,21 +558,21 @@ function loadKantor(id){
   document.getElementById('pnKantorPick').disabled = true;
   document.getElementById('pnKatTransaksi').checked = !!rak.is_tran;
   document.getElementById('pnKatModal').checked = !!rak.is_modal;
-  updateSweepFlagVisibility();
-  document.getElementById('pnButuhSweep').checked = rakButuhSweep(rak.id);
+  updateReversFlagVisibility();
+  document.getElementById('pnButuhRevers').checked = rakButuhRevers(rak.id);
   fillSelect(document.getElementById('pnRakBrncdCoa'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), rak.brncd_coa);
   fillSelect(document.getElementById('pnRakParentCoa'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), rak.parent_coa);
   hideErr('errRak');
-  document.getElementById('railSweep').classList.toggle('disabled', !rakButuhSweep(rak.id));
-  loadSweepFields();
+  document.getElementById('railRevers').classList.toggle('disabled', !rakButuhRevers(rak.id));
+  loadReversFields();
   showPanel(true);
   switchSection('rak');
 }
 
 function startNewKantor(){
-  // TEMUAN #46: cek "incomplete" (checklist true tapi sub-form sweep belum disave)
-  // gak relevan lagi di model baru - is_sweep sekarang kolom gl_para_raksweep SENDIRI,
-  // jadi gak ada lagi state "checklist true tapi baris sweep belum ada" yg tersimpan.
+  // TEMUAN #46: cek "incomplete" (checklist true tapi sub-form revers belum disave)
+  // gak relevan lagi di model baru - is_revers sekarang kolom gl_para_rakrevers SENDIRI,
+  // jadi gak ada lagi state "checklist true tapi baris revers belum ada" yg tersimpan.
   selectedRakId = null;
   isNewKantor = true;
   document.getElementById('pnHdTitle').textContent = 'PARAMETER RAK - Kantor Baru';
@@ -562,45 +581,45 @@ function startNewKantor(){
   document.getElementById('pnKantorPick').disabled = false;
   document.getElementById('pnKatTransaksi').checked = true;
   document.getElementById('pnKatModal').checked = false;
-  updateSweepFlagVisibility();
-  document.getElementById('pnButuhSweep').checked = true;
+  updateReversFlagVisibility();
+  document.getElementById('pnButuhRevers').checked = true;
   fillSelect(document.getElementById('pnRakBrncdCoa'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), COA_MASTER[0].id);
   fillSelect(document.getElementById('pnRakParentCoa'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), COA_MASTER[1].id);
   hideErr('errRak');
-  document.getElementById('railSweep').classList.add('disabled');
+  document.getElementById('railRevers').classList.add('disabled');
   showPanel(true);
   switchSection('rak');
 }
 
 function switchSection(name){
-  if(name === 'sweep'){
+  if(name === 'revers'){
     if(isNewKantor){
-      alert('Simpan Data Utama (COA RAK) dulu sebelum isi COA Sweep.');
+      alert('Simpan Data Utama (COA RAK) dulu sebelum isi Normalisasi COA RAK.');
       return;
     }
     const rak = findRak(selectedRakId);
-    if(rak && !rakButuhSweep(rak.id)){
-      alert('Kantor/kategori ini gak butuh COA Sweep (checkbox "Butuh Sweep RAK?" gak dicentang di Data Utama).');
+    if(rak && !rakButuhRevers(rak.id)){
+      alert('Kantor/kategori ini gak butuh Normalisasi COA RAK (checkbox "Normalisasi Rekening RAK?" gak dicentang di Data Utama).');
       return;
     }
   }
   activeSection = name;
   document.getElementById('secRak').style.display = name==='rak' ? '' : 'none';
-  document.getElementById('secSweep').style.display = name==='sweep' ? '' : 'none';
+  document.getElementById('secRevers').style.display = name==='revers' ? '' : 'none';
   document.getElementById('railRak').classList.toggle('active', name==='rak');
-  document.getElementById('railSweep').classList.toggle('active', name==='sweep');
-  if(name === 'sweep') loadSweepFields();
+  document.getElementById('railRevers').classList.toggle('active', name==='revers');
+  if(name === 'revers') loadReversFields();
 }
 
-function loadSweepFields(){
+function loadReversFields(){
   if(!selectedRakId) return;
   const rak = findRak(selectedRakId);
-  const sweep = findSweepByRakId(selectedRakId);
-  fillSelect(document.getElementById('pnSweepBrncdCoaRak'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), rak.brncd_coa);
-  fillSelect(document.getElementById('pnSweepParentCoaRak'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), rak.parent_coa);
-  fillSelect(document.getElementById('pnSweepBrncdCoaSweep'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), sweep ? sweep.brncd_coa_sweep : rak.parent_coa);
-  fillSelect(document.getElementById('pnSweepParentCoaSweep'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), sweep ? sweep.parent_coa_sweep : rak.brncd_coa);
-  hideErr('errSweep');
+  const revers = findReversByRakId(selectedRakId);
+  fillSelect(document.getElementById('pnReversBrncdCoaRak'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), rak.brncd_coa);
+  fillSelect(document.getElementById('pnReversParentCoaRak'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), rak.parent_coa);
+  fillSelect(document.getElementById('pnReversBrncdCoaRevers'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), revers ? revers.brncd_coa_revers : rak.parent_coa);
+  fillSelect(document.getElementById('pnReversParentCoaRevers'), COA_MASTER.map(c=>({value:c.id,label:c.id+' - '+c.name})), revers ? revers.parent_coa_revers : rak.brncd_coa);
+  hideErr('errRevers');
 }
 
 function cancelRakEdit(){
@@ -608,7 +627,7 @@ function cancelRakEdit(){
   isNewKantor = false;
   showPanel(false);
 }
-function cancelSweepEdit(){ loadSweepFields(); }
+function cancelReversEdit(){ loadReversFields(); }
 
 function saveRakInline(){
   const brncd = document.getElementById('pnKantorPick').value;
@@ -616,62 +635,64 @@ function saveRakInline(){
   const parent_coa = document.getElementById('pnRakParentCoa').value;
   const isTransaksi = document.getElementById('pnKatTransaksi').checked;
   const isModal = document.getElementById('pnKatModal').checked;
-  if(!isTransaksi && !isModal){
-    showErr('errRak', 'Pilih kategori: RAK Transaksi atau RAK Modal.');
-    return;
-  }
+  // TEMUAN #50/#59 (2026-10-07, koreksi user) - DULU ada validasi "minimal 1 Kategori
+  // harus dicentang" di sini, TAPI itu SALAH - checkbox RAK Transaksi/RAK Modal itu
+  // independen (bukan radio group), dan TIDAK+TIDAK dua-duanya itu kondisi SAH (contoh
+  // nyata: Rak4/Rak5, pasangan COA kapitalisasi bunga RAK, is_tran=TIDAK DAN
+  // is_modal=TIDAK bareng). Validasi itu DIHAPUS total - gak ada lagi pengecekan minimal
+  // 1 harus dicentang.
   if(brncd_coa === parent_coa){
     showErr('errRak', 'COA RAK Kantor dan COA RAK Induk tidak boleh sama.');
     return;
   }
   const is_tran = isTransaksi;
-  // TEMUAN #46: checkbox "Butuh Sweep RAK?" TIDAK lagi nulis ke gl_para_rak - kalau
-  // baris gl_para_raksweep-nya UDAH ADA, langsung sync is_sweep-nya di sini (toggle
-  // aktif/nonaktif, baris TETAP ADA). Kalau BELUM ADA baris, biarin dulu - baris baru
-  // kebentuk pas sub-form sweep beneran disave (saveSweepInline), is_sweep=true di situ.
-  const wantSweep = isTransaksi && document.getElementById('pnButuhSweep').checked;
+  // TEMUAN #46: checkbox "Normalisasi Rekening RAK?" TIDAK lagi nulis ke gl_para_rak -
+  // kalau baris gl_para_rakrevers-nya UDAH ADA, langsung sync is_revers-nya di sini
+  // (toggle aktif/nonaktif, baris TETAP ADA). Kalau BELUM ADA baris, biarin dulu - baris
+  // baru kebentuk pas sub-form normalisasi beneran disave (saveReversInline), is_revers=true di situ.
+  const wantRevers = isTransaksi && document.getElementById('pnButuhRevers').checked;
   if(isNewKantor){
     const newId = 'Rak'+(idSeq.rak++);
     glParaRak.push({id:newId, brncd, brncd_coa, parent_coa, is_tran});
     loadKantor(newId);
-    if(wantSweep){
-      switchSection('sweep');
-      alert('Data COA RAK tersimpan. Sekarang lengkapi COA Sweep untuk Kantor ini sebelum bisa menambah Kantor baru lagi.');
+    if(wantRevers){
+      switchSection('revers');
+      alert('Data COA RAK tersimpan. Sekarang lengkapi Normalisasi COA RAK untuk Kantor ini sebelum bisa menambah Kantor baru lagi.');
     }
   } else {
     const r = findRak(selectedRakId);
     r.brncd_coa = brncd_coa; r.parent_coa = parent_coa; r.is_tran = is_tran;
-    const existingSweep = findSweepByRakId(r.id);
-    if(existingSweep){ existingSweep.is_sweep = wantSweep; }
+    const existingRevers = findReversByRakId(r.id);
+    if(existingRevers){ existingRevers.is_revers = wantRevers; }
     loadKantor(selectedRakId);
   }
   renderRakGrid();
   renderRateGrid();
 }
 
-function saveSweepInline(){
+function saveReversInline(){
   const rak = findRak(selectedRakId);
-  const brncd_coa_sweep = document.getElementById('pnSweepBrncdCoaSweep').value;
-  const parent_coa_sweep = document.getElementById('pnSweepParentCoaSweep').value;
-  if(brncd_coa_sweep !== rak.parent_coa || parent_coa_sweep !== rak.brncd_coa){
-    showErr('errSweep', 'COA Sweep harus persis kebalikan dari COA RAK (COA Sweep Kantor = '+coaLabel(rak.parent_coa)+', COA Sweep Induk = '+coaLabel(rak.brncd_coa)+'). Tidak boleh sama seperti COA RAK, dan tidak boleh COA lain.');
+  const brncd_coa_revers = document.getElementById('pnReversBrncdCoaRevers').value;
+  const parent_coa_revers = document.getElementById('pnReversParentCoaRevers').value;
+  if(brncd_coa_revers !== rak.parent_coa || parent_coa_revers !== rak.brncd_coa){
+    showErr('errRevers', 'Normalisasi COA RAK harus persis kebalikan dari COA RAK (Normalisasi COA RAK Kantor = '+coaLabel(rak.parent_coa)+', Normalisasi COA RAK Induk = '+coaLabel(rak.brncd_coa)+'). Tidak boleh sama seperti COA RAK, dan tidak boleh COA lain.');
     return;
   }
-  const existing = findSweepByRakId(selectedRakId);
+  const existing = findReversByRakId(selectedRakId);
   if(existing){
-    existing.brncd_coa_sweep = brncd_coa_sweep;
-    existing.parent_coa_sweep = parent_coa_sweep;
+    existing.brncd_coa_revers = brncd_coa_revers;
+    existing.parent_coa_revers = parent_coa_revers;
   } else {
-    glRakSweep.push({id:String(idSeq.sweep++).padStart(3,'0'), gl_para_rak_id: selectedRakId, is_sweep:true, brncd_coa_sweep, parent_coa_sweep});
+    glRakRevers.push({id:String(idSeq.revers++).padStart(3,'0'), gl_para_rak_id: selectedRakId, is_revers:true, brncd_coa_revers, parent_coa_revers});
   }
-  hideErr('errSweep');
+  hideErr('errRevers');
   renderRateGrid();
 }
 
 function deleteCurrentKantor(){
   if(!selectedRakId) return;
-  if(findSweepByRakId(selectedRakId)){
-    alert('Tidak bisa hapus - Kantor ini sudah punya setting COA Sweep (gl_raksweep). Hapus setting sweep-nya dulu.');
+  if(findReversByRakId(selectedRakId)){
+    alert('Tidak bisa hapus - Kantor ini sudah punya setting Normalisasi COA RAK (gl_para_rakrevers). Hapus setting normalisasinya dulu.');
     return;
   }
   glParaRak = glParaRak.filter(r=>r.id!==selectedRakId);
@@ -685,72 +706,93 @@ function deleteCurrentKantor(){
 function renderRateGrid(){
   const tb = document.getElementById('tblRateBody');
   tb.innerHTML = glParaRakRate.map((r,i)=>{
-    const sweep = findSweep(r.gl_para_raksweep_id);
-    const rak = sweep ? findRak(sweep.gl_para_rak_id) : null;
+    const revers = findRevers(r.gl_para_rakrevers_id);
+    const rak = revers ? findRak(revers.gl_para_rak_id) : null;
     const brncd = rak ? rak.brncd : '-';
     const coaRakLabel = rak ? coaLabelShort(rak.parent_coa) : '-';
-    const coaSweepLabel = sweep ? coaLabelShort(sweep.parent_coa_sweep) : '-';
+    const coaReversLabel = revers ? coaLabelShort(revers.parent_coa_revers) : '-';
     return '<tr>'
       + '<td>'+(i+1)+'</td>'
       + '<td>'+officeName(brncd)+'</td>'
       + '<td>'+coaRakLabel+'</td>'
-      + '<td class="mono">'+r.daily_interest_parent_coa_rak.toFixed(2)+'</td>'
-      + '<td>'+coaSweepLabel+'</td>'
-      + '<td class="mono">'+r.daily_interest_parent_coa_sweep.toFixed(2)+'</td>'
+      + '<td class="mono">'+r.year_interest_parent_coa_rak.toFixed(2)+'</td>'
+      + '<td>'+coaReversLabel+'</td>'
+      + '<td class="mono">'+r.year_interest_parent_coa_revers.toFixed(2)+'</td>'
+      + '<td>'+(r.start_month||'-')+'</td>'
+      + '<td>'+(r.end_month||'-')+'</td>'
       + '<td><div class="td-act">'
         + '<div class="act-btn act-edit" title="Edit" onclick="openRateForm(\''+r.id+'\')"><i class="ti ti-pencil"></i></div>'
         + '<div class="act-btn act-del" title="Hapus" onclick="deleteRate(\''+r.id+'\')"><i class="ti ti-trash"></i></div>'
         + '</div></td>'
       + '</tr>';
-  }).join('') || '<tr><td colspan="7" style="text-align:center;padding:24px;color:#9aa5b4">Belum ada data</td></tr>';
+  }).join('') || '<tr><td colspan="9" style="text-align:center;padding:24px;color:#9aa5b4">Belum ada data</td></tr>';
 }
 
 // ====================== gl_para_rakrate form ======================
 let editingRateId = null;
-function officesWithSweepReady(){
-  return glParaRak.filter(r=>findSweepByRakId(r.id));
+function officesWithReversReady(){
+  return glParaRak.filter(r=>findReversByRakId(r.id));
 }
 function onRateBrncdChange(){
   const brncd = document.getElementById('fRateBrncd').value;
   const rak = glParaRak.find(r=>r.brncd===brncd);
-  const sweep = rak ? findSweepByRakId(rak.id) : null;
+  const revers = rak ? findReversByRakId(rak.id) : null;
   document.getElementById('fRateCoaRakLabel').value = rak ? coaLabelShort(rak.parent_coa) : '-';
-  document.getElementById('fRateCoaSweepLabel').value = sweep ? coaLabelShort(sweep.parent_coa_sweep) : '-';
+  document.getElementById('fRateCoaReversLabel').value = revers ? coaLabelShort(revers.parent_coa_revers) : '-';
 }
+// TEMUAN #61 (2026-10-12) - onRateYearInputChange() DIHAPUS, sudah tidak ada lagi
+// auto-calculate rate harian di form ini. Rate bulanan (rak_rate = year_interest/12)
+// baru dihitung oleh gl_rak_func_EOM - lihat tab Skenario 3 (gl_hist_rakrate).
 function openRateForm(id){
   editingRateId = id;
   const r = id ? glParaRakRate.find(x=>x.id===id) : null;
-  const ready = officesWithSweepReady();
+  const ready = officesWithReversReady();
   document.getElementById('modalRateTitle').textContent = id ? 'Edit Parameter Bunga RAK' : 'Tambah Parameter Bunga RAK';
   let currentBrncd = null;
-  if(r){ const sweep = findSweep(r.gl_para_raksweep_id); const rak = sweep ? findRak(sweep.gl_para_rak_id) : null; currentBrncd = rak ? rak.brncd : null; }
+  if(r){ const revers = findRevers(r.gl_para_rakrevers_id); const rak = revers ? findRak(revers.gl_para_rak_id) : null; currentBrncd = rak ? rak.brncd : null; }
   const sel = document.getElementById('fRateBrncd');
   if(ready.length === 0){
-    sel.innerHTML = '<option value="">- Belum ada Kantor dengan COA Sweep lengkap -</option>';
+    sel.innerHTML = '<option value="">- Belum ada Kantor dengan Normalisasi COA RAK lengkap -</option>';
   } else {
     fillSelect(sel, ready.map(r2=>({value:r2.brncd, label:officeName(r2.brncd)})), currentBrncd || ready[0].brncd);
   }
-  document.getElementById('fRateValRak').value = r ? r.daily_interest_parent_coa_rak : '';
-  document.getElementById('fRateValSweep').value = r ? r.daily_interest_parent_coa_sweep : '';
+  document.getElementById('fRateStartMonth').value = r ? r.start_month : '';
+  document.getElementById('fRateEndMonth').value = r ? r.end_month : '';
+  document.getElementById('fRateYearValRak').value = r ? r.year_interest_parent_coa_rak : '';
+  document.getElementById('fRateYearValRevers').value = r ? r.year_interest_parent_coa_revers : '';
   onRateBrncdChange();
   hideErr('errRate');
   openModal('modalRate');
 }
 function saveRate(){
   const brncd = document.getElementById('fRateBrncd').value;
-  const valRak = parseFloat(document.getElementById('fRateValRak').value);
-  const valSweep = parseFloat(document.getElementById('fRateValSweep').value);
-  if(!brncd){ showErr('errRate', 'Kantor belum dipilih - pastikan COA Sweep-nya sudah diisi dulu di GLPM0041.'); return; }
-  if(isNaN(valRak) || isNaN(valSweep)){ showErr('errRate', 'Rate bunga harian wajib diisi angka.'); return; }
+  const startMonth = document.getElementById('fRateStartMonth').value.trim();
+  const endMonth = document.getElementById('fRateEndMonth').value.trim();
+  const yearValRak = parseFloat(document.getElementById('fRateYearValRak').value);
+  const yearValRevers = parseFloat(document.getElementById('fRateYearValRevers').value);
+  if(!brncd){ showErr('errRate', 'Kantor belum dipilih - pastikan Normalisasi COA RAK-nya sudah diisi dulu di GLPM0041.'); return; }
+  if(!startMonth || !endMonth){ showErr('errRate', 'Mulai Berlaku dan Akhir Berlaku wajib diisi (format MMMM-YYYY).'); return; }
+  if(isNaN(yearValRak) || isNaN(yearValRevers)){ showErr('errRate', 'Bunga RAK Induk 1/2 (%) tahunan wajib diisi angka.'); return; }
+  // TEMUAN #52/#57 - WAJIB validasi di sini sebelum simpan: kalau rentang
+  // start_month/end_month yg BARU ini nyentuh bulan yg udah pernah EOM (cek
+  // mn_logg_eod status SUCCESS gl_rak_func_EOM periode terkait) - tolak & alert
+  // "bulan X sudah EOM". TEMUAN #61 (2026-10-12) - gl_hist_rakrate (gabungan
+  // gl_hist_rakaccrue) SEKARANG ditulis LANGSUNG oleh gl_rak_func_EOM saat runtime
+  // (bukan hasil breakdown approval lagi), jadi validasi ini TETAP wajib cek
+  // mn_logg_eod (bukan gl_hist_rakrate) buat nentuin 'udah EOM apa belum'.
+  // Demo ini BELUM punya mn_logg_eod tiruan, jadi validasi ini CUMA dicatat di sini
+  // sbg TODO, belum benar-benar dijalankan.
   const rak = glParaRak.find(r=>r.brncd===brncd);
-  const sweep = findSweepByRakId(rak.id);
+  const revers = findReversByRakId(rak.id);
   if(editingRateId){
     const r = glParaRakRate.find(x=>x.id===editingRateId);
-    r.gl_para_raksweep_id = sweep.id;
-    r.daily_interest_parent_coa_rak = valRak;
-    r.daily_interest_parent_coa_sweep = valSweep;
+    r.gl_para_rakrevers_id = revers.id;
+    r.start_month = startMonth;
+    r.end_month = endMonth;
+    r.year_interest_parent_coa_rak = yearValRak;
+    r.year_interest_parent_coa_revers = yearValRevers;
   } else {
-    glParaRakRate.push({id:String(idSeq.rate++).padStart(3,'0'), gl_para_raksweep_id: sweep.id, daily_interest_parent_coa_rak: valRak, daily_interest_parent_coa_sweep: valSweep});
+    glParaRakRate.push({id:String(idSeq.rate++).padStart(3,'0'), gl_para_rakrevers_id: revers.id, start_month:startMonth, end_month:endMonth, year_interest_parent_coa_rak:yearValRak, year_interest_parent_coa_revers:yearValRevers});
   }
   closeModal('modalRate');
   renderRateGrid();
@@ -764,7 +806,7 @@ function deleteRate(id){
 const VIEW_TITLES = {
   glpm0041: ['GLPM0041 - Setting Parameter RAK', 'RAK &raquo; GLPM0041'],
   bungarak: ['Menu Parameter Bunga RAK', 'RAK &raquo; Parameter Bunga RAK'],
-  skenario: ['Skenario - Posisi RAK Abnormal & Sweep EOD', 'RAK &raquo; Skenario'],
+  skenario: ['Skenario - Posisi RAK Abnormal & Normalisasi EOD', 'RAK &raquo; Skenario'],
   rakstress: ['Stress Test - Kondisi Netting Ekstrem', 'RAK &raquo; Stress Test'],
 };
 document.querySelectorAll('.sidebar-nav a').forEach(a=>{
@@ -781,42 +823,42 @@ document.querySelectorAll('.sidebar-nav a').forEach(a=>{
   });
 });
 
-// ====================== Skenario - Posisi RAK Abnormal & Sweep EOD ======================
+// ====================== Skenario - Posisi RAK Abnormal & Normalisasi EOD ======================
 // TEMUAN #49 (2026-09-30) - REVISI TOTAL, gantiin Skenario C & D yg lama (dihapus semua,
-// termasuk NEW_gl_mast_rakposisi/NEW_gl_hist_raksweep/dst yg udah gak ada di ERD). Demo
+// termasuk NEW_gl_mast_rakposisi/NEW_gl_hist_rakrevers/dst yg udah gak ada di ERD). Demo
 // ini nunjukin tabel yg BENERAN ada: gl_mast, gl_tran, & NEW_gl_hist_rakintdaily (log
 // bunga harian) - posisi RAK dibaca LANGSUNG dari cbal gl_mast (query), BUKAN dari tabel
 // status/posisi terpisah. 1 CABANG doang (371, biar gampang dibaca), COA-nya DIQUERY dari
-// glParaRak/glRakSweep (settingan asli GLPM0041 - screenshot user, 4 akun: COA RAK
-// Kantor=brncd_coa, COA Sweep Kantor=brncd_coa_sweep, COA RAK Induk=parent_coa, COA Sweep
-// Induk=parent_coa_sweep) - BUKAN diketik ulang manual, biar konsisten sama tab
+// glParaRak/glRakRevers (settingan asli GLPM0041 - screenshot user, 4 akun: COA RAK
+// Kantor=brncd_coa, COA Revers Kantor=brncd_coa_revers, COA RAK Induk=parent_coa, COA Revers
+// Induk=parent_coa_revers) - BUKAN diketik ulang manual, biar konsisten sama tab
 // "GLPM0041 - Parameter RAK".
 //
 // ACUAN itu PUSAT (koreksi permintaan user: "yang jadi acuan kan pusat... cabang mah bodo
 // amat" - lalu ditegasin lagi jangan sampe malah ilang sama sekali buku Cabang-nya,
 // "malah makin gak nyambung" - user MINTA BALIK 4 baris gl_mast: 370 Pasiva, 370 Aktiva,
 // 371 Aktiva, 371 Pasiva) - jadi: KEDUA buku (Pusat & Cabang) TETAP diposting/ditampilin
-// (mirror pair, biar tetep kebaca "antar kantor"), TAPI narasi & deteksi abnormal/sweep
+// (mirror pair, biar tetep kebaca "antar kantor"), TAPI narasi & deteksi abnormal/revers
 // SELALU di-frame dari SISI PUSAT (baris Pusat duluan, narasinya jadi acuan; baris Cabang
 // cuma "Cerminan").
 //
 // 3 SKENARIO TERPISAH (permintaan user - "ga usah berpatok ke pdf lagi", balik ke model
 // delta/mirror-pair kayak Skenario C, BUKAN transkrip literal):
-//   1. Posisi PASIVA Pusat (akun RAK Induk) yang tidak normal - akun Aktiva Pusat (Sweep
-//      Induk) diem di 0 sampe di-sweep.
-//   2. Posisi AKTIVA Pusat (akun Sweep Induk) yang tidak normal - mirror-image skenario 1,
-//      akun Pasiva Pusat (RAK Induk) diem di 0 sampe di-sweep.
+//   1. Posisi PASIVA Pusat (akun RAK Induk) yang tidak normal - akun Aktiva Pusat (Revers
+//      Induk) diem di 0 sampe di-revers.
+//   2. Posisi AKTIVA Pusat (akun Revers Induk) yang tidak normal - mirror-image skenario 1,
+//      akun Pasiva Pusat (RAK Induk) diem di 0 sampe di-revers.
 //   3. Akhir bulan: sama kayak skenario 1 tapi hari terakhirnya ditandain "Akhir Bulan",
 //      plus rekap SUM bunga harian (NEW_gl_hist_rakintdaily) bulan berjalan - GANTI
 //      NEW_gl_para_rakeom yg dihapus (kapitalisasi EOM = query SUM, bukan tabel snapshot).
 const RAK_CABANG = '371';
 const RAK_PARA = glParaRak.find(r=>r.brncd===RAK_CABANG && r.is_tran);
-const RAK_SWEEP_PARA = findSweepByRakId(RAK_PARA.id);
-const RAK_RATE_PARA = glParaRakRate.find(rr=>rr.gl_para_raksweep_id===RAK_SWEEP_PARA.id);
+const RAK_REVERS_PARA = findReversByRakId(RAK_PARA.id);
+const RAK_RATE_PARA = glParaRakRate.find(rr=>rr.gl_para_rakrevers_id===RAK_REVERS_PARA.id);
 const RAK_COA_KANTOR = RAK_PARA.brncd_coa; // buku Cabang - mirror akun Pasiva Pusat, saldo normal Debit
-const RAK_COA_SWEEP_KANTOR = RAK_SWEEP_PARA.brncd_coa_sweep; // buku Cabang - mirror akun Aktiva Pusat, saldo normal Kredit
+const RAK_COA_REVERS_KANTOR = RAK_REVERS_PARA.brncd_coa_revers; // buku Cabang - mirror akun Aktiva Pusat, saldo normal Kredit
 const RAK_COA_INDUK = RAK_PARA.parent_coa; // buku Pusat - akun PASIVA, saldo normal Kredit
-const RAK_COA_SWEEP_INDUK = RAK_SWEEP_PARA.parent_coa_sweep; // buku Pusat - akun AKTIVA, saldo normal Debit
+const RAK_COA_REVERS_INDUK = RAK_REVERS_PARA.parent_coa_revers; // buku Pusat - akun AKTIVA, saldo normal Debit
 // TEMUAN baru (2026-09-30) - COA kapitalisasi bunga RAK (screenshot GLPM0041 produksi
 // user, gl_para_rak.Rak4/Rak5) - dipakai KEDUA kantor (370 & 371) gantian tergantung
 // siapa yg lagi untung/rugi bulan itu (BUKAN pasangan mirror per-kantor kayak 4 akun RAK
@@ -824,11 +866,11 @@ const RAK_COA_SWEEP_INDUK = RAK_SWEEP_PARA.parent_coa_sweep; // buku Pusat - aku
 const RAK_COA_BIAYA_BUNGA = '69107200'; // BIAYA BUNGA RAK - dipakai kantor yg RUGI bulan ini
 const RAK_COA_PEND_BUNGA = '59107200'; // PEND. BUNGA RAK - dipakai kantor yg UNTUNG bulan ini
 
-// SATU-SATUNYA tempat logic sweep dihitung - jumlah BERTANDA aktiva+pasiva (pasiva
+// SATU-SATUNYA tempat logic revers dihitung - jumlah BERTANDA aktiva+pasiva (pasiva
 // disimpen negatif) - net>0 Aktiva menang, net<0 Pasiva menang. Otomatis bener buat
 // kondisi "1 sisi doang jadi minus/plus" (skenario 1 & 2 di sini) MAUPUN kondisi
 // "2 sisi bareng" kalau suatu saat dibutuhin lagi.
-function rakHitungSweep(aktiva, pasiva){
+function rakHitungRevers(aktiva, pasiva){
   const net = aktiva + pasiva;
   if(net === 0) return {kondisi:'NIHIL', posisiHasil:'-', saldoHasil:0};
   const duaSisi = aktiva !== 0 && pasiva !== 0;
@@ -840,7 +882,7 @@ function rakHitungSweep(aktiva, pasiva){
 // TAHAP 1 (gross, per sisi) - bawa posisi Pusat ke raw {aktiva,pasiva} hari ini, MIRRORED
 // ke buku Cabang (akun mirror dari masing2 sisi, dk KEBALIK). TAHAP 2 (reclass otomatis
 // EOD) - begitu SALAH SATU sisi Pusat jadi TIDAK NORMAL (Aktiva<0 atau Pasiva>0), tutup
-// sisi itu ke 0 & bentuk sisi seberang - PERSIS pola user: "yang di sweep yang di 0 kan
+// sisi itu ke 0 & bentuk sisi seberang - PERSIS pola user: "yang di revers yang di 0 kan
 // itulah yang di jurnal... buat 0 kan aktivanya dan berpindah ke pasiva" (di sini
 // simetris: bisa juga kebalik, tutup Pasiva -> buka Aktiva).
 function rakBuildLedgerEntries(days){
@@ -854,17 +896,17 @@ function rakBuildLedgerEntries(days){
       if(amt===0) return;
       entries.push({dayIdx, slip: adj ? slip+'EOD' : slip, tgl, brncd, coaId, dk, amt, narasi, adj:!!adj});
     }
-    // TAHAP 1: delta AKTIVA Pusat (Sweep Induk) <-> mirror Cabang (Sweep Kantor, dk KEBALIK)
+    // TAHAP 1: delta AKTIVA Pusat (Revers Induk) <-> mirror Cabang (Revers Kantor, dk KEBALIK)
     const deltaAktiva = day.aktiva - prev.aktiva;
     if(deltaAktiva > 0){
       const label = (isAwal?'Posisi Pusat (akun Aktiva) terbentuk':'Posisi Pusat (akun Aktiva) bertambah')+' Rp'+fmtNum(deltaAktiva);
-      post('370', RAK_COA_SWEEP_INDUK, 'D', deltaAktiva, label);
-      post(RAK_CABANG, RAK_COA_SWEEP_KANTOR, 'K', deltaAktiva, 'Cerminan - '+label);
+      post('370', RAK_COA_REVERS_INDUK, 'D', deltaAktiva, label);
+      post(RAK_CABANG, RAK_COA_REVERS_KANTOR, 'K', deltaAktiva, 'Cerminan - '+label);
     } else if(deltaAktiva < 0){
       const amt = -deltaAktiva;
       const label = 'Posisi Pusat (akun Aktiva) berkurang Rp'+fmtNum(amt);
-      post('370', RAK_COA_SWEEP_INDUK, 'K', amt, label);
-      post(RAK_CABANG, RAK_COA_SWEEP_KANTOR, 'D', amt, 'Cerminan - '+label);
+      post('370', RAK_COA_REVERS_INDUK, 'K', amt, label);
+      post(RAK_CABANG, RAK_COA_REVERS_KANTOR, 'D', amt, 'Cerminan - '+label);
     }
     // TAHAP 1: delta PASIVA Pusat (RAK Induk) <-> mirror Cabang (RAK Kantor, dk KEBALIK).
     // pasiva disimpen NEGATIF - delta negatif (makin negatif) = magnitude Pasiva Pusat NAIK.
@@ -885,12 +927,12 @@ function rakBuildLedgerEntries(days){
     const abnormalAktiva = day.aktiva < 0;
     const abnormalPasiva = day.pasiva > 0;
     if(abnormalAktiva || abnormalPasiva){
-      const sw = rakHitungSweep(day.aktiva, day.pasiva);
-      const ket = 'Jurnal otomatis EOD - posisi Pusat (akun '+(abnormalAktiva?'Aktiva':'Pasiva')+') TIDAK NORMAL terdeteksi, disweep jadi posisi '+(sw.posisiHasil==='A'?'Aktiva':'Pasiva')+' Rp'+fmtNum(sw.saldoHasil);
+      const sw = rakHitungRevers(day.aktiva, day.pasiva);
+      const ket = 'Jurnal otomatis EOD - posisi Pusat (akun '+(abnormalAktiva?'Aktiva':'Pasiva')+') TIDAK NORMAL terdeteksi, dinormalisasi jadi posisi '+(sw.posisiHasil==='A'?'Aktiva':'Pasiva')+' Rp'+fmtNum(sw.saldoHasil);
       if(abnormalAktiva){
         const amt = Math.abs(day.aktiva);
-        post('370', RAK_COA_SWEEP_INDUK, 'D', amt, ket, true); // tutup Aktiva Pusat ke 0
-        post(RAK_CABANG, RAK_COA_SWEEP_KANTOR, 'K', amt, 'Cerminan - '+ket, true);
+        post('370', RAK_COA_REVERS_INDUK, 'D', amt, ket, true); // tutup Aktiva Pusat ke 0
+        post(RAK_CABANG, RAK_COA_REVERS_KANTOR, 'K', amt, 'Cerminan - '+ket, true);
         post('370', RAK_COA_INDUK, 'K', amt, ket, true); // bentuk Pasiva Pusat
         post(RAK_CABANG, RAK_COA_KANTOR, 'D', amt, 'Cerminan - '+ket, true);
       }
@@ -898,10 +940,10 @@ function rakBuildLedgerEntries(days){
         const amt = day.pasiva;
         post('370', RAK_COA_INDUK, 'K', amt, ket, true); // tutup Pasiva Pusat ke 0
         post(RAK_CABANG, RAK_COA_KANTOR, 'D', amt, 'Cerminan - '+ket, true);
-        post('370', RAK_COA_SWEEP_INDUK, 'D', amt, ket, true); // bentuk Aktiva Pusat
-        post(RAK_CABANG, RAK_COA_SWEEP_KANTOR, 'K', amt, 'Cerminan - '+ket, true);
+        post('370', RAK_COA_REVERS_INDUK, 'D', amt, ket, true); // bentuk Aktiva Pusat
+        post(RAK_CABANG, RAK_COA_REVERS_KANTOR, 'K', amt, 'Cerminan - '+ket, true);
       }
-      // WAJIB: baseline hari BESOK itu hasil SETELAH sweep (bukan raw sebelum sweep) -
+      // WAJIB: baseline hari BESOK itu hasil SETELAH revers (bukan raw sebelum revers) -
       // kalau gak gini, hari besok yg "posisinya diem" (gak ada transaksi baru) bakal
       // keliru dikira delta baru lagi dari 0 (bug yg sempet kejadian).
       prev = sw.posisiHasil==='A' ? {aktiva:sw.saldoHasil, pasiva:0} : {aktiva:0, pasiva:-sw.saldoHasil};
@@ -924,9 +966,9 @@ const RAK_SCENARIOS = [
     { tgl:'01 Des 2026', aktiva:1000000000, pasiva:0 },
     { tgl:'02 Des 2026', aktiva:-500000000, pasiva:0 },
   ]},
-  // RALAT BESAR (2026-10-01) - user minta pisah 2 fungsi: gl_rak_func_EOD (sweep
+  // RALAT BESAR (2026-10-01) - user minta pisah 2 fungsi: gl_rak_func_EOD (revers
   // doang) dan gl_rak_func_EOM (bunga doang, opsional - bank bisa aja gak pake bunga
-  // RAK, cuma mau sweep doang). Konsekuensinya bunga EOM BUKAN LAGI netting 2
+  // RAK, cuma mau revers doang). Konsekuensinya bunga EOM BUKAN LAGI netting 2
   // akumulasi (bunga_aktiva_mtd vs bunga_pasiva_mtd dibandingin) - user tegas:
   // "jadi ga ada tuh netting bunga pasiva vs bunga aktiva lagi". Formula baru: posisi
   // CBAL di HARI TERAKHIR bulan itu doang (gak peduli histori hari2 sebelumnya) x
@@ -934,15 +976,15 @@ const RAK_SCENARIOS = [
   // (makanya NEW_gl_hist_rakintdaily/Table 3 lama DIHAPUS, liat rakTblGlMast &
   // rakColHtml). 3 hari di skenario ini TETAP dipertahanin apa adanya (gak ganggu -
   // cuma hari TERAKHIR yg kepake buat hitung bunga, hari2 sblumnya tetap kepake
-  // buat nunjukin proses sweep-nya gl_rak_func_EOD).
-  { id:'eom', isEom:true, periodeLabel:'Januari-2027', title:'Skenario 3 - Akhir Bulan: Sweep (gl_rak_func_EOD) + Bunga RAK (gl_rak_func_EOM), posisi akhir Aktiva', days:[
+  // buat nunjukin proses revers-nya gl_rak_func_EOD).
+  { id:'eom', isEom:true, periodeLabel:'Januari-2027', title:'Skenario 3 - Akhir Bulan: Normalisasi (gl_rak_func_EOD) + Bunga RAK (gl_rak_func_EOM), posisi akhir Aktiva', days:[
     { tgl:'02 Jan 2027', aktiva:0, pasiva:-1000000000 },
     { tgl:'15 Jan 2027', aktiva:0, pasiva:500000000 },
     { tgl:'31 Jan 2027 (Akhir Bulan)', aktiva:500000000, pasiva:0 },
   ]},
   // Skenario 4 - mirror-image Skenario 3, posisi akhir bulan di sisi PASIVA (biar
   // keliatan bedanya arah jurnal Beban vs Pendapatan Bunga).
-  { id:'eomPasiva', isEom:true, periodeLabel:'Februari-2027', title:'Skenario 4 - Akhir Bulan: Sweep (gl_rak_func_EOD) + Bunga RAK (gl_rak_func_EOM), posisi akhir Pasiva', days:[
+  { id:'eomPasiva', isEom:true, periodeLabel:'Februari-2027', title:'Skenario 4 - Akhir Bulan: Normalisasi (gl_rak_func_EOD) + Bunga RAK (gl_rak_func_EOM), posisi akhir Pasiva', days:[
     { tgl:'02 Feb 2027', aktiva:500000000, pasiva:0 },
     { tgl:'15 Feb 2027', aktiva:-1000000000, pasiva:0 },
     { tgl:'28 Feb 2027 (Akhir Bulan)', aktiva:0, pasiva:-1000000000 },
@@ -954,7 +996,7 @@ RAK_SCENARIOS.forEach(s=>{ s.entries = rakBuildLedgerEntries(s.days); });
 // gini") - urutan TAMPILAN gl_tran per slip: KANTOR (370) SEMUA barisnya DULU, BARU 371
 // semua barisnya - PATOKAN UTAMA KANTOR, bukan D/K. Debit-vs-Kredit CUMA jadi tiebreak
 // DALAM 1 kantor yg sama (kalau kantor itu py >1 baris di slip yg sama, kondisi
-// sweep/kapitalisasi) - Debit duluan drpd Kredit DALAM kantor itu. (Percobaan sblumnya -
+// revers/kapitalisasi) - Debit duluan drpd Kredit DALAM kantor itu. (Percobaan sblumnya -
 // patokan D/K dulu, kantor tiebreak - SALAH, sempet bikin baris 371 nongol duluan drpd
 // 370 pas kebetulan 371 yg Debit; user tegasin 370 HARUS SELALU nongol duluan titik.)
 function rakSortGlTranBySlip(list){
@@ -986,7 +1028,7 @@ function rakBuildEntries(scenario, dayIdx, phase){
 function rakTblGlMast(scenario, dayIdx, phase){
   const entries = rakBuildEntries(scenario, dayIdx, phase);
   // gl_mast itu MASTER - 4 akun ini (2 punya Pusat, 2 punya Cabang) UDAH ke-KONFIGURASI
-  // dari GLPM0041 (glParaRak/glRakSweep) SEJAK AWAL, jadi baris gl_mast-nya SELALU ADA
+  // dari GLPM0041 (glParaRak/glRakRevers) SEJAK AWAL, jadi baris gl_mast-nya SELALU ADA
   // KE-4NYA dari tab paling pertama sampe paling akhir - BUKAN nunggu "pernah ke-touch"
   // baru nongol (permintaan user, ditegasin ulang: "pencatatan di sebelum dan sesudah eod
   // ya 4 baris. gl_mast balik jadi 4 baris" - sebelumnya masih nunggu akun ke-touch dulu,
@@ -996,9 +1038,9 @@ function rakTblGlMast(scenario, dayIdx, phase){
   // di bawah yg TETAP pakai `entries` ter-filter fase).
   const ks = [
     {brncd:'370', coaId:RAK_COA_INDUK},
-    {brncd:'370', coaId:RAK_COA_SWEEP_INDUK},
+    {brncd:'370', coaId:RAK_COA_REVERS_INDUK},
     {brncd:RAK_CABANG, coaId:RAK_COA_KANTOR},
-    {brncd:RAK_CABANG, coaId:RAK_COA_SWEEP_KANTOR},
+    {brncd:RAK_CABANG, coaId:RAK_COA_REVERS_KANTOR},
   ];
   const rows = ks.map(k=>{
     const rel = entries.filter(e=>e.brncd===k.brncd && e.coaId===k.coaId);
@@ -1007,24 +1049,28 @@ function rakTblGlMast(scenario, dayIdx, phase){
     const dailyRel = rel.filter(e=>e.dayIdx===dayIdx);
     const dailyDebit = dailyRel.reduce((s,e)=>s+(e.dk==='D'?e.amt:0),0);
     const dailyCredit = dailyRel.reduce((s,e)=>s+(e.dk==='K'?e.amt:0),0);
-    const isPusatAktiva = k.brncd==='370' && k.coaId===RAK_COA_SWEEP_INDUK;
+    const isPusatAktiva = k.brncd==='370' && k.coaId===RAK_COA_REVERS_INDUK;
     const isPusatPasiva = k.brncd==='370' && k.coaId===RAK_COA_INDUK;
     const isCabangAktiva = k.brncd===RAK_CABANG && k.coaId===RAK_COA_KANTOR;
-    const isCabangPasiva = k.brncd===RAK_CABANG && k.coaId===RAK_COA_SWEEP_KANTOR;
+    const isCabangPasiva = k.brncd===RAK_CABANG && k.coaId===RAK_COA_REVERS_KANTOR;
     return {brncd:k.brncd, label:coaLabelShort(k.coaId), dailyDebit, dailyCredit, accumDebit, accumCredit, cbal:accumDebit-accumCredit, lastTrn: rel.length ? rel[rel.length-1].tgl : '-', isPusatAktiva, isPusatPasiva, isCabangAktiva, isCabangPasiva};
   });
   rows.sort((a,b)=>{
     const rank = r => r.isPusatPasiva?0 : (r.isPusatAktiva?1 : (r.isCabangAktiva?2 : (r.isCabangPasiva?3:4)));
     return rank(a)-rank(b);
   });
-  // KAPITALISASI BUNGA EOM - RALAT (2026-10-01, pisah fungsi gl_rak_func_EOD (sweep)
+  // KAPITALISASI BUNGA EOM - RALAT (2026-10-01, pisah fungsi gl_rak_func_EOD (revers)
   // vs gl_rak_func_EOM (bunga, opsional)). Formula bunga BUKAN LAGI netting 2 akumulasi
   // harian (bunga_aktiva_mtd vs bunga_pasiva_mtd dibandingin) - user tegas: "jadi ga ada
   // tuh netting bunga pasiva vs bunga aktiva lagi". RALAT KEDUA (2026-10-01, revisi
   // rumus): posisi yg dipakai TETAP cbal SAAT EOM (hari terakhir bulan, gak peduli
   // histori harian), TAPI bunganya BUKAN cuma 1 hari - rumus FINAL: posisi gl_mast.cbal
   // (akhir bulan) x rate harian sesuai posisi x JUMLAH HARI DALAM BULAN itu (pakai
-  // rakJumlahHariBulan - Januari=31, Februari 2027=28, dst). Posisi mana yg aktif
+  // TEMUAN #61 (2026-10-12, RALAT KETIGA) - rumus "FINAL" di atas ITU SENDIRI SUDAH
+  // TIDAK DIPAKAI LAGI. Rumus SEKARANG: posisi gl_mast.cbal (akhir bulan) x rak_rate,
+  // dimana rak_rate = rate TAHUNAN (year_interest_parent_coa_rak/revers) / 12 bulan -
+  // FLAT, TIDAK dikali jumlah hari dalam bulan sama sekali (rakJumlahHariBulan DIHAPUS).
+  // Posisi mana yg aktif
   // (Aktiva/Pasiva) ditentuin PERSIS kaya rakPosisiHasil nentuin posisi harian (dalam
   // model ini cuma dipanggil 1x, di hari terakhir bulan).
   // Arah jurnal - SETIAP kantor (370 & 371) SELF-BALANCED sendiri, persis 2 pasangan
@@ -1035,13 +1081,13 @@ function rakTblGlMast(scenario, dayIdx, phase){
   const capTranRows = [];
   if(phase==='after' && scenario.isEom && dayIdx===scenario.days.length-1){
     const posEom = rakPosisiHasil(scenario, dayIdx);
-    const jumlahHariEom = rakJumlahHariBulan(scenario.periodeLabel);
-    const totalBunga = Math.round(posEom.saldo * posEom.rate / 100 * jumlahHariEom);
+    const rakRateEom = posEom.rate / 12;
+    const totalBunga = Math.round(posEom.saldo * rakRateEom / 100);
     if(totalBunga > 0){
-      const menangAktiva = posEom.coaId === RAK_COA_SWEEP_INDUK;
+      const menangAktiva = posEom.coaId === RAK_COA_REVERS_INDUK;
       const tgl = scenario.days[dayIdx].tgl;
       const capSlip = 'RAKCAP'+String(dayIdx+1).padStart(4,'0');
-      const ket = 'Bunga RAK akhir bulan (gl_rak_func_EOM) - posisi '+(menangAktiva?'Aktiva':'Pasiva')+' Rp'+fmtNum(posEom.saldo)+' x rate '+posEom.rate.toFixed(2)+'% x '+jumlahHariEom+' hari = Rp'+fmtNum(totalBunga)+' ('+(menangAktiva?'Pendapatan Bunga Untuk Pusat':'Beban Bunga Untuk Pusat')+')';
+      const ket = 'Bunga RAK akhir bulan (gl_rak_func_EOM) - posisi '+(menangAktiva?'Aktiva':'Pasiva')+' Rp'+fmtNum(posEom.saldo)+' x rak_rate '+rakRateEom.toFixed(4)+'% (rate tahunan '+posEom.rate.toFixed(2)+'% &divide; 12 bulan) = Rp'+fmtNum(totalBunga)+' ('+(menangAktiva?'Pendapatan Bunga Untuk Pusat':'Beban Bunga Untuk Pusat')+')';
       function findOrAddRow(brncd, coaId){
         let r = rows.find(x=>x.brncd===brncd && x.label===coaLabelShort(coaId));
         if(!r){
@@ -1057,19 +1103,19 @@ function rakTblGlMast(scenario, dayIdx, phase){
         r.lastTrn = tgl;
       }
       // RALAT (2026-09-30) - percobaan sblumnya ("book-assignment" fixed ke pasangan
-      // Sweep 29700000/39700001 apapun pemenangnya) TERNYATA SALAH pas dicek di skenario
-      // Pasiva Menang: nominal bunga numplek di akun SWEEP_INDUK (29700000, lagi cbal 0),
+      // Revers 29700000/39700001 apapun pemenangnya) TERNYATA SALAH pas dicek di skenario
+      // Pasiva Menang: nominal bunga numplek di akun REVERS_INDUK (29700000, lagi cbal 0),
       // bukan nambah ke akun yg BENERAN nyimpen posisi riil bulan itu (39700000, RAK
       // Induk, yg lagi -1M) - user: "lu cek deh itu gl mast after eod... lu malah nulis
       // di aktiva nominal bunganya". Akun kapitalisasi skrng DINAMIS ngikutin sisi mana
       // yg lagi menang (SAMA persis kaya cara rakPosisiHasil nentuin posisi hasil harian
-      // - Aktiva menang -> SWEEP_INDUK/SWEEP_KANTOR, Pasiva menang -> RAK_COA_INDUK/
+      // - Aktiva menang -> REVERS_INDUK/REVERS_KANTOR, Pasiva menang -> RAK_COA_INDUK/
       // RAK_COA_KANTOR) - biar bunga BENERAN kapitalisasi (nambah) ke saldo yg lagi
       // aktif, bukan ke akun lain yg kebetulan lagi kosong. Utk Skenario 3 (Aktiva
       // Menang) hasilnya SAMA PERSIS kaya sblumnya (posisi riilnya emang di pasangan
-      // Sweep dari sononya) - jadi gak ada regresi.
-      const posisiPusatCoa = menangAktiva ? RAK_COA_SWEEP_INDUK : RAK_COA_INDUK;
-      const posisiCabangCoa = menangAktiva ? RAK_COA_SWEEP_KANTOR : RAK_COA_KANTOR;
+      // Revers dari sononya) - jadi gak ada regresi.
+      const posisiPusatCoa = menangAktiva ? RAK_COA_REVERS_INDUK : RAK_COA_INDUK;
+      const posisiCabangCoa = menangAktiva ? RAK_COA_REVERS_KANTOR : RAK_COA_KANTOR;
       const pusatPosisiDk = menangAktiva ? 'D' : 'K';
       const cabangPosisiDk = menangAktiva ? 'K' : 'D';
       const pnlPusatCoa = menangAktiva ? RAK_COA_PEND_BUNGA : RAK_COA_BIAYA_BUNGA;
@@ -1112,9 +1158,9 @@ function rakTblGlMast(scenario, dayIdx, phase){
   }).join('');
   // TEMUAN baru (2026-09-30, permintaan user - "user bingung") - gl_tran SEBELUM EOD
   // SELALU disembunyiin totalnya (bukan cuma dikosongin) di SEMUA kondisi (normal,
-  // sweep, EOM). SESUDAH EOD: kalau hari itu POSISI NORMAL (gak ada sweep, gak ada
+  // revers, EOM). SESUDAH EOD: kalau hari itu POSISI NORMAL (gak ada revers, gak ada
   // kapitalisasi) - tabel-nya JUGA disembunyiin total (gak ada yg menarik buat
-  // ditunjukin). Kalau hari itu ada SWEEP - tabel CUMA nampilin baris jurnal sweep hari
+  // ditunjukin). Kalau hari itu ada REVERS - tabel CUMA nampilin baris jurnal revers hari
   // ini doang (adj===true, dayIdx===hari ini), BUKAN histori kumulatif dari entries
   // yg lain, biar user fokus liat 1 contoh jurnalnya. Kalau hari itu KAPITALISASI EOM -
   // tabel CUMA nampilin baris hijau (capTranRows) doang, gak dicampur sama baris biasa.
@@ -1127,9 +1173,9 @@ function rakTblGlMast(scenario, dayIdx, phase){
       glTranVisible = true;
       glTranIsCap = true;
     } else {
-      const todaySweepRows = entries.filter(e=>e.dayIdx===dayIdx && e.adj);
-      if(todaySweepRows.length){
-        glTranRowsToShow = todaySweepRows;
+      const todayReversRows = entries.filter(e=>e.dayIdx===dayIdx && e.adj);
+      if(todayReversRows.length){
+        glTranRowsToShow = todayReversRows;
         glTranVisible = true;
       }
     }
@@ -1145,59 +1191,59 @@ function rakTblGlMast(scenario, dayIdx, phase){
   };
 }
 // posisi PUSAT thd cabang ini, HASIL query cbal gl_mast (bukan tabel status terpisah) -
-// dipakai buat isi NEW_gl_hist_rakintdaily (bunga = saldo x rate gl_para_rakrate yg
-// sesuai). Akun Pasiva Pusat yg keisi -> rate 'daily_interest_parent_coa_rak'. Akun
-// Aktiva Pusat yg keisi -> rate 'daily_interest_parent_coa_sweep'.
+// dipakai buat isi gl_hist_rakrate (bunga = saldo x rak_rate, dimana rak_rate =
+// year_interest/12, TEMUAN #61). Akun Pasiva Pusat yg keisi -> rate TAHUNAN
+// 'year_interest_parent_coa_rak'. Akun Aktiva Pusat yg keisi -> rate TAHUNAN
+// 'year_interest_parent_coa_revers'.
 function rakPosisiHasil(scenario, dayIdx){
   const entries = rakBuildEntries(scenario, dayIdx, 'after').filter(e=>e.brncd==='370');
   const cbalOf = coaId => entries.filter(e=>e.coaId===coaId).reduce((s,e)=>s+(e.dk==='D'?e.amt:-e.amt),0);
-  const cbalAktiva = cbalOf(RAK_COA_SWEEP_INDUK);
+  const cbalAktiva = cbalOf(RAK_COA_REVERS_INDUK);
   if(cbalAktiva !== 0){
-    return {coaId:RAK_COA_SWEEP_INDUK, crdr:'D', saldo:Math.abs(cbalAktiva), rate:RAK_RATE_PARA.daily_interest_parent_coa_sweep};
+    return {coaId:RAK_COA_REVERS_INDUK, crdr:'D', saldo:Math.abs(cbalAktiva), rate:RAK_RATE_PARA.year_interest_parent_coa_revers};
   }
   const cbalPasiva = cbalOf(RAK_COA_INDUK);
-  return {coaId:RAK_COA_INDUK, crdr:'K', saldo:Math.abs(cbalPasiva), rate:RAK_RATE_PARA.daily_interest_parent_coa_rak};
+  return {coaId:RAK_COA_INDUK, crdr:'K', saldo:Math.abs(cbalPasiva), rate:RAK_RATE_PARA.year_interest_parent_coa_rak};
 }
-// RALAT (2026-10-01, revisi rumus bunga EOM) - bunga BUKAN cuma posisi x rate 1 hari,
-// tapi posisi x rate x JUMLAH HARI DALAM BULAN ybs (posisi-nya TETAP cbal SAAT EOM
-// doang, gak ada akumulasi harian - cuma pengali hari-nya yg ditambahin). periodeLabel
-// formatnya 'NamaBulan-Tahun' (cth 'Januari-2027'), dipakai juga sbg kolom periode
-// di gl_hist_rakaccrue.
-function rakJumlahHariBulan(periodeLabel){
-  const BULAN_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-  const parts = (periodeLabel||'').split('-');
-  const bulanIdx = BULAN_ID.indexOf(parts[0]);
-  const tahun = parseInt(parts[1], 10);
-  if(bulanIdx<0 || isNaN(tahun)) return 30;
-  return new Date(tahun, bulanIdx+1, 0).getDate();
-}
+// TEMUAN #61 (2026-10-12, RALAT RUMUS BESAR) - rakJumlahHariBulan() DIHAPUS, sudah
+// tidak dipakai lagi. Bunga BUKAN LAGI posisi x rate harian x jumlah hari dalam bulan -
+// sekarang FLAT posisi x (rate TAHUNAN / 12 bulan). rate yg dibawa rakPosisiHasil() di
+// atas SEKARANG rate TAHUNAN (year_interest_parent_coa_rak/revers), rate BULANAN
+// (rak_rate) dihitung inline tiap dipakai (year_interest/12) - lihat kedua pemanggil
+// rakPosisiHasil() di bawah. periodeLabel formatnya 'NamaBulan-Tahun' (cth
+// 'Januari-2027'), dipakai sbg kolom periode di gl_hist_rakrate (gabungan dari
+// gl_hist_rakaccrue yg dihapus).
 // RALAT BESAR (2026-10-01) - NEW_gl_hist_rakintdaily (dulu "Table 3") DIHAPUS TOTAL,
 // gak dipakai lagi (rakTblIntDaily yg dulu ngitung bunga TIAP HARI juga dihapus) -
 // user tegas: "Table gl_hist_rakintdaily di hapus tidak di pakai". Alasannya: bunga
 // RAK sekarang BUKAN akumulasi harian yg di-netting di akhir bulan, tapi 1x hitungan
-// doang pas EOM (gl_rak_func_EOM, TERPISAH dari gl_rak_func_EOD yg cuma sweep) -
-// posisi cbal HARI ITU (hari terakhir bulan) x rate HARI ITU, titik, langsung
-// dijurnal & dicatat ke gl_hist_rakaccrue (1 baris per periode, BUKAN per hari).
+// doang pas EOM (gl_rak_func_EOM, TERPISAH dari gl_rak_func_EOD yg cuma revers) -
+// posisi cbal HARI ITU (hari terakhir bulan) x rak_rate (rate tahunan/12), titik,
+// langsung dijurnal & dicatat ke gl_hist_rakrate (1 baris per periode, BUKAN per hari).
 function rakColHtml(scenario, dayIdx, phase){
   const {glMastHtml, glTranHtml, glTranVisible} = rakTblGlMast(scenario, dayIdx, phase);
   const label = phase==='before' ? 'SEBELUM EOD' : 'SESUDAH EOD';
 
-  // Table 3 (gl_hist_rakaccrue) - RALAT (2026-10-01, koreksi user liat tampilan):
-  // "amount" itu POSISI/PRINCIPAL yang jadi dasar hitungan (cbal akhir bulan), BUKAN
-  // hasil bunganya - "total_rate" nama kolom terakhir diganti jadi "total_bunga" krn
-  // isinya Rupiah (hasil amount x rate_rak), bukan persen lagi (nama "rate" bikin
-  // kebalik kesan-nya). CUMA keisi 1 baris pas hari kapitalisasi EOM beneran
-  // kejadian (gl_rak_func_EOM jalan) - gak nunggu/akumulasi apa2 lagi krn
-  // formula-nya emang cuma 1 hari.
+  // TEMUAN #61 (2026-10-12, PENYEDERHANAAN BESAR) - Table 3 GANTI NAMA dari
+  // gl_hist_rakaccrue jadi gl_hist_rakrate (2 tabel digabung jadi 1, gl_hist_rakaccrue
+  // DIHAPUS). "amount" diganti "cbal_posisi" (tetap POSISI/PRINCIPAL dasar hitungan,
+  // BUKAN hasil bunganya), "rate_rak" diganti "rak_rate" (rate BULANAN hasil year_interest
+  // / 12 - kolom year_interest baru ditambahin biar kelihatan rate tahunan ASLI yg
+  // diinput user di Menu Parameter Bunga RAK, sebelum dibagi 12). total_bunga = cbal_posisi
+  // x rak_rate SAJA - sudah TIDAK dikali jumlah hari dalam bulan lagi (formula lama
+  // dihapus total). CUMA keisi 1 baris pas hari kapitalisasi EOM beneran kejadian
+  // (gl_rak_func_EOM jalan) - gak nunggu/akumulasi apa2 lagi krn formula-nya emang
+  // cuma 1x hitungan di akhir bulan.
   let accrueHtml = '';
   if(scenario.isEom && phase==='after' && dayIdx===scenario.days.length-1){
     const pos = rakPosisiHasil(scenario, dayIdx);
-    const jumlahHari = rakJumlahHariBulan(scenario.periodeLabel);
-    const totalBungaAccrue = Math.round(pos.saldo * pos.rate / 100 * jumlahHari);
-    const rateTxt = pos.rate.toFixed(2)+'%';
-    accrueHtml = '<div class="sken-tbl-title">3. gl_hist_rakaccrue (hasil kapitalisasi bunga RAK akhir bulan - gl_rak_func_EOM)</div>'
-      + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>periode</th><th>coa_posisi_hasil</th><th>crdr</th><th>amount</th><th>rate_rak</th><th>total_bunga</th></tr></thead><tbody>'
-      + '<tr class="row-hi-eod"><td>'+officeName(RAK_CABANG)+'</td><td>'+(scenario.periodeLabel||'-')+'</td><td>'+coaLabelShort(pos.coaId)+'</td><td>'+pos.crdr+'</td><td class="mono">'+fmtNum(pos.saldo)+'</td><td class="mono">'+rateTxt+'</td><td class="mono">'+fmtNum(totalBungaAccrue)+'</td></tr>'
+    const rakRate = pos.rate / 12;
+    const totalBungaAccrue = Math.round(pos.saldo * rakRate / 100);
+    const yearRateTxt = pos.rate.toFixed(2)+'%';
+    const rakRateTxt = rakRate.toFixed(4)+'%';
+    accrueHtml = '<div class="sken-tbl-title">3. gl_hist_rakrate (hasil kapitalisasi bunga RAK akhir bulan - gl_rak_func_EOM, gabungan dari gl_hist_rakaccrue yg dihapus)</div>'
+      + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>periode</th><th>coa_posisi_hasil</th><th>crdr</th><th>year_interest<br>(%/tahun)</th><th>rak_rate<br>(%/bulan = year_interest &divide; 12)</th><th>cbal_posisi</th><th>total_bunga<br>(cbal_posisi x rak_rate)</th></tr></thead><tbody>'
+      + '<tr class="row-hi-eod"><td>'+officeName(RAK_CABANG)+'</td><td>'+(scenario.periodeLabel||'-')+'</td><td>'+coaLabelShort(pos.coaId)+'</td><td>'+pos.crdr+'</td><td class="mono">'+yearRateTxt+'</td><td class="mono">'+rakRateTxt+'</td><td class="mono">'+fmtNum(pos.saldo)+'</td><td class="mono">'+fmtNum(totalBungaAccrue)+'</td></tr>'
       + '</tbody></table></div>';
   }
 
@@ -1255,14 +1301,14 @@ function rakInitTabs(){
 // persis NETTING_NORMAL yg dari dulu udah standar/gak perlu di-stress-test lagi, makanya
 // gak diminta user & gak dibikin di sini.)
 //
-// TEMUAN baru (2026-09-30, RALAT dari percobaan sblumnya) - rakHitungSweep (punya menu
+// TEMUAN baru (2026-09-30, RALAT dari percobaan sblumnya) - rakHitungRevers (punya menu
 // Skenario, jumlah BERTANDA aktiva+pasiva, GAK DIUBAH) TERNYATA SUDAH BENAR, TERMASUK
 // buat kondisi dua sisi nonzero yg abnormal - dikonfirmasi user pake contoh Stress 2
 // (Aktiva -100jt, Pasiva -50jt): "normalin dulu Aktiva-nya (yg abnormal) ke 0, itu
 // 100jt PINDAH nambahin Pasiva jadi -150jt" - itu PERSIS cara kerja jumlah bertanda
 // (-100 + -50 = -150, Pasiva menang 150jt), BUKAN magnitude murni (yg tadinya sempet
 // dicoba, |100-50|=50jt, Aktiva menang - SALAH, sempet ke-apply gara2 salah baca angka
-// di tabel referensi user sblumnya - RALAT). Jadi Stress Test PAKAI rakHitungSweep yg
+// di tabel referensi user sblumnya - RALAT). Jadi Stress Test PAKAI rakHitungRevers yg
 // SAMA persis dgn menu Skenario (gak perlu fungsi netting terpisah lagi) - yg BEDA cuma
 // jurnal reclass-nya (rakBuildLedgerEntriesUmum di bawah, TERPISAH dari
 // rakBuildLedgerEntries) - versi ini ITUNG DELTA LANGSUNG dari raw {aktiva,pasiva} hari
@@ -1285,13 +1331,13 @@ function rakBuildLedgerEntriesUmum(days){
     const deltaAktiva = day.aktiva - prev.aktiva;
     if(deltaAktiva > 0){
       const label = (isAwal?'Posisi Pusat (akun Aktiva) terbentuk':'Posisi Pusat (akun Aktiva) bertambah')+' Rp'+fmtNum(deltaAktiva);
-      post('370', RAK_COA_SWEEP_INDUK, 'D', deltaAktiva, label);
-      post(RAK_CABANG, RAK_COA_SWEEP_KANTOR, 'K', deltaAktiva, 'Cerminan - '+label);
+      post('370', RAK_COA_REVERS_INDUK, 'D', deltaAktiva, label);
+      post(RAK_CABANG, RAK_COA_REVERS_KANTOR, 'K', deltaAktiva, 'Cerminan - '+label);
     } else if(deltaAktiva < 0){
       const amt = -deltaAktiva;
       const label = 'Posisi Pusat (akun Aktiva) berkurang Rp'+fmtNum(amt);
-      post('370', RAK_COA_SWEEP_INDUK, 'K', amt, label);
-      post(RAK_CABANG, RAK_COA_SWEEP_KANTOR, 'D', amt, 'Cerminan - '+label);
+      post('370', RAK_COA_REVERS_INDUK, 'K', amt, label);
+      post(RAK_CABANG, RAK_COA_REVERS_KANTOR, 'D', amt, 'Cerminan - '+label);
     }
     const deltaPasiva = day.pasiva - prev.pasiva;
     if(deltaPasiva < 0){
@@ -1305,20 +1351,20 @@ function rakBuildLedgerEntriesUmum(days){
       post(RAK_CABANG, RAK_COA_KANTOR, 'K', deltaPasiva, 'Cerminan - '+label);
     }
     // TAHAP 2 (GENERAL - beda dari rakBuildLedgerEntries): SELALU hitung posisi FINAL via
-    // rakHitungSweepUmum (magnitude murni kalau dua sisi nonzero), lalu posting SELISIHnya
+    // rakHitungReversUmum (magnitude murni kalau dua sisi nonzero), lalu posting SELISIHnya
     // dari raw hari ini. Kalau final === raw (FLIP biasa, gak butuh koreksi), delta = 0,
     // post() otomatis skip (gak ada baris nganggur) - jadi gak perlu percabangan manual
     // "kapan reclass diperlukan", cukup selalu hitung & posting delta-nya.
-    const sw = rakHitungSweep(day.aktiva, day.pasiva);
+    const sw = rakHitungRevers(day.aktiva, day.pasiva);
     const finalAktiva = sw.posisiHasil==='A' ? sw.saldoHasil : 0;
     const finalPasiva = sw.posisiHasil==='P' ? -sw.saldoHasil : 0;
-    const ket = 'Jurnal otomatis EOD - '+sw.kondisi+': akun Aktiva Rp'+fmtNum(day.aktiva)+' vs akun Pasiva Rp'+fmtNum(day.pasiva)+' (dari sudut pandang Pusat) - disweep jadi posisi '+(sw.posisiHasil==='A'?'Aktiva':(sw.posisiHasil==='P'?'Pasiva':'-'))+' Rp'+fmtNum(sw.saldoHasil);
+    const ket = 'Jurnal otomatis EOD - '+sw.kondisi+': akun Aktiva Rp'+fmtNum(day.aktiva)+' vs akun Pasiva Rp'+fmtNum(day.pasiva)+' (dari sudut pandang Pusat) - dinormalisasi jadi posisi '+(sw.posisiHasil==='A'?'Aktiva':(sw.posisiHasil==='P'?'Pasiva':'-'))+' Rp'+fmtNum(sw.saldoHasil);
     const deltaAktiva2 = finalAktiva - day.aktiva;
     if(deltaAktiva2 !== 0){
       const amt = Math.abs(deltaAktiva2);
       const dk = deltaAktiva2 > 0 ? 'D' : 'K';
-      post('370', RAK_COA_SWEEP_INDUK, dk, amt, ket, true);
-      post(RAK_CABANG, RAK_COA_SWEEP_KANTOR, dk==='D'?'K':'D', amt, 'Cerminan - '+ket, true);
+      post('370', RAK_COA_REVERS_INDUK, dk, amt, ket, true);
+      post(RAK_CABANG, RAK_COA_REVERS_KANTOR, dk==='D'?'K':'D', amt, 'Cerminan - '+ket, true);
     }
     const deltaPasiva2 = finalPasiva - day.pasiva;
     if(deltaPasiva2 !== 0){

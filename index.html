@@ -267,8 +267,6 @@ table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-deco
                 <th>Bunga RAK Induk 1 (%/Tahun)</th>
                 <th>COA RAK Induk 2</th>
                 <th>Bunga RAK Induk 2 (%/Tahun)</th>
-                <th>Mulai Berlaku</th>
-                <th>Akhir Berlaku</th>
                 <th class="col-act">Aksi</th>
               </tr>
             </thead>
@@ -332,14 +330,6 @@ table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-deco
         <div class="frow">
           <label>Kantor <span style="color:#c53030">*</span></label>
           <select id="fRateBrncd" onchange="onRateBrncdChange()"></select>
-        </div>
-        <div class="frow">
-          <label>Mulai Berlaku <span style="color:#c53030">*</span></label>
-          <input type="text" id="fRateStartMonth" placeholder="MMMM-YYYY">
-        </div>
-        <div class="frow">
-          <label>Akhir Berlaku <span style="color:#c53030">*</span></label>
-          <input type="text" id="fRateEndMonth" placeholder="MMMM-YYYY">
         </div>
         <div class="frow">
           <label>COA RAK Induk 1</label>
@@ -462,9 +452,13 @@ let glRakRevers = [
 // TEMUAN #61 (2026-10-12) - total_day_inyear & daily_interest_* DIHAPUS. year_interest_*
 // sekarang MURNI rate tahunan (cth 0.4%/0.6% per tahun) - rate bulanan (rak_rate) BARU
 // dihitung nanti saat gl_rak_func_EOM jalan (year_interest/12), dicatat di gl_hist_rakrate.
+// TEMUAN #62 (2026-10-12, koreksi besar dari screenshot UI real) - start_month/end_month
+// ('Mulai Berlaku'/'Akhir Berlaku', TEMUAN #51) DIHAPUS TOTAL - field itu TERNYATA TIDAK
+// ADA di form Parameter Bunga RAK yang sebenarnya. Tiap Kantor cukup 1 rate TAHUNAN yang
+// berlaku terus sampai diubah lagi (tidak ada periode efektif eksplisit).
 let glParaRakRate = [
-  {id:'001', gl_para_rakrevers_id:'001', start_month:'Oktober-2026', end_month:'November-2026', year_interest_parent_coa_rak:0.4, year_interest_parent_coa_revers:0.6},
-  {id:'002', gl_para_rakrevers_id:'002', start_month:'Oktober-2026', end_month:'Desember-2026', year_interest_parent_coa_rak:0.3, year_interest_parent_coa_revers:0.5},
+  {id:'001', gl_para_rakrevers_id:'001', year_interest_parent_coa_rak:0.4, year_interest_parent_coa_revers:0.6},
+  {id:'002', gl_para_rakrevers_id:'002', year_interest_parent_coa_rak:0.3, year_interest_parent_coa_revers:0.5},
 ];
 
 let idSeq = {rak:4, revers:3, rate:3};
@@ -718,14 +712,12 @@ function renderRateGrid(){
       + '<td class="mono">'+r.year_interest_parent_coa_rak.toFixed(2)+'</td>'
       + '<td>'+coaReversLabel+'</td>'
       + '<td class="mono">'+r.year_interest_parent_coa_revers.toFixed(2)+'</td>'
-      + '<td>'+(r.start_month||'-')+'</td>'
-      + '<td>'+(r.end_month||'-')+'</td>'
       + '<td><div class="td-act">'
         + '<div class="act-btn act-edit" title="Edit" onclick="openRateForm(\''+r.id+'\')"><i class="ti ti-pencil"></i></div>'
         + '<div class="act-btn act-del" title="Hapus" onclick="deleteRate(\''+r.id+'\')"><i class="ti ti-trash"></i></div>'
         + '</div></td>'
       + '</tr>';
-  }).join('') || '<tr><td colspan="9" style="text-align:center;padding:24px;color:#9aa5b4">Belum ada data</td></tr>';
+  }).join('') || '<tr><td colspan="7" style="text-align:center;padding:24px;color:#9aa5b4">Belum ada data</td></tr>';
 }
 
 // ====================== gl_para_rakrate form ======================
@@ -756,8 +748,6 @@ function openRateForm(id){
   } else {
     fillSelect(sel, ready.map(r2=>({value:r2.brncd, label:officeName(r2.brncd)})), currentBrncd || ready[0].brncd);
   }
-  document.getElementById('fRateStartMonth').value = r ? r.start_month : '';
-  document.getElementById('fRateEndMonth').value = r ? r.end_month : '';
   document.getElementById('fRateYearValRak').value = r ? r.year_interest_parent_coa_rak : '';
   document.getElementById('fRateYearValRevers').value = r ? r.year_interest_parent_coa_revers : '';
   onRateBrncdChange();
@@ -766,33 +756,27 @@ function openRateForm(id){
 }
 function saveRate(){
   const brncd = document.getElementById('fRateBrncd').value;
-  const startMonth = document.getElementById('fRateStartMonth').value.trim();
-  const endMonth = document.getElementById('fRateEndMonth').value.trim();
   const yearValRak = parseFloat(document.getElementById('fRateYearValRak').value);
   const yearValRevers = parseFloat(document.getElementById('fRateYearValRevers').value);
   if(!brncd){ showErr('errRate', 'Kantor belum dipilih - pastikan Normalisasi COA RAK-nya sudah diisi dulu di GLPM0041.'); return; }
-  if(!startMonth || !endMonth){ showErr('errRate', 'Mulai Berlaku dan Akhir Berlaku wajib diisi (format MMMM-YYYY).'); return; }
   if(isNaN(yearValRak) || isNaN(yearValRevers)){ showErr('errRate', 'Bunga RAK Induk 1/2 (%) tahunan wajib diisi angka.'); return; }
-  // TEMUAN #52/#57 - WAJIB validasi di sini sebelum simpan: kalau rentang
-  // start_month/end_month yg BARU ini nyentuh bulan yg udah pernah EOM (cek
-  // mn_logg_eod status SUCCESS gl_rak_func_EOM periode terkait) - tolak & alert
-  // "bulan X sudah EOM". TEMUAN #61 (2026-10-12) - gl_hist_rakrate (gabungan
-  // gl_hist_rakaccrue) SEKARANG ditulis LANGSUNG oleh gl_rak_func_EOM saat runtime
-  // (bukan hasil breakdown approval lagi), jadi validasi ini TETAP wajib cek
-  // mn_logg_eod (bukan gl_hist_rakrate) buat nentuin 'udah EOM apa belum'.
-  // Demo ini BELUM punya mn_logg_eod tiruan, jadi validasi ini CUMA dicatat di sini
-  // sbg TODO, belum benar-benar dijalankan.
+  // TEMUAN #62 (2026-10-12, koreksi besar) - TIDAK ADA LAGI validasi periode efektif
+  // (Mulai/Akhir Berlaku, TEMUAN #52/#57 DIBATALKAN) - field itu sendiri sudah dihapus
+  // dari form (lihat sequence-08-parameter-bunga-rak.puml versi terbaru). Validasi
+  // collision EOM SEKARANG cuma relevan di titik APPROVAL (Checker klik Setujui),
+  // bukan di titik Simpan Maker ini - cek apakah gl_rak_func_EOM sudah sukses jalan
+  // buat Kantor ini SEJAK pengajuan dibuat (mn_logg_eod), BUKAN cek rentang tanggal.
+  // Demo ini BELUM punya mn_logg_eod/gl_temp approval tiruan, jadi validasi itu
+  // CUMA dicatat di sequence, belum benar-benar dijalankan di sini.
   const rak = glParaRak.find(r=>r.brncd===brncd);
   const revers = findReversByRakId(rak.id);
   if(editingRateId){
     const r = glParaRakRate.find(x=>x.id===editingRateId);
     r.gl_para_rakrevers_id = revers.id;
-    r.start_month = startMonth;
-    r.end_month = endMonth;
     r.year_interest_parent_coa_rak = yearValRak;
     r.year_interest_parent_coa_revers = yearValRevers;
   } else {
-    glParaRakRate.push({id:String(idSeq.rate++).padStart(3,'0'), gl_para_rakrevers_id: revers.id, start_month:startMonth, end_month:endMonth, year_interest_parent_coa_rak:yearValRak, year_interest_parent_coa_revers:yearValRevers});
+    glParaRakRate.push({id:String(idSeq.rate++).padStart(3,'0'), gl_para_rakrevers_id: revers.id, year_interest_parent_coa_rak:yearValRak, year_interest_parent_coa_revers:yearValRevers});
   }
   closeModal('modalRate');
   renderRateGrid();

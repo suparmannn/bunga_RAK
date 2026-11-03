@@ -293,6 +293,40 @@ table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-deco
           <div><span class="legend-dot" style="background:#fecaca"></span> <b>cbal BERUBAH</b> dibanding kolom SEBELUM</div>
         </div>
         <div id="rakTabContent"></div>
+
+        <div class="sken-tbl-title" style="margin-top:16px">Lampiran &ndash; Penjelasan Field gl_hist_rakrate</div>
+        <div class="note" style="margin:4px 0 8px">1 baris = 1 cabang + 1 bulan. Formula resmi akrual HARIAN (basis /365, lihat <code>detail_harian</code>) yang di-NETTING di akhir bulan (<code>net_bunga_rak</code> - INI yang dijurnal). Kolom <code>rak_rate</code>/<code>cbal_posisi</code>/<code>total_bunga</code> versi flat-snapshot sudah tidak dipakai lagi.</div>
+        <div class="appr-grid-wrap"><table class="appr-tbl">
+          <thead><tr><th>Field</th><th>Sumber Data</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">id</td><td>Auto-increment PK</td><td>Identitas unik baris (1 baris = 1 cabang + 1 bulan)</td></tr>
+            <tr><td class="mono">brncd</td><td><code>mn_para_branch.brncd</code></td><td>Cabang yang bunganya dihitung</td></tr>
+            <tr><td class="mono">periode</td><td>Diisi oleh <code>gl_rak_func_EOM</code> saat insert</td><td>Format 'NamaBulan-Tahun', 1 baris mewakili 1 bulan penuh</td></tr>
+            <tr><td class="mono">coa_posisi_hasil</td><td>Query cbal <code>gl_mast</code> di hari TERAKHIR bulan itu</td><td>FK ke <code>gl_para_coa</code> - posisi di HARI TERAKHIR bulan, MURNI quick-reference (bukan basis hitungan - hitungan resmi ada di detail_harian/net_bunga_rak)</td></tr>
+            <tr><td class="mono">crdr</td><td>Ikut <code>coa_posisi_hasil</code></td><td>'D' = Aktiva, 'K' = Pasiva - posisi di hari terakhir, quick-reference</td></tr>
+            <tr><td class="mono">year_interest</td><td><code>gl_para_rakrate.year_interest_parent_coa_rak</code> / <code>_revers</code></td><td>Rate TAHUNAN yang berlaku di hari terakhir bulan, quick-reference (rate per-hari yang BENERAN dipakai hitung ada di tiap entry <code>detail_harian</code>, bisa beda2 ikut sisi posisi)</td></tr>
+            <tr><td class="mono">detail_harian</td><td>Agregasi <code>gl_tran</code>/<code>gl_mast.cbal</code> harian sebulan (1 query konsolidasi saat EOM)</td><td>Array JSON breakdown per hari (tgl_efektif, coa_posisi, coa_name, rate_tahunan, rate_harian, cbal_posisi, bunga) - INI DASAR RESMI perhitungan (bukan ilustrasi lagi), basis /365. <code>coa_name</code> WAJIB hasil join <code>gl_para_coa.descr</code>, bukan dikarang</td></tr>
+            <tr><td class="mono">net_bunga_rak</td><td>SUM <code>bunga</code> harian sisi Aktiva dikurangi SUM sisi Pasiva dari <code>detail_harian</code> (hitungan GENUINE, bukan mirror kolom lain)</td><td>Nominal RESMI yang dijurnal ke <code>gl_tran</code>/<code>gl_mast</code> via Particular.php - hasil netting akrual harian sepanjang bulan</td></tr>
+            <tr><td class="mono">created_by</td><td>Actor sistem (<code>gl_rak_func_EOM</code>, 'SYS')</td><td>Audit siapa yang generate baris ini</td></tr>
+            <tr><td class="mono">created_at</td><td>Timestamp sistem saat EOM jalan</td><td>Audit kapan baris ini dibuat</td></tr>
+            <tr><td class="mono">ip_creator</td><td>IP server batch</td><td>Audit jejak IP proses</td></tr>
+          </tbody>
+        </table></div>
+
+        <div class="sken-tbl-title" style="margin-top:16px">Lampiran &ndash; Penjelasan Field di dalam JSON <code>detail_harian</code> (1 object per tanggal kalender)</div>
+        <div class="note" style="margin:4px 0 8px">Field-field di bawah ini ada DI DALAM tiap elemen array <code>detail_harian</code> (bukan kolom tabel level-row seperti lampiran di atas).</div>
+        <div class="appr-grid-wrap"><table class="appr-tbl">
+          <thead><tr><th>Field JSON</th><th>Sumber Data</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">tgl_efektif</td><td>Tanggal kalender hari itu</td><td>1 entry = 1 hari dalam bulan berjalan</td></tr>
+            <tr><td class="mono">coa_posisi</td><td><code>gl_mast.id</code>/kode COA yang aktif hari itu</td><td>Kode COA mentah, TANPA titik - bisa beda tiap hari kalau posisi Aktiva/Pasiva flip</td></tr>
+            <tr><td class="mono">coa_name</td><td>JOIN <code>gl_para_coa.descr</code> WHERE kode = <code>coa_posisi</code> hari itu</td><td>WAJIB hasil lookup genuine - JANGAN PERNAH di-hardcode/dikarang manual</td></tr>
+            <tr><td class="mono">rate_tahunan</td><td><code>gl_para_rakrate.year_interest_parent_coa_rak</code>/<code>_revers</code>, sesuai sisi <code>coa_posisi</code> hari itu</td><td>Diulang di tiap entry (konstan sebulan) biar tiap object self-contained, gak perlu balik ke kolom level-row</td></tr>
+            <tr><td class="mono">rate_harian</td><td>Dihitung = <code>rate_tahunan &divide; 365</code></td><td>Basis harian - inilah rate yang beneran dipakai hitung bunga resmi</td></tr>
+            <tr><td class="mono">cbal_posisi</td><td><code>gl_mast.cbal</code> hari itu</td><td>Saldo posisi pada tanggal tersebut (berubah-ubah tiap hari)</td></tr>
+            <tr><td class="mono">bunga</td><td>Dihitung = <code>cbal_posisi &times; rate_tahunan &divide; 365</code></td><td>Nominal bunga hari itu - komponen yang DI-SUM (dinetting Aktiva vs Pasiva) jadi <code>net_bunga_rak</code> di akhir bulan, INILAH basis perhitungan resmi (bukan ilustrasi)</td></tr>
+          </tbody>
+        </table></div>
       </div>
 
       <!-- ======================= VIEW: STRESS TEST (Kondisi Netting Ekstrem) ======================= -->
@@ -347,7 +381,7 @@ table.appr-tbl tr td.cbal-clickable:hover{background:#f87171!important;text-deco
           <label>Bunga RAK Induk 2 (%/Tahun) <span style="color:#c53030">*</span></label>
           <input type="number" step="0.01" id="fRateYearValRevers">
         </div>
-        <div class="note" style="margin:4px 0 0">TEMUAN #61 (2026-10-12) - sudah tidak ada lagi "Jumlah Hari Dalam 1 Tahun" maupun "Bunga Harian" auto-calculate. Rate yang diisi di sini MURNI tahunan - pembagian ke basis bulanan (rate tahunan &divide; 12) baru terjadi nanti saat <b>gl_rak_func_EOM</b> jalan di akhir bulan, dicatat sebagai <code>rak_rate</code> di <b>gl_hist_rakrate</b> (lihat tab Skenario 3).</div>
+        <div class="note" style="margin:4px 0 0">Sudah tidak ada lagi "Jumlah Hari Dalam 1 Tahun" maupun "Bunga Harian" auto-calculate. Rate yang diisi di sini MURNI tahunan - pembagian ke basis harian (rate tahunan &divide; 365) terjadi nanti saat <b>gl_rak_func_EOM</b> jalan, dicatat per hari di kolom <code>detail_harian</code> milik <b>gl_hist_rakrate</b> (lihat tab Skenario 3).</div>
         <div class="err-msg" id="errRate"></div>
         <div class="frow-actions">
           <button class="coa-btn" onclick="closeModal('modalRate')">Batal</button>
@@ -1062,16 +1096,30 @@ function rakTblGlMast(scenario, dayIdx, phase){
   // Aktiva Pusat(29700000). 371: D posisi Pasiva Cabang(39700001)/K Pendapatan(59107200).
   // Aktiva aktif (Pendapatan buat Pusat) - 370: D posisi Aktiva Pusat(29700000)/K
   // Pendapatan(59107200). 371: D Biaya(69107200)/K posisi Pasiva Cabang(39700001).
+  // TEMUAN #66 (2026-10-20, FIX - ketahuan user berkali-kali: "net bunganya gak sinkron
+  // sama mutasi") - fungsi INI (penyusun jurnal gl_tran kapitalisasi EOM, Table 2) KELUPAAN
+  // diupdate pas ngikutin formula baru TEMUAN #66 - MASIH pakai rumus LAMA (posEom.saldo x
+  // rate/12, flat snapshot) padahal Table 3 (net_bunga_rak) udah pakai rumus BARU (akrual
+  // harian /365, dinetting). Akibatnya jurnal (Table 2) & net_bunga_rak (Table 3) nampilin
+  // 2 ANGKA BEDA buat kejadian ekonomis yang SAMA - PERSIS yang dikeluhkan user. FIX:
+  // totalBunga SEKARANG = |net_bunga_rak| dari rakDetailHarianJson() (SATU-SATUNYA formula
+  // resmi), bukan dihitung ulang terpisah di sini.
   const capTranRows = [];
   if(phase==='after' && scenario.isEom && dayIdx===scenario.days.length-1){
     const posEom = rakPosisiHasil(scenario, dayIdx);
-    const rakRateEom = posEom.rate / 12;
-    const totalBunga = Math.round(posEom.saldo * rakRateEom / 100);
+    const {net: netBungaRak} = rakDetailHarianJson(scenario);
+    const totalBunga = Math.abs(netBungaRak);
     if(totalBunga > 0){
-      const menangAktiva = posEom.coaId === RAK_COA_REVERS_INDUK;
+      // Sign net_bunga_rak yang nentuin arah Pendapatan/Beban (TEMUAN #13: net>=0 -> Aktiva
+      // Menang/Pendapatan) - BUKAN lagi posisi hari terakhir doang, krn posisi akhir bisa
+      // beda dari hasil netting sebulan (lihat PR terbuka TEMUAN #66 soal sign convention
+      // vs sudut pandang Pusat TEMUAN #18, belum direkonsiliasi penuh). Akun POSISI neraca
+      // (297/397) yang dikapitalisasi TETAP ngikut posisi FISIK hari terakhir (posEom) -
+      // itu akun yang beneran nyimpen saldo RAK saat ini.
+      const menangAktiva = netBungaRak >= 0;
       const tgl = scenario.days[dayIdx].tgl;
       const capSlip = 'RAKCAP'+String(dayIdx+1).padStart(4,'0');
-      const ket = 'Bunga RAK akhir bulan (gl_rak_func_EOM) - posisi '+(menangAktiva?'Aktiva':'Pasiva')+' Rp'+fmtNum(posEom.saldo)+' x rak_rate '+rakRateEom.toFixed(4)+'% (rate tahunan '+posEom.rate.toFixed(2)+'% &divide; 12 bulan) = Rp'+fmtNum(totalBunga)+' ('+(menangAktiva?'Pendapatan Bunga Untuk Pusat':'Beban Bunga Untuk Pusat')+')';
+      const ket = 'Bunga RAK akhir bulan (gl_rak_func_EOM) - netting akrual harian (basis /365) = Rp'+fmtNum(totalBunga)+' ('+(menangAktiva?'Pendapatan Bunga Untuk Pusat':'Beban Bunga Untuk Pusat')+'), posisi neraca akhir bulan: '+(posEom.crdr==='D'?'Aktiva':'Pasiva')+' Rp'+fmtNum(posEom.saldo);
       function findOrAddRow(brncd, coaId){
         let r = rows.find(x=>x.brncd===brncd && x.label===coaLabelShort(coaId));
         if(!r){
@@ -1091,17 +1139,15 @@ function rakTblGlMast(scenario, dayIdx, phase){
       // Pasiva Menang: nominal bunga numplek di akun REVERS_INDUK (29700000, lagi cbal 0),
       // bukan nambah ke akun yg BENERAN nyimpen posisi riil bulan itu (39700000, RAK
       // Induk, yg lagi -1M) - user: "lu cek deh itu gl mast after eod... lu malah nulis
-      // di aktiva nominal bunganya". Akun kapitalisasi skrng DINAMIS ngikutin sisi mana
-      // yg lagi menang (SAMA persis kaya cara rakPosisiHasil nentuin posisi hasil harian
-      // - Aktiva menang -> REVERS_INDUK/REVERS_KANTOR, Pasiva menang -> RAK_COA_INDUK/
-      // RAK_COA_KANTOR) - biar bunga BENERAN kapitalisasi (nambah) ke saldo yg lagi
-      // aktif, bukan ke akun lain yg kebetulan lagi kosong. Utk Skenario 3 (Aktiva
-      // Menang) hasilnya SAMA PERSIS kaya sblumnya (posisi riilnya emang di pasangan
-      // Revers dari sononya) - jadi gak ada regresi.
-      const posisiPusatCoa = menangAktiva ? RAK_COA_REVERS_INDUK : RAK_COA_INDUK;
-      const posisiCabangCoa = menangAktiva ? RAK_COA_REVERS_KANTOR : RAK_COA_KANTOR;
-      const pusatPosisiDk = menangAktiva ? 'D' : 'K';
-      const cabangPosisiDk = menangAktiva ? 'K' : 'D';
+      // di aktiva nominal bunganya". Akun kapitalisasi DINAMIS ngikutin sisi mana yg
+      // BENERAN nyimpen saldo RAK SAAT INI (posEom, posisi fisik hari terakhir) - BUKAN
+      // lagi ngikutin menangAktiva (TEMUAN #66: menangAktiva sekarang berarti arah NET
+      // sebulan, bisa beda dari posisi fisik hari terakhir kalau posisi sempat flip).
+      const posisiAktivaFisik = posEom.crdr === 'D';
+      const posisiPusatCoa = posisiAktivaFisik ? RAK_COA_REVERS_INDUK : RAK_COA_INDUK;
+      const posisiCabangCoa = posisiAktivaFisik ? RAK_COA_REVERS_KANTOR : RAK_COA_KANTOR;
+      const pusatPosisiDk = posisiAktivaFisik ? 'D' : 'K';
+      const cabangPosisiDk = posisiAktivaFisik ? 'K' : 'D';
       const pnlPusatCoa = menangAktiva ? RAK_COA_PEND_BUNGA : RAK_COA_BIAYA_BUNGA;
       const pnlCabangCoa = menangAktiva ? RAK_COA_BIAYA_BUNGA : RAK_COA_PEND_BUNGA;
       const pnlPusatDk = menangAktiva ? 'K' : 'D';
@@ -1189,45 +1235,77 @@ function rakPosisiHasil(scenario, dayIdx){
   const cbalPasiva = cbalOf(RAK_COA_INDUK);
   return {coaId:RAK_COA_INDUK, crdr:'K', saldo:Math.abs(cbalPasiva), rate:RAK_RATE_PARA.year_interest_parent_coa_rak};
 }
-// TEMUAN #61 (2026-10-12, RALAT RUMUS BESAR) - rakJumlahHariBulan() DIHAPUS, sudah
-// tidak dipakai lagi. Bunga BUKAN LAGI posisi x rate harian x jumlah hari dalam bulan -
-// sekarang FLAT posisi x (rate TAHUNAN / 12 bulan). rate yg dibawa rakPosisiHasil() di
-// atas SEKARANG rate TAHUNAN (year_interest_parent_coa_rak/revers), rate BULANAN
-// (rak_rate) dihitung inline tiap dipakai (year_interest/12) - lihat kedua pemanggil
-// rakPosisiHasil() di bawah. periodeLabel formatnya 'NamaBulan-Tahun' (cth
-// 'Januari-2027'), dipakai sbg kolom periode di gl_hist_rakrate (gabungan dari
-// gl_hist_rakaccrue yg dihapus).
-// RALAT BESAR (2026-10-01) - NEW_gl_hist_rakintdaily (dulu "Table 3") DIHAPUS TOTAL,
-// gak dipakai lagi (rakTblIntDaily yg dulu ngitung bunga TIAP HARI juga dihapus) -
-// user tegas: "Table gl_hist_rakintdaily di hapus tidak di pakai". Alasannya: bunga
-// RAK sekarang BUKAN akumulasi harian yg di-netting di akhir bulan, tapi 1x hitungan
-// doang pas EOM (gl_rak_func_EOM, TERPISAH dari gl_rak_func_EOD yg cuma revers) -
-// posisi cbal HARI ITU (hari terakhir bulan) x rak_rate (rate tahunan/12), titik,
-// langsung dijurnal & dicatat ke gl_hist_rakrate (1 baris per periode, BUKAN per hari).
+// TEMUAN #66 (2026-10-20, KOREKSI RUMUS BESAR LAGI, permintaan user langsung: "lupain
+// dlu snapshot hari terakhir x year_interest/12, rumusnya balik jadi gl_mast.cbal per
+// hari x bunga / 365, trus di akhir bulan di net bunganya") - MEMBATALKAN TOTAL formula
+// flat-snapshot TEMUAN #61 (dan konsekuensinya TEMUAN #65). Bunga RAK balik ke prinsip
+// akrual HARIAN + netting akhir bulan (mirip TEMUAN #13/#18 paling awal, yg sempat
+// dibatalkan TEMUAN #26/#50) - bedanya SEKARANG basis /365 (bukan basis hari kalender
+// 360/365/366 yg sempat ada di TEMUAN #54/#56). rak_rate/cbal_posisi/total_bunga SUDAH
+// TIDAK DIPAKAI LAGI (dihapus dari tabel gl_hist_rakrate, liat ERD TEMUAN #66) - JANGAN
+// dipakai lagi di demo ini. net_bunga_rak SEKARANG dihitung GENUINELY dari NETTING SUM
+// bunga harian sisi Aktiva dikurangi sisi Pasiva (BUKAN mirror kolom lain lagi - TEMUAN
+// #65 yg bilang 'harus mirror total_bunga' sudah gak relevan krn total_bunga-nya sendiri
+// yg dihapus). Liat TEMUAN #66 lengkap di ERD (bunga_rak_erd.dbml) buat kronologi penuh
+// (formula ini sudah bolak-balik 3x - TEMUAN #13/#18 -> #26/#50 -> #61/#64/#65 -> #66).
+// RALAT (2026-10-20, ketahuan user: "di mutasi gl tran pendapatan bunganya aja dapet
+// 250 [ribu]... trus di netnya juga gak sesuai sama mutasinya") - versi SEBELUMNYA pake
+// RAW scenario.days[i].aktiva/pasiva langsung sbg posisi hari itu, PADAHAL itu nilai
+// SEBELUM EOD reklasifikasi - BUKAN posisi beneran yg kebentuk di gl_mast/gl_tran.
+// Contoh konkret bug-nya: hari 15 Jan 2027 raw pasiva=500.000.000 (kelihatannya masih
+// Pasiva), TAPI karena deltanya bikin akun Pasiva Pusat jadi TIDAK NORMAL (positif),
+// EOD otomatis NUTUP sisi itu & PINDAHIN ke Aktiva (liat entries scenario.entries,
+// narasi "dinormalisasi jadi posisi Aktiva") - jadi posisi REAL hari itu adalah AKTIVA
+// 500jt (rate 0,6%), BUKAN Pasiva 500jt (rate 0,4%) kayak yg kepake sebelumnya. SEKARANG
+// pakai rakPosisiHasil(scenario, i) - fungsi YANG SAMA yg nyusun tabel 1 (gl_mast) di
+// atas - biar detail_harian SELALU konsisten sama mutasi gl_tran yg beneran kejadian,
+// bukan tebakan dari raw level scenario.
+function rakDetailHarianJson(scenario){
+  let netAktiva = 0, netPasiva = 0;
+  const detail = scenario.days.map((d,i)=>{
+    const pos = rakPosisiHasil(scenario, i);
+    const isAktiva = pos.crdr === 'D';
+    const coaMaster = COA_MASTER.find(c=>c.id===pos.coaId);
+    const rateHarian = pos.rate/365;
+    const bunga = Math.round(pos.saldo * rateHarian / 100);
+    if(isAktiva) netAktiva += bunga; else netPasiva += bunga;
+    return {tgl_efektif:d.tgl, coa_posisi:pos.coaId, coa_name:(coaMaster?coaMaster.name:'-'), rate_tahunan:pos.rate, rate_harian:Number(rateHarian.toFixed(6)), cbal_posisi:pos.saldo, bunga};
+  });
+  const netBungaRak = netAktiva - netPasiva;
+  return {
+    text: JSON.stringify({brncd:RAK_CABANG, periode:scenario.periodeLabel, detail_harian:detail, net_bunga_rak:netBungaRak}, null, 2),
+    net: netBungaRak,
+  };
+}
 function rakColHtml(scenario, dayIdx, phase){
   const {glMastHtml, glTranHtml, glTranVisible} = rakTblGlMast(scenario, dayIdx, phase);
   const label = phase==='before' ? 'SEBELUM EOD' : 'SESUDAH EOD';
 
-  // TEMUAN #61 (2026-10-12, PENYEDERHANAAN BESAR) - Table 3 GANTI NAMA dari
-  // gl_hist_rakaccrue jadi gl_hist_rakrate (2 tabel digabung jadi 1, gl_hist_rakaccrue
-  // DIHAPUS). "amount" diganti "cbal_posisi" (tetap POSISI/PRINCIPAL dasar hitungan,
-  // BUKAN hasil bunganya), "rate_rak" diganti "rak_rate" (rate BULANAN hasil year_interest
-  // / 12 - kolom year_interest baru ditambahin biar kelihatan rate tahunan ASLI yg
-  // diinput user di Menu Parameter Bunga RAK, sebelum dibagi 12). total_bunga = cbal_posisi
-  // x rak_rate SAJA - sudah TIDAK dikali jumlah hari dalam bulan lagi (formula lama
-  // dihapus total). CUMA keisi 1 baris pas hari kapitalisasi EOM beneran kejadian
-  // (gl_rak_func_EOM jalan) - gak nunggu/akumulasi apa2 lagi krn formula-nya emang
-  // cuma 1x hitungan di akhir bulan.
+  // TEMUAN #61 (2026-10-12, PENYEDERHANAAN BESAR, SUDAH DIBATALKAN lagi oleh TEMUAN
+  // #66) - Table 3 GANTI NAMA dari gl_hist_rakaccrue jadi gl_hist_rakrate (2 tabel
+  // digabung jadi 1, gl_hist_rakaccrue DIHAPUS) - penggabungan tabel ini TETAP BERLAKU,
+  // yg DIBATALKAN cuma formula flat-snapshotnya (rak_rate/cbal_posisi/total_bunga).
+  // TEMUAN #66 (2026-10-20, KOREKSI RUMUS BESAR) - kolom rak_rate/cbal_posisi/
+  // total_bunga DIHAPUS TOTAL dari tabel ini (gak dipakai lagi, biar gak rancu ada 2
+  // formula hidup bersamaan - permintaan eksplisit user). Formula resmi SEKARANG akrual
+  // HARIAN (gl_mast.cbal per hari x rate_tahunan / 365) yg di-NETTING di akhir bulan -
+  // dicatat lengkap di kolom detail_harian (JSON) & net_bunga_rak (hasil netting resmi,
+  // INILAH yg beneran dijurnal). year_interest/coa_posisi_hasil/crdr TETAP ADA tapi
+  // MURNI quick-reference posisi/rate di HARI TERAKHIR bulan, BUKAN basis hitungan.
   let accrueHtml = '';
   if(scenario.isEom && phase==='after' && dayIdx===scenario.days.length-1){
     const pos = rakPosisiHasil(scenario, dayIdx);
-    const rakRate = pos.rate / 12;
-    const totalBungaAccrue = Math.round(pos.saldo * rakRate / 100);
     const yearRateTxt = pos.rate.toFixed(2)+'%';
-    const rakRateTxt = rakRate.toFixed(4)+'%';
+    // TEMUAN #64/#66 - detail_harian & net_bunga_rak di-generate dari scenario.days yg
+    // SAMA persis dipakai nyusun tabel 1 & 2 di atas (3 hari representatif scenario
+    // ini). net_bunga_rak = hasil NETTING GENUINE (SUM bunga harian Aktiva - Pasiva),
+    // BUKAN lagi mirror kolom lain (TEMUAN #65 sudah gak relevan, total_bunga dihapus).
+    const {text: detailHarianJson, net: netBungaRak} = rakDetailHarianJson(scenario);
     accrueHtml = '<div class="sken-tbl-title">3. gl_hist_rakrate (hasil kapitalisasi bunga RAK akhir bulan - gl_rak_func_EOM, gabungan dari gl_hist_rakaccrue yg dihapus)</div>'
-      + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>periode</th><th>coa_posisi_hasil</th><th>crdr</th><th>year_interest<br>(%/tahun)</th><th>rak_rate<br>(%/bulan = year_interest &divide; 12)</th><th>cbal_posisi</th><th>total_bunga<br>(cbal_posisi x rak_rate)</th></tr></thead><tbody>'
-      + '<tr class="row-hi-eod"><td>'+officeName(RAK_CABANG)+'</td><td>'+(scenario.periodeLabel||'-')+'</td><td>'+coaLabelShort(pos.coaId)+'</td><td>'+pos.crdr+'</td><td class="mono">'+yearRateTxt+'</td><td class="mono">'+rakRateTxt+'</td><td class="mono">'+fmtNum(pos.saldo)+'</td><td class="mono">'+fmtNum(totalBungaAccrue)+'</td></tr>'
+      + '<div class="appr-grid-wrap"><table class="appr-tbl"><thead><tr><th>brncd</th><th>periode</th><th>coa_posisi_hasil<br>(hari terakhir, quick-ref)</th><th>crdr<br>(hari terakhir, quick-ref)</th><th>year_interest<br>(%/tahun, hari terakhir, quick-ref)</th><th>detail_harian<br>(JSON, basis RESMI hitungan)</th><th>net_bunga_rak<br>(hasil netting resmi - INI yg dijurnal)</th></tr></thead><tbody>'
+      + '<tr class="row-hi-eod"><td>'+officeName(RAK_CABANG)+'</td><td>'+(scenario.periodeLabel||'-')+'</td><td>'+coaLabelShort(pos.coaId)+'</td><td>'+pos.crdr+'</td><td class="mono">'+yearRateTxt+'</td>'
+      + '<td><pre style="margin:0;max-height:160px;overflow:auto;font-size:11px;white-space:pre-wrap;min-width:260px">'+detailHarianJson+'</pre><div class="note" style="margin:4px 0 0;font-size:11px">Breakdown dari 3 hari scenario ini (bukan generate 31 hari penuh - demo cuma simulasikan hari representatif)</div></td>'
+      + '<td class="mono">'+fmtNum(netBungaRak)+'</td></tr>'
       + '</tbody></table></div>';
   }
 
